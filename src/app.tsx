@@ -6,6 +6,7 @@ export const App = () => {
   useEffect(() => {
     WebApp.ready();
     WebApp.expand();
+    WebApp.disableVerticalSwipes();
   }, []);
 
   return <Game2048 />;
