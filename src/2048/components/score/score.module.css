@@ -2,6 +2,7 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 @media (max-width: 350px) {
@@ -26,4 +27,10 @@
   .score {
     font-size: 60px;
   }
+}
+
+.score {
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0 5px;
 }
