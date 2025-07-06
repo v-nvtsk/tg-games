@@ -1,13 +1,16 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import styles from "./field.module.css";
 import { AnimatePresence, motion } from "motion/react";
+import { type FieldItem } from "../../provider/game-provider";
 import { useField } from "../../hooks";
 import { useGameInput } from "../../hooks/use-game-input";
 
 export function Field() {
   const field = useField();
-  useGameInput();
+  const fieldRef = useRef<HTMLDivElement>(null);
+
+  useGameInput(fieldRef);
 
   const itemStyleMap: Record<number, string> = useMemo(() => ({
     2: styles.item2,
@@ -28,10 +31,10 @@ export function Field() {
   }, [itemStyleMap]);
 
   return (
-    <div className={styles.field}>
+    <div className={styles.field} ref={fieldRef}>
       <AnimatePresence mode="popLayout">
-        {field?.map((row) =>
-          row.map(({ value, key }) => (
+        {field?.map((row: FieldItem[]) =>
+          row.map(({ value, key }: FieldItem) => (
             <motion.div
               key={key}
               layout

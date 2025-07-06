@@ -1,11 +1,15 @@
-// src/2048/hooks/use-game-input.tsx
-import { useEffect } from "react";
+import { useEffect, type RefObject } from "react";
 import { useGameActions } from "./use-game-actions";
 
-export const useGameInput = () => {
+export const useGameInput = (fieldRef: RefObject<HTMLElement | null>) => {
   const { moveLeft, moveRight, moveUp, moveDown } = useGameActions();
 
   useEffect(() => {
+    const fieldElement = fieldRef.current;
+    if (!fieldElement) {
+      return;
+    }
+
     const keyListener = (e: KeyboardEvent) => {
       switch (e.key) {
       case "ArrowLeft":
@@ -74,15 +78,15 @@ export const useGameInput = () => {
       touchEndY = 0;
     };
 
-    document.addEventListener("touchstart", handleTouchStart, { passive: false });
-    document.addEventListener("touchmove", handleTouchMove, { passive: false });
-    document.addEventListener("touchend", handleTouchEnd, { passive: false });
+    fieldElement.addEventListener("touchstart", handleTouchStart, { passive: false });
+    fieldElement.addEventListener("touchmove", handleTouchMove, { passive: false });
+    fieldElement.addEventListener("touchend", handleTouchEnd, { passive: false });
 
     return () => {
       document.removeEventListener("keydown", keyListener);
-      document.removeEventListener("touchstart", handleTouchStart);
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleTouchEnd);
+      fieldElement.removeEventListener("touchstart", handleTouchStart);
+      fieldElement.removeEventListener("touchmove", handleTouchMove);
+      fieldElement.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [moveLeft, moveRight, moveUp, moveDown]);
+  }, [fieldRef, moveLeft, moveRight, moveUp, moveDown]);
 };
