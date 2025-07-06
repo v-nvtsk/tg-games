@@ -8,7 +8,6 @@ export const useGame = () => {
     throw new Error("useGame must be used within a GameProvider");
   }
 
-  // Используем глубокую копию состояния, чтобы React видел изменения вложенных объектов
   const [gameState, setGameState] = useState<GameState>(() => ({
     ...game.state,
     field: game.state.field.map((row) => row.map((item) => ({ ...item }))),
@@ -16,7 +15,6 @@ export const useGame = () => {
 
   useEffect(() => {
     const listener = (state: GameState) => {
-      // Обновляем состояние React при изменении состояния игры
       setGameState(state);
     };
 
@@ -25,7 +23,7 @@ export const useGame = () => {
     return () => {
       game.unsubscribe(listener);
     };
-  }, [game]); // 'game' - единственная зависимость, она не меняется после первого рендера
+  }, [game]);
 
   return { game, gameState };
 };

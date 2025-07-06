@@ -1,7 +1,7 @@
 import { Field } from "./field";
 import { useScore, useGameOver, useGameActions } from "../hooks";
 import { Score } from "./score";
-import styles from "./app.module.css";
+import styles from "./game.module.css";
 
 export function GameContent() {
   const { score, highScore } = useScore();
@@ -9,14 +9,14 @@ export function GameContent() {
   const { restart } = useGameActions();
 
   const handleRestartClick = () => {
-    console.log("Restart button tapped/clicked!"); // Добавлено: Лог при нажатии на кнопку
+    console.log("Restart button tapped/clicked!");
     restart();
   };
 
   return (
     <div className={styles.gameContainer}>
       <h1 className={styles.title}>2048</h1>
-      <button onClick={handleRestartClick}>restart</button> {/* Используем новую функцию-обработчик */}
+      <button onClick={handleRestartClick}>restart</button>
       <h2 className={over ? styles.gameOver : styles.game}>Game Over</h2>
       <Score score={score} highscore={highScore}/>
       <Field />

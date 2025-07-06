@@ -1,5 +1,4 @@
 .gameContainer {
-
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -9,21 +8,23 @@
   max-width: 600px;
   padding: 20px;
   gap: 15px;
+  background-color: #f0f0f0;
+
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .title {
-
   font-size: 40px;
   margin-bottom: 0;
+  color: #333;
+
 }
 
 .game {
-
   opacity: 0;
 }
 
 .gameOver {
-
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
   color: red;
@@ -32,59 +33,40 @@
   margin: 10px auto;
 }
 
-
 body.dark-theme .gameContainer {
   background-color: #2c2c2c;
-
   border-color: #555;
-
   color: #f0f0f0;
-
 }
 
 body.dark-theme .title {
   color: #f0f0f0;
-
 }
 
 body.dark-theme .gameOver {
   color: #ff6b6b;
-
 }
 
-
-
-
-body.dark-theme .field {
-  background-color: #3a3a3a;
-
-}
-
-body.dark-theme .item {
+body.dark-theme button {
+  background-color: #555;
   color: #f0f0f0;
-
+  border: 1px solid #777;
 }
 
-
-body.dark-theme .item2 {
-  background-color: #4a4a4a;
-  color: #f0f0f0;
+button {
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  border: 1px solid #333;
+  border-radius: 5px;
+  background-color: #eee;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-body.dark-theme .item4 {
-  background-color: #5a5a5a;
-  color: #f0f0f0;
+button:hover {
+  background-color: #ddd;
 }
 
-
-
-
-body.dark-theme .scoreContainer {
-  border-color: #555;
-
-}
-
-body.dark-theme .score {
-  color: #f0f0f0;
-
+body.dark-theme button:hover {
+  background-color: #666;
 }

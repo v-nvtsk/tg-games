@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import WebApp from "@twa-dev/sdk";
 import { Game2048 } from "./2048/main";
+import styles from "./app.module.css";
 
 export const App = () => {
   useEffect(() => {
@@ -8,31 +9,28 @@ export const App = () => {
     WebApp.expand();
     WebApp.disableVerticalSwipes();
 
-    document.body.style.backgroundColor = WebApp.themeParams.bg_color || "#ffffff";
     WebApp.setHeaderColor("bg_color");
 
     if (WebApp.colorScheme === "dark") {
-      document.body.classList.add("dark-theme");
+      document.body.classList.add(styles.darkTheme);
     } else {
-      document.body.classList.remove("dark-theme");
+      document.body.classList.remove(styles.darkTheme);
     }
 
     const handleThemeChanged = () => {
-      document.body.style.backgroundColor = WebApp.themeParams.bg_color || "#ffffff";
       if (WebApp.colorScheme === "dark") {
-        document.body.classList.add("dark-theme");
+        document.body.classList.add(styles.darkTheme);
       } else {
-        document.body.classList.remove("dark-theme");
+        document.body.classList.remove(styles.darkTheme);
       }
     };
 
     WebApp.onEvent("themeChanged", handleThemeChanged);
 
     return () => {
-      document.body.classList.remove("dark-theme");
+      document.body.classList.remove(styles.darkTheme);
       WebApp.offEvent("themeChanged", handleThemeChanged);
     };
   }, []);
-
   return <Game2048 />;
 };

@@ -1,12 +1,8 @@
-// === src/gameContext.ts ===
-
 import { useRef, type PropsWithChildren } from "react";
 import { GameContext } from "../context/game-context";
 
-// Константа для размера сетки
 const GRID_SIZE = 4;
 
-// Интерфейсы (можно импортировать из logic.ts, если вы хотите их там оставить)
 export interface GameInterface {
   state: GameState;
   moveLeft(): void;
@@ -47,20 +43,15 @@ class Game implements GameInterface {
   idKey = 0;
 
   constructor() {
-    this.init(); // Инициализирует состояние из defaultState (highScore: 0)
-    // Загружаем highScore из localStorage только после инициализации defaultState
-    const storedHighScore = Number(localStorage.getItem("highScore"));
+    this.init(); const storedHighScore = Number(localStorage.getItem("highScore"));
     if (!isNaN(storedHighScore) && storedHighScore > 0) {
-      this.state.highScore = storedHighScore; // Устанавливаем загруженное значение
-    }
+      this.state.highScore = storedHighScore; }
   }
 
   init() {
-    // При рестарте или инициализации сбрасываем счет и поле, но сохраняем лучший результат
     this.state = {
       ...defaultState,
-      highScore: this.state.highScore, // Сохраняем текущий highScore
-    };
+      highScore: this.state.highScore };
     this.state.field = this.generateField();
   }
 
@@ -73,7 +64,6 @@ class Game implements GameInterface {
   }
 
   on() {
-    // Уведомляем всех подписчиков о новом состоянии (создаем новую копию, чтобы React видел изменения)
     this.subscribers.forEach((callback) => callback({ ...this.state, field: this.deepCopyField(this.state.field) }));
   }
 
@@ -92,14 +82,11 @@ class Game implements GameInterface {
       this.state.over = true;
     } else {
       const { row, col } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-      this.state.field[row][col] = { value: Math.floor(Math.random() > 0.5 ? 4 : 2), key: this.generateUniqueKey() }; // Создаем новый объект FieldItem
-    }
+      this.state.field[row][col] = { value: Math.floor(Math.random() > 0.5 ? 4 : 2), key: this.generateUniqueKey() }; }
     this.on();
   }
 
-  // Вспомогательная функция для обработки строк/столбцов
-  private processRow(row: FieldItem[]): { newRow: FieldItem[], scoreIncrease: number } { // 'newScore' удален, т.к. не использовался
-    const filteredRow = row.filter(({ value }) => value !== 0);
+  private processRow(row: FieldItem[]): { newRow: FieldItem[], scoreIncrease: number } { const filteredRow = row.filter(({ value }) => value !== 0);
     const mergedRow: FieldItem[] = [];
     let scoreIncrease = 0;
     let j = 0;
@@ -107,29 +94,24 @@ class Game implements GameInterface {
     while (j < filteredRow.length) {
       if (j + 1 < filteredRow.length && filteredRow[j].value === filteredRow[j + 1].value) {
         const newValue = filteredRow[j].value * 2;
-        mergedRow.push({ value: newValue, key: this.generateUniqueKey() }); // Создаем новый объект для слитой ячейки
-        scoreIncrease += newValue;
+        mergedRow.push({ value: newValue, key: this.generateUniqueKey() }); scoreIncrease += newValue;
         j += 2;
       } else {
-        mergedRow.push({ ...filteredRow[j] }); // Копируем существующий объект
-        j += 1;
+        mergedRow.push({ ...filteredRow[j] }); j += 1;
       }
     }
 
     while (mergedRow.length < GRID_SIZE) {
-      mergedRow.push({ value: 0, key: this.generateUniqueKey() }); // Добавляем пустые ячейки с новыми ключами
-    }
+      mergedRow.push({ value: 0, key: this.generateUniqueKey() }); }
     return { newRow: mergedRow, scoreIncrease };
   }
 
   moveLeft(): void {
     const originalField = this.deepCopyField(this.state.field);
     let newScore = this.state.score;
-    const newField: FieldItem[][] = originalField.map(() => []); // Создаем новую структуру поля
-
+    const newField: FieldItem[][] = originalField.map(() => []);
     for (let i = 0; i < GRID_SIZE; i++) {
-      const { newRow, scoreIncrease } = this.processRow(originalField[i]); // 'newScore' удален
-      newField[i] = newRow;
+      const { newRow, scoreIncrease } = this.processRow(originalField[i]); newField[i] = newRow;
       newScore += scoreIncrease;
     }
 
@@ -152,9 +134,7 @@ class Game implements GameInterface {
 
     for (let i = 0; i < GRID_SIZE; i++) {
       const reversedRow = [...originalField[i]].reverse();
-      const { newRow, scoreIncrease } = this.processRow(reversedRow); // 'newScore' удален
-      newField[i] = newRow.reverse(); // Возвращаем в правильном порядке
-      newScore += scoreIncrease;
+      const { newRow, scoreIncrease } = this.processRow(reversedRow); newField[i] = newRow.reverse(); newScore += scoreIncrease;
     }
 
     const changed = !this.areArraysEqual(newField, originalField);
@@ -176,13 +156,11 @@ class Game implements GameInterface {
     const newTransposed: FieldItem[][] = transposed.map(() => []);
 
     for (let i = 0; i < GRID_SIZE; i++) {
-      const { newRow, scoreIncrease } = this.processRow(transposed[i]); // 'newScore' удален
-      newTransposed[i] = newRow;
+      const { newRow, scoreIncrease } = this.processRow(transposed[i]); newTransposed[i] = newRow;
       newScore += scoreIncrease;
     }
 
-    const newField = this.transpose(newTransposed); // Обратное транспонирование
-    const changed = !this.areArraysEqual(newField, originalField);
+    const newField = this.transpose(newTransposed); const changed = !this.areArraysEqual(newField, originalField);
     if (changed) {
       this.state.field = newField;
       this.state.score = newScore;
@@ -202,9 +180,7 @@ class Game implements GameInterface {
 
     for (let i = 0; i < GRID_SIZE; i++) {
       const reversedCol = [...transposed[i]].reverse();
-      const { newRow, scoreIncrease } = this.processRow(reversedCol); // 'newScore' удален
-      newTransposed[i] = newRow.reverse(); // Возвращаем в правильном порядке
-      newScore += scoreIncrease;
+      const { newRow, scoreIncrease } = this.processRow(reversedCol); newTransposed[i] = newRow.reverse(); newScore += scoreIncrease;
     }
 
     const newField = this.transpose(newTransposed);
@@ -223,14 +199,12 @@ class Game implements GameInterface {
   private checkScore(): void {
     if (this.state.score > this.state.highScore) {
       this.state.highScore = this.state.score;
-      localStorage.setItem("highScore", String(this.state.highScore)); // Прямой вызов, без Promise
-    }
+      localStorage.setItem("highScore", String(this.state.highScore)); }
   }
 
   private checkIsOver(): boolean {
     this.checkScore();
 
-    // Если есть нулевые ячейки — игра не окончена
     for (let i = 0; i < GRID_SIZE; i++) {
       for (let j = 0; j < GRID_SIZE; j++) {
         if (this.state.field[i][j].value === 0) {
@@ -240,7 +214,6 @@ class Game implements GameInterface {
       }
     }
 
-    // Проверяем соседние ячейки на возможность слияния (горизонтально)
     for (let i = 0; i < GRID_SIZE; i++) {
       for (let j = 0; j < GRID_SIZE - 1; j++) {
         if (this.state.field[i][j].value === this.state.field[i][j + 1].value) {
@@ -250,7 +223,6 @@ class Game implements GameInterface {
       }
     }
 
-    // Проверяем соседние ячейки на возможность слияния (вертикально)
     for (let j = 0; j < GRID_SIZE; j++) {
       for (let i = 0; i < GRID_SIZE - 1; i++) {
         if (this.state.field[i][j].value === this.state.field[i + 1][j].value) {
@@ -268,8 +240,7 @@ class Game implements GameInterface {
     this.init();
     this.spawn();
     this.spawn();
-    this.on(); // Уведомляем UI о новом состоянии игры
-  }
+    this.on(); }
 
   private transpose<T>(matrix: T[][]): T[][] {
     if (matrix.length === 0 || matrix[0].length === 0) return [];
@@ -287,7 +258,6 @@ class Game implements GameInterface {
     for (let i = 0; i < a.length; i++) {
       if (a[i].length !== b[i].length) return false;
       for (let j = 0; j < a[i].length; j++) {
-        // Сравниваем только value, ключи могут отличаться, если это новые объекты
         if (a[i][j].value !== b[i][j].value) return false;
       }
     }
@@ -309,7 +279,6 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
 
   if (!gameRef.current) {
     gameRef.current = new Game();
-    // Инициализация игры при первом создании экземпляра
     gameRef.current.spawn();
     gameRef.current.spawn();
   }
