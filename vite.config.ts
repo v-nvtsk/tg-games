@@ -14,11 +14,11 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: "./src/assets/*",
+          src: path.resolve(__dirname, "./src/assets/"),
           dest: "./",
         },
         {
-          src: "./src/public/*",
+          src: path.resolve(__dirname, "./src/public/"),
           dest: "./",
         },
       ],
