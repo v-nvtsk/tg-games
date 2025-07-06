@@ -1,0 +1,36 @@
+.scoreContainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  container: score / inline-size;
+}
+
+
+@container score (width<=300px) {
+
+  .score {
+    font-size: 16px;
+  }
+}
+
+
+@container score (width >=300px) {
+
+  .score {
+    font-size: 30px;
+  }
+}
+
+@container score (width >=400px) {
+
+  .score {
+    font-size: 40px;
+  }
+}
+
+@container score (width >=550px) {
+
+  .score {
+    font-size: 60px;
+  }
+}

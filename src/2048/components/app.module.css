@@ -1,0 +1,27 @@
+.gameContainer {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid black;
+  border-radius: 5px;
+  max-width: 600px;
+  padding: 40px;
+}
+
+.title {
+  font-size: 40px;
+}
+
+.game {
+  opacity: 0;
+}
+
+.gameOver {
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+  color: red;
+  font-size: 2rem;
+  text-align: center;
+  margin: 10px auto;
+}

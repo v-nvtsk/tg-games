@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-css-modules"
+  ],
+  "rules": {
+    "selector-class-pattern": [
+      "^[a-z][a-zA-Z0-9]*$",
+      {
+        "message": "Имена классов должны использовать camelCase (пример: myClassName)",
+        "resolveNestedSelectors": true
+      }
+    ],
+    "rule-empty-line-before": "always"
+  }
+}

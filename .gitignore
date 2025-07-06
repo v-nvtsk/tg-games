@@ -1,0 +1,6 @@
+node_modules
+webos-build
+dist
+.env
+.env.*
+*.local
