@@ -38,14 +38,13 @@ export function Field() {
             <motion.div
               key={key}
               layout
-              initial={{ scale: 0.8, opacity: 0 }}
+              initial={{ scale: 0.8, opacity: 1 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{
                 type: "spring",
                 stiffness: 500,
                 damping: 20,
-                duration: 0.4,
               }}
               className={[styles.item, getItemStyle(value)].join(" ")}
             >

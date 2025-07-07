@@ -10,4 +10,3 @@ export const Score = ({ score, highscore }: { score: number, highscore: number }
 
   );
 };
-

@@ -64,7 +64,7 @@ class Game implements GameInterface {
   }
 
   on() {
-    this.subscribers.forEach((callback) => callback({ ...this.state, field: this.deepCopyField(this.state.field) }));
+    this.subscribers.forEach((callback) => callback({ ...this.state, field: structuredClone(this.state.field) }));
   }
 
   spawn(): void {
@@ -86,7 +86,8 @@ class Game implements GameInterface {
     this.on();
   }
 
-  private processRow(row: FieldItem[]): { newRow: FieldItem[], scoreIncrease: number } { const filteredRow = row.filter(({ value }) => value !== 0);
+  private processRow(row: FieldItem[]): { newRow: FieldItem[], scoreIncrease: number } {
+    const filteredRow = row.filter(({ value }) => value !== 0);
     const mergedRow: FieldItem[] = [];
     let scoreIncrease = 0;
     let j = 0;
@@ -94,7 +95,8 @@ class Game implements GameInterface {
     while (j < filteredRow.length) {
       if (j + 1 < filteredRow.length && filteredRow[j].value === filteredRow[j + 1].value) {
         const newValue = filteredRow[j].value * 2;
-        mergedRow.push({ value: newValue, key: this.generateUniqueKey() }); scoreIncrease += newValue;
+        mergedRow.push({ value: newValue, key: filteredRow[j + 1].key });
+        scoreIncrease += newValue;
         j += 2;
       } else {
         mergedRow.push({ ...filteredRow[j] }); j += 1;
@@ -107,7 +109,7 @@ class Game implements GameInterface {
   }
 
   moveLeft(): void {
-    const originalField = this.deepCopyField(this.state.field);
+    const originalField = structuredClone(this.state.field);
     let newScore = this.state.score;
     const newField: FieldItem[][] = originalField.map(() => []);
     for (let i = 0; i < GRID_SIZE; i++) {
@@ -128,7 +130,7 @@ class Game implements GameInterface {
   }
 
   moveRight(): void {
-    const originalField = this.deepCopyField(this.state.field);
+    const originalField = structuredClone(this.state.field);
     let newScore = this.state.score;
     const newField: FieldItem[][] = originalField.map(() => []);
 
@@ -150,7 +152,7 @@ class Game implements GameInterface {
   }
 
   moveUp(): void {
-    const originalField = this.deepCopyField(this.state.field);
+    const originalField = structuredClone(this.state.field);
     let newScore = this.state.score;
     const transposed = this.transpose(originalField);
     const newTransposed: FieldItem[][] = transposed.map(() => []);
@@ -173,7 +175,7 @@ class Game implements GameInterface {
   }
 
   moveDown(): void {
-    const originalField = this.deepCopyField(this.state.field);
+    const originalField = structuredClone(this.state.field);
     let newScore = this.state.score;
     const transposed = this.transpose(originalField);
     const newTransposed: FieldItem[][] = transposed.map(() => []);

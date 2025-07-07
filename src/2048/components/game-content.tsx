@@ -9,14 +9,13 @@ export function GameContent() {
   const { restart } = useGameActions();
 
   const handleRestartClick = () => {
-    console.log("Restart button tapped/clicked!");
     restart();
   };
 
   return (
     <div className={styles.gameContainer}>
       <h1 className={styles.title}>2048</h1>
-      <button onClick={handleRestartClick}>restart</button>
+      <button className={styles.restartBtn} onClick={handleRestartClick}>restart</button>
       <h2 className={over ? styles.gameOver : styles.game}>Game Over</h2>
       <Score score={score} highscore={highScore}/>
       <Field />
