@@ -12,10 +12,12 @@ export const Layout = ({ gameName, score, highScore, children }: LayoutProps) =>
   return (
     <div className={styles.layout}>
       <header className={styles.header}>
-        <Link to="/" className={styles.backButton}>
-          ← Главное меню
-        </Link>
-        <h2>{gameName}</h2>
+        <div className={styles.topBar}>
+          <Link to="/" className={styles.backButton}>
+            ← Меню
+          </Link>
+          <h2 className={styles.title}>{gameName}</h2>
+        </div>
         {(score !== undefined || highScore !== undefined) && (
           <div className={styles.scoreInfo}>
             {score !== undefined && <span>Счёт: {score}</span>}

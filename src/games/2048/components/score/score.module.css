@@ -17,21 +17,21 @@
 @media (width >=351px) {
 
   .score {
-    font-size: 30px;
+    font-size: 20px;
   }
 }
 
 @media (width >=450px) {
 
   .score {
-    font-size: 40px;
+    font-size: 30px;
   }
 }
 
 @media (width >=600px) {
 
   .score {
-    font-size: 60px;
+    font-size: 40px;
   }
 }
 

@@ -1,4 +1,4 @@
-import { useTelegramUser } from "../../hooks/use-telegram-user/use-telegram-user";
+import { useTelegramUser } from "../../hooks/use-telegram-user";
 import styles from "./style.module.css";
 
 export const MainMenu = ({ onStartGame }: { onStartGame: (game: string) => void }) => {

@@ -4,7 +4,7 @@ import {
   useScore,
 } from "../hooks";
 import { Field } from "./field";
-import styles from "./game.module.css";
+import styles from "./style.module.css";
 import { Score } from "./score";
 
 export function GameContent() {
@@ -18,9 +18,10 @@ export function GameContent() {
 
   return (
     <div className={styles.gameContainer}>
-      <h1 className={styles.title}>2048</h1>
-      <button className={styles.restartBtn} onClick={handleRestartClick}>restart</button>
-      <h2 className={over ? styles.gameOver : styles.game}>Game Over</h2>
+      <div className={styles.titleBar}>
+        <button className={styles.restartBtn} onClick={handleRestartClick}>restart</button>
+        <h2 className={[styles.game, over && styles.gameOver].join(" ")}>Game Over</h2>
+      </div>
       <Score score={score} highscore={highScore}/>
       <Field />
     </div>

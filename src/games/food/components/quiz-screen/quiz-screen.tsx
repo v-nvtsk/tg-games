@@ -1,4 +1,3 @@
-// === ./src/games/food/components/quiz-screen/quiz-screen.tsx ===
 import styles from "./style.module.css";
 import { useFoodGame } from "../../hooks/use-food-game";
 
