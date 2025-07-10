@@ -207,7 +207,7 @@ export class FoodGameLogic {
   }
 
   notifyListeners() {
-    this.listeners.forEach((callback) => callback(this.gameState));
+    this.listeners.forEach((callback) => callback({ ...this.gameState }));
   }
 
   generateFoodItem(): InventoryItem {

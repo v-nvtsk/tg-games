@@ -1,4 +1,3 @@
-// === ./src/games/food/components/game-content/game-content.tsx ===
 import { useState } from "react";
 import { useFoodGame } from "../../hooks/use-food-game";
 import { CharacterSelector } from "../character-selector";
@@ -16,12 +15,12 @@ export function GameContent() {
     setCharacterSelected(true);
   };
 
-  if (!characterSelected) {
-    return <CharacterSelector onSelect={handleSelectCharacter} />;
-  }
-
   if (gameState.quizStarted) {
     return <QuizScreen />;
+  }
+
+  if (!characterSelected) {
+    return <CharacterSelector onSelect={handleSelectCharacter} />;
   }
 
   return (

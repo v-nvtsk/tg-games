@@ -30,7 +30,7 @@ export const QuizScreen = () => {
         <div className={styles.options}>
           {currentQuestion.options.map((option, index) => (
             <button
-              key={index}
+              key={option}
               className={styles.optionButton}
               onClick={() => handleAnswer(index)}
             >
