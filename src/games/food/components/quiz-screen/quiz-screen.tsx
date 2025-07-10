@@ -1,20 +1,16 @@
 // === ./src/games/food/components/quiz-screen/quiz-screen.tsx ===
 import styles from "./style.module.css";
 import { useFoodGame } from "../../hooks/use-food-game";
-// Добавляем импорт regionQuizzes
-import { regionQuizzes } from "../../context/food-game-logic";
 
 export const QuizScreen = () => {
   const { game, gameState } = useFoodGame();
-  const regionId = gameState.currentRegion;
+  const quiz = gameState.quiz;
 
-  // Проверяем наличие викторины для региона
-  if (!regionQuizzes[regionId]) {
+  if (!quiz.questions.length) {
     return <div>Викторина для этого региона не найдена</div>;
   }
 
-  const questions = regionQuizzes[regionId];
-  const currentQuestion = questions[gameState.currentQuestion];
+  const currentQuestion = quiz.questions[quiz.currentQuestion];
 
   const handleAnswer = (optionIndex: number) => {
     game.answerQuestion(optionIndex);
@@ -22,7 +18,7 @@ export const QuizScreen = () => {
 
   return (
     <div className={styles.container}>
-      <h2>Викторина: {gameState.regions[regionId].name}</h2>
+      <h2>Викторина: {gameState.regions[gameState.currentRegion].name}</h2>
 
       <div className={styles.questionContainer}>
         <p className={styles.questionText}>{currentQuestion.question}</p>
@@ -30,7 +26,7 @@ export const QuizScreen = () => {
         <div className={styles.options}>
           {currentQuestion.options.map((option, index) => (
             <button
-              key={option}
+              key={`${currentQuestion.id}-${index}`}
               className={styles.optionButton}
               onClick={() => handleAnswer(index)}
             >
@@ -41,7 +37,7 @@ export const QuizScreen = () => {
       </div>
 
       <div className={styles.progress}>
-        Вопрос {gameState.currentQuestion + 1} из {questions.length}
+        Вопрос {quiz.currentQuestion + 1} из {quiz.questions.length}
       </div>
 
       <button

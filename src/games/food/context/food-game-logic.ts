@@ -16,6 +16,12 @@ export interface InventoryItem {
   happinessValue: number;
 }
 
+export interface QuizState {
+  quizStarted: boolean;
+  currentQuestion: number;
+  questions: QuizQuestion[];
+}
+
 export interface FoodGameState {
   character: Character;
   currentRegion: number;
@@ -23,13 +29,11 @@ export interface FoodGameState {
   inventory: InventoryItem[];
   maxInventorySize: number;
 
-  currentQuestion: number; // текущий вопрос
-  quizStarted: boolean; // викторина начата
-
   score: number;
   highScore: number;
 
   dish: string;
+  quiz: QuizState;
 }
 
 // === ./src/games/food/context/food-game-logic.ts ===
@@ -42,39 +46,6 @@ export interface QuizQuestion {
 }
 
 export type RegionQuiz = Record<number, QuizQuestion[]>;
-
-// Добавим после regions
-export const regionQuizzes: RegionQuiz = {
-  0: [ // Москва
-    {
-      id: 1,
-      question: "Сколько башен у Московского Кремля?",
-      options: ["20", "15", "10", "25"],
-      correctOption: 0,
-    },
-    {
-      id: 2,
-      question: "Какая площадь является самой большой в Москве?",
-      options: ["Красная", "Пушкинская", "Манежная", "Тверская"],
-      correctOption: 0,
-    },
-  ],
-  1: [ // Санкт-Петербург
-    {
-      id: 1,
-      question: "Сколько мостов в Санкт-Петербурге?",
-      options: ["Более 300", "Около 100", "Около 200", "Более 400"],
-      correctOption: 0,
-    },
-    {
-      id: 2,
-      question: "Как называется главный музей Санкт-Петербурга?",
-      options: ["Русский музей", "Эрмитаж", "Кунсткамера", "Петропавловская крепость"],
-      correctOption: 1,
-    },
-  ],
-  // TODO: Добавьте вопросы для других регионов
-};
 
 const regions: Region[] = [
   { id: 0, name: "Москва", requiredHappiness: 40 },
@@ -91,11 +62,15 @@ const defaultState: FoodGameState = {
   regions: regions,
   inventory: [],
   maxInventorySize: 5,
-  currentQuestion: 0,
-  quizStarted: false,
+
   score: 0,
   highScore: 0,
   dish: "",
+  quiz: {
+    quizStarted: false,
+    currentQuestion: 0,
+    questions: [],
+  },
 };
 
 const foodItems: InventoryItem[] = [
@@ -109,6 +84,7 @@ export class FoodGameLogic {
   gameState = { ...defaultState };
   private listeners: ((state: FoodGameState) => void)[] = [];
   private hungerTimer: ReturnType<typeof setTimeout> | null = null;
+  private quizManager = new QuizManager();
 
   constructor() {
     this.startHungerTimer();
@@ -126,7 +102,7 @@ export class FoodGameLogic {
       if (this.gameState.character.hunger < 30) {
         this.updateHappiness(this.gameState.character.happiness - 1);
       }
-    }, 60000); // Каждую минуту
+    }, 60000);
   }
 
   // Изменить персонажа
@@ -216,30 +192,30 @@ export class FoodGameLogic {
   }
 
   startQuiz() {
-    this.gameState.quizStarted = true;
-    this.gameState.currentQuestion = 0;
+    console.log("startQuiz: ");
+    const questions = this.quizManager.getQuestionsForRegion(this.gameState.currentRegion);
+    this.gameState.quiz = {
+      quizStarted: true,
+      currentQuestion: 0,
+      questions,
+    };
     this.notifyListeners();
   }
 
   answerQuestion(selectedOption: number) {
-    const currentRegion = this.gameState.currentRegion;
-    const questions = regionQuizzes[currentRegion];
-    const currentQuestion = questions[this.gameState.currentQuestion];
+    const quiz = this.gameState.quiz;
+    const currentQuestion = quiz.questions[quiz.currentQuestion];
 
     if (selectedOption === currentQuestion.correctOption) {
-      // Правильный ответ
-      this.updateScore(this.gameState.score + 10); // +10 очков за правильный ответ
+      this.updateScore(this.gameState.score + 10);
       this.updateHappiness(this.gameState.character.happiness + 15);
 
-      // Переходим к следующему вопросу
-      if (this.gameState.currentQuestion < questions.length - 1) {
-        this.gameState.currentQuestion += 1;
+      if (quiz.currentQuestion < quiz.questions.length - 1) {
+        this.gameState.quiz.currentQuestion += 1;
       } else {
-        // Викторина завершена
-        this.gameState.quizStarted = false;
+        this.endQuiz();
       }
     } else {
-      // Неправильный ответ
       this.updateHappiness(this.gameState.character.happiness - 5);
     }
 
@@ -247,7 +223,7 @@ export class FoodGameLogic {
   }
 
   endQuiz() {
-    this.gameState.quizStarted = false;
+    this.gameState.quiz.quizStarted = false;
     this.notifyListeners();
   }
 
@@ -258,5 +234,43 @@ export class FoodGameLogic {
       localStorage.setItem("foodHighScore", String(value));
     }
     this.notifyListeners();
+  }
+}
+
+export class QuizManager {
+  private regionQuizzes: RegionQuiz = {
+    0: [ // Москва
+      {
+        id: 1,
+        question: "Сколько башен у Московского Кремля?",
+        options: ["20", "15", "10", "25"],
+        correctOption: 0,
+      },
+      {
+        id: 2,
+        question: "Какая площадь является самой большой в Москве?",
+        options: ["Красная", "Пушкинская", "Манежная", "Тверская"],
+        correctOption: 0,
+      },
+    ],
+    1: [ // Санкт-Петербург
+      {
+        id: 1,
+        question: "Сколько мостов в Санкт-Петербурге?",
+        options: ["Более 300", "Около 100", "Около 200", "Более 400"],
+        correctOption: 0,
+      },
+      {
+        id: 2,
+        question: "Как называется главный музей Санкт-Петербурга?",
+        options: ["Русский музей", "Эрмитаж", "Кунсткамера", "Петропавловская крепость"],
+        correctOption: 1,
+      },
+    ],
+    // TODO: Добавьте вопросы для других регионов
+  };
+
+  getQuestionsForRegion(regionId: number): QuizQuestion[] {
+    return this.regionQuizzes[regionId] || [];
   }
 }

@@ -20,7 +20,7 @@ export const useFoodGame = () => {
     return () => game.unsubscribe(listener);
   }, [game]);
 
-  return { game, gameState };
+  return { game, gameState, quiz: gameState.quiz };
 };
 
 // Новый хук для работы с персонажем

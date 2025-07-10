@@ -15,7 +15,8 @@ export function GameContent() {
     setCharacterSelected(true);
   };
 
-  if (gameState.quizStarted) {
+  // Используем новое состояние викторины
+  if (gameState.quiz.quizStarted) {
     return <QuizScreen />;
   }
 
