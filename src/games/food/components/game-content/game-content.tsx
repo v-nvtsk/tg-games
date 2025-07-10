@@ -1,30 +1,44 @@
-import { useDish, useSelectedFood, useScore, useFoodGame } from "../../hooks";
-import { FoodTransporter } from "../food-transporter";
-import { Pan } from "../pan";
-import { Score } from "../score";
+// === ./src/games/food/components/game-content/game-content.tsx ===
+import { useState } from "react";
+import { useFoodGame } from "../../hooks/use-food-game";
+import { CharacterSelector } from "../character-selector";
+import { RegionScreen } from "../region-screen";
+import { CharacterStats } from "../character-stats";
+import { Inventory } from "../inventory";
+import { QuizScreen } from "../quiz-screen";
 
 export function GameContent() {
-  const dish = useDish();
-  const selectedFood = useSelectedFood();
-  const { score, highScore } = useScore();
   const { game, gameState } = useFoodGame();
+  const [characterSelected, setCharacterSelected] = useState(false);
 
-  const handleAddToPan = (item: string) => {
-    game.addToPan(item);
+  const handleSelectCharacter = (type: "boy" | "girl") => {
+    game.selectCharacter(type);
+    setCharacterSelected(true);
   };
 
-  const handleRemoveFromPan = (item: string) => {
-    game.removeFromPan(item);
-  };
+  if (!characterSelected) {
+    return <CharacterSelector onSelect={handleSelectCharacter} />;
+  }
+
+  if (gameState.quizStarted) {
+    return <QuizScreen />;
+  }
 
   return (
     <div className="foodGame">
-      <h2>Собери: {dish.name}</h2>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Score score={score} highScore={highScore} />
-      </div>
-      <Pan list={selectedFood} onRemove={handleRemoveFromPan} />
-      <FoodTransporter list={gameState.foodTransporter} onClick={handleAddToPan} />
+      <h2>Путешествие по России</h2>
+
+      <CharacterStats
+        hunger={gameState.character.hunger}
+        happiness={gameState.character.happiness}
+      />
+
+      <RegionScreen />
+
+      <Inventory
+        items={gameState.inventory}
+        onUseItem={(id: string) => game.useItem(id)}
+      />
     </div>
   );
 }

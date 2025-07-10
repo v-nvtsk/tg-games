@@ -15,12 +15,28 @@ export const useFoodGame = () => {
     const listener = (state: FoodGameState) => {
       setGameState(state);
     };
-    game.subscribe(listener);
 
-    return () => {
-      game.unsubscribe(listener);
-    };
+    game.subscribe(listener);
+    return () => game.unsubscribe(listener);
   }, [game]);
 
   return { game, gameState };
+};
+
+// Новый хук для работы с персонажем
+export const useCharacter = () => {
+  const { gameState } = useFoodGame();
+  return gameState.character;
+};
+
+// Хук для работы с регионом
+export const useCurrentRegion = () => {
+  const { gameState } = useFoodGame();
+  return gameState.regions[gameState.currentRegion];
+};
+
+// Хук для работы с инвентарем
+export const useInventory = () => {
+  const { gameState } = useFoodGame();
+  return gameState.inventory;
 };

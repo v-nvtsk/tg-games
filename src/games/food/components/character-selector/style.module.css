@@ -1,0 +1,30 @@
+/* === ./src/games/food/components/character-selector/style.module.css === */
+
+.container {
+  text-align: center;
+  padding: 20px;
+}
+
+.characters {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.character {
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  transition: transform 0.2s;
+}
+
+.character:hover {
+  transform: scale(1.05);
+}
+
+.avatar {
+  font-size: 50px;
+  margin-bottom: 10px;
+}

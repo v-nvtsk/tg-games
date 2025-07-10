@@ -21,7 +21,7 @@ export const App = () => {
       <Route
         path="/game/food"
         element={
-          <Layout gameName="Сбор еды">
+          <Layout gameName="Кулинарный квест">
             <FoodGame />
           </Layout>
         }
