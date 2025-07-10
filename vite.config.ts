@@ -5,6 +5,10 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: { "import.meta.env.VITE_BASE_URL": JSON.stringify(
+    process.env.CI ? "/tg-games/" : "/",
+  ) },
+  base: process.env.CI ? "/tg-games/" : "/",
   build: {
     chunkSizeWarningLimit: 1000,
     outDir: "dist",
@@ -24,7 +28,6 @@ export default defineConfig({
       ],
     }),
   ],
-  base: "./",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
