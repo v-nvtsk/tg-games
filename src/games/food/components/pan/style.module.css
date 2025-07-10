@@ -1,0 +1,21 @@
+.pan {
+  list-style-type: none;
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  height: 30px;
+  background: #868271;
+  padding: 10px;
+}
+
+.panItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #7fed3f;
+  color: #f9f6f2;
+  padding: 5px;
+  border-radius: 5px;
+  min-width: 80px;
+  cursor: pointer;
+}

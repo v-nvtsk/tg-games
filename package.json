@@ -1,7 +1,7 @@
 {
-  "name": "tg_game_2048",
+  "name": "tg_games",
   "version": "1.0.0",
-  "description": "2048 telegram game",
+  "description": "telegram games",
   "main": "index.js",
   "scripts": {
     "test": "jest",
@@ -20,7 +20,8 @@
     "@twa-dev/sdk": "^8.0.2",
     "motion": "^12.23.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",

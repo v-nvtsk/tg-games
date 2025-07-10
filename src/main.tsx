@@ -1,6 +1,9 @@
 import { createRoot } from "react-dom/client";
-import { App } from "./app";
+import { BrowserRouter } from "react-router-dom";
+import { ThemeProvider } from "./app/context/theme-provider";
+import { App } from "./app/app";
 import React from "react";
+import "./global.css";
 
 const root = document.body.querySelector("#root");
 if (!root) {
@@ -9,6 +12,10 @@ if (!root) {
 
 createRoot(root).render(
   <React.StrictMode>
-    <App/>
+    <BrowserRouter>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </BrowserRouter>
   </React.StrictMode>,
 );
