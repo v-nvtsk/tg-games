@@ -23,15 +23,17 @@ export const QuizScreen = () => {
         <p className={styles.questionText}>{currentQuestion.question}</p>
 
         <div className={styles.options}>
-          {currentQuestion.options.map((option, index) => (
-            <button
-              key={`${currentQuestion.id}-${index}`}
-              className={styles.optionButton}
-              onClick={() => handleAnswer(index)}
-            >
-              {option}
-            </button>
-          ))}
+          {currentQuestion.options.map((option, index) => {
+            const key = `${currentQuestion.id}-${index}`;
+            return (
+              <button
+                key={key}
+                className={styles.optionButton}
+                onClick={() => handleAnswer(index)}
+              >
+                {option}
+              </button>
+            );})}
         </div>
       </div>
 

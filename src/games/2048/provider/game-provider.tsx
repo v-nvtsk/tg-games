@@ -1,5 +1,7 @@
-import { useRef, type PropsWithChildren } from "react";
+import { useEffect, useRef, type PropsWithChildren } from "react";
 import { Game2048Context } from "../context/game-context";
+import { get2048HighScore, update2048HighScore } from "../../../api";
+import { useAuth } from "../../../hooks/use-auth/use-auth";
 
 const GRID_SIZE = 4;
 
@@ -273,6 +275,7 @@ class Game implements GameInterface {
 }
 
 export const GameProvider = ({ children }: PropsWithChildren) => {
+  const token = useAuth();
   const gameRef = useRef<GameInterface | null>(null);
 
   if (!gameRef.current) {
@@ -280,6 +283,35 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     gameRef.current.spawn();
     gameRef.current.spawn();
   }
+
+  // Загрузка рекорда
+  useEffect(() => {
+    if (!token) return;
+
+    const loadHighScore = async () => {
+      const highScore = await get2048HighScore(token);
+      if (gameRef.current && highScore > gameRef.current.state.highScore) {
+        gameRef.current.state.highScore = highScore;
+      }
+    };
+
+    void loadHighScore();
+  }, [token]);
+
+  // Обновление рекорда
+  useEffect(() => {
+    const game = gameRef.current;
+    if (!game || !token) return;
+
+    const listener = (state: GameState) => {
+      if (state.score > state.highScore) {
+        void update2048HighScore(token, state.score);
+      }
+    };
+
+    game.subscribe(listener);
+    return () => game.unsubscribe(listener);
+  }, [token]);
 
   return (
     <Game2048Context value={gameRef.current}>
