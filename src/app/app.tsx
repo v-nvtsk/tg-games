@@ -14,17 +14,19 @@ export const App = () => {
   // Выполняем аутентификацию при загрузке приложения
   useEffect(() => {
     const initAuth = async () => {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       try {
+
         const token = await authenticate();
         console.log("Authentication successful, token:", token);
         // Здесь можно сохранить токен в контекст или хранилище
       } catch (error) {
         console.error("Authentication failed:", error);
         if (error instanceof Error) {
-          webApp.showAlert("Ошибка авторизации. Пожалуйста, попробуйте снова." + error.message);
+          webApp.showAlert(API_BASE_URL + "Ошибка авторизации. Пожалуйста, попробуйте снова." + error.message);
         }
         else {
-          webApp.showAlert("Ошибка авторизации. Пожалуйста, попробуйте снова.");
+          webApp.showAlert(API_BASE_URL + "Ошибка авторизации. Пожалуйста, попробуйте снова.");
         }
       }
     };
