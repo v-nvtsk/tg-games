@@ -12,6 +12,7 @@ export const useAuth = () => {
         setToken(access_token);
       } catch (error) {
         console.error("Authentication error:", error);
+        // Дополнительная обработка ошибок
       }
     };
 

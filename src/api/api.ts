@@ -32,18 +32,22 @@ export interface FoodGameSaveState {
 }
 
 export const authenticate = async (): Promise<AuthResponse> => {
-  const initData = WebApp.initData;
+  if (!WebApp.initData) {
+    throw new Error("Telegram initData not available");
+  }
+
   const response = await fetch(`${API_BASE_URL}/auth/telegram`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ initData }),
+    body: JSON.stringify({ initData: WebApp.initData }),
   });
 
   if (!response.ok) {
-    throw new Error("Authentication failed");
+    const errorData = await response.json() as { message: string };
+    throw new Error(errorData.message || "Authentication failed");
   }
 
-  return response.json() as unknown as AuthResponse;
+  return response.json() as Promise<AuthResponse>;
 };
 
 // Обновляем функции
