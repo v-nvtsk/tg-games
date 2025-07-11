@@ -20,7 +20,12 @@ export const App = () => {
         // Здесь можно сохранить токен в контекст или хранилище
       } catch (error) {
         console.error("Authentication failed:", error);
-        webApp.showAlert("Ошибка авторизации. Пожалуйста, попробуйте снова.");
+        if (error instanceof Error) {
+          webApp.showAlert("Ошибка авторизации. Пожалуйста, попробуйте снова." + error.message);
+        }
+        else {
+          webApp.showAlert("Ошибка авторизации. Пожалуйста, попробуйте снова.");
+        }
       }
     };
 
