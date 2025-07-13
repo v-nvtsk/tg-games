@@ -76,24 +76,21 @@ export class PlayerScene extends Scene {
     this.physics.add.collider(this.player, platforms);
 
     this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
-      const width = this.scale.width;
-      const height = this.scale.height;
-      const { x, y } = pointer;
+      const playerX = this.player.x;
 
-      if (x < width / 4) {
-        // Левая часть экрана - движение влево
+      if (pointer.worldX < playerX) {
+        // Тап слева от игрока → движение влево
         this.moveLeft = true;
-      } else if (x > (width * 3) / 4) {
-        // Правая часть экрана - движение вправо
+        this.moveRight = false;
+      } else {
+        // Тап справа от игрока → движение вправо
+        this.moveLeft = false;
         this.moveRight = true;
-      } else if (y < height / 2) {
-        // Верхняя половина экрана - прыжок
-        this.player.setVelocityY(-300);
       }
     });
 
-    // Сбрасываем флаги движения при отпускании
     this.input.on("pointerup", () => {
+      // Остановка движения при отпускании
       this.moveLeft = false;
       this.moveRight = false;
     });
@@ -117,11 +114,14 @@ export class PlayerScene extends Scene {
       }
       this.player.setFlipX(false);
     } else {
-      // Остановка при отсутствии движения
       this.player.setVelocityX(0);
       if (this.player.anims.currentAnim?.key !== "idle") {
         this.player.play("idle", true);
       }
+    }
+
+    if (this.cursors.up.isDown && this.player.body?.touching.down) {
+      this.player.setVelocityY(-300);
     }
 
     if (this.cursors.left.isDown) {
