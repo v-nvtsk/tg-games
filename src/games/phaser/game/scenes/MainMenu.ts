@@ -10,6 +10,7 @@ export class MainMenu extends Scene {
 
   constructor() {
     super("MainMenu");
+    this.logoTween = null;
   }
 
   create(): void {
