@@ -33,6 +33,9 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
+  input: {
+    touch: true,
+  },
   scene: [Boot, Preloader, MainMenu, MainGame, GameOver, PlayerScene],
 };
 
