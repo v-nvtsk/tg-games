@@ -13,20 +13,20 @@ export class PlayerScene extends Scene {
 
   preload(): void {
     // Загружаем спрайты
-    this.load.spritesheet("player_walk", "/assets/walk.png", {
+    this.load.spritesheet("player_walk", "./assets/walk.png", {
       frameWidth: 128,
       frameHeight: 128,
     });
-    this.load.spritesheet("player_idle", "/assets/idle.png", {
+    this.load.spritesheet("player_idle", "./assets/idle.png", {
       frameWidth: 128,
       frameHeight: 128,
     });
 
     // Загружаем платформу
-    this.load.image("ground", "/assets/ground.png");
+    this.load.image("ground", "./assets/ground.png");
 
     // Загружаем уровень
-    this.load.json("level1", "/assets/levels/level1.json");
+    this.load.json("level1", "./assets/levels/level1.json");
   }
 
   create(): void {
