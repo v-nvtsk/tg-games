@@ -11,6 +11,7 @@ export const MainMenu = ({ onStartGame }: { onStartGame: (game: string) => void 
       <div className={styles.gameList}>
         <button onClick={() => onStartGame("2048")}>Игра 2048</button>
         <button onClick={() => onStartGame("food")}>Кулинарный квест</button>
+        <button onClick={() => onStartGame("phaser")}>Phaser</button>
       </div>
       <footer className={styles.footer}>
         &copy; {new Date().getFullYear()} Игровая платформа
