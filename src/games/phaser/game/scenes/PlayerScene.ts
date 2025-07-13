@@ -1,3 +1,4 @@
+import { getAssetsPath } from "../../../../utils/get-assets-path";
 import { EventBus } from "../EventBus";
 import { Scene } from "phaser";
 
@@ -13,20 +14,20 @@ export class PlayerScene extends Scene {
 
   preload(): void {
     // Загружаем спрайты
-    this.load.spritesheet("player_walk", "assets/walk.png", {
+    this.load.spritesheet("player_walk", `${getAssetsPath()}/walk.png`, {
       frameWidth: 128,
       frameHeight: 128,
     });
-    this.load.spritesheet("player_idle", "assets/idle.png", {
+    this.load.spritesheet("player_idle", `${getAssetsPath()}/idle.png`, {
       frameWidth: 128,
       frameHeight: 128,
     });
 
     // Загружаем платформу
-    this.load.image("ground", "assets/ground.png");
+    this.load.image("ground", `${getAssetsPath()}/ground.png`);
 
     // Загружаем уровень
-    this.load.json("level1", "assets/levels/level1.json");
+    this.load.json("level1", `${getAssetsPath()}/levels/level1.json`);
   }
 
   create(): void {
@@ -123,13 +124,26 @@ export class PlayerScene extends Scene {
       }
     }
 
-    // Существующая обработка клавиатуры
     if (this.cursors.left.isDown) {
-      // ... существующий код ...
+      this.player.setVelocityX(-200);
+      if (this.player.anims.currentAnim?.key !== "walk") {
+        this.player.play("walk", true);
+      }
+      this.player.setFlipX(true);
     } else if (this.cursors.right.isDown) {
-      // ... существующий код ...
+      this.player.setVelocityX(200);
+      if (this.player.anims.currentAnim?.key !== "walk") {
+        this.player.play("walk", true);
+      }
+      this.player.setFlipX(false);
     } else if (this.cursors.up.isDown) {
-      // ... существующий код ...
+      this.player.setVelocityY(-300);
+
+    } else {
+      this.player.setVelocityX(0);
+      if (this.player.anims.currentAnim?.key !== "idle") {
+        this.player.play("idle", true);
+      }
     }
   }
 
