@@ -41,4 +41,13 @@ export class Preloader extends Scene{
     //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
     this.scene.start("Intro");
   }
+
+  public resizeGame(gameSize: { width: number; height: number }) {
+    const { width, height } = gameSize;
+
+    // Центрируем фон
+    this.add.image(width / 2, height / 2, "menu/background");
+
+    // Если есть текст или формы — пересчитывайте позиции
+  }
 }

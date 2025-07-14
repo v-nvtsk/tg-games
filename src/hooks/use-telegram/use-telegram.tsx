@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import WebApp from "@twa-dev/sdk";
 
 export const useTelegram = () => {
@@ -25,12 +25,15 @@ export const useTelegram = () => {
   const user = WebApp.initDataUnsafe.user || null;
 
   // Подписка на изменение темы
-  useEffect(() => {
-    WebApp.ready();
-    WebApp.expand();
-    WebApp.disableVerticalSwipes();
-
-    WebApp.setHeaderColor("bg_color");
+  useLayoutEffect(() => {
+    if (WebApp.initData) {
+      WebApp.ready();
+      WebApp.expand();
+      WebApp.disableVerticalSwipes();
+      WebApp.lockOrientation();
+      WebApp.setHeaderColor("bg_color");
+      WebApp.requestFullscreen();
+    }
 
     const handleThemeChange = () => {
       document.body.classList.toggle("dark", WebApp.colorScheme === "dark");

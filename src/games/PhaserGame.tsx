@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import StartGame from "./game/main";
 import { EventBus } from "./game/EventBus";
+import { handleResize } from "../utils/handle-resize";
 
 export interface IRefPhaserGame{
   game: Phaser.Game | null;
@@ -12,6 +13,25 @@ interface IProps{
 
 export const PhaserGame = function PhaserGame({ ref, currentActiveScene }: IProps & { ref?: React.RefObject<IRefPhaserGame | null> }) {
   const game = useRef<Phaser.Game | null>(null);
+
+  useEffect(() => {
+    const resizeHandler = () => {
+      if (game.current && !document.activeElement?.tagName.includes("INPUT")) {
+        handleResize(game.current);
+      }
+    };
+    window.addEventListener("resize", resizeHandler);
+    return () => {
+      window.removeEventListener("resize", resizeHandler);
+    };
+  }, []);
+
+  // useLayoutEffect(() => {
+  //   const resizeHandler = () => {
+  //     game.current?.scale.resize(window.innerWidth, window.innerHeight);
+  //   };
+  //   window.addEventListener("resize", resizeHandler);
+  // }, []);
 
   useLayoutEffect(() => {
     if (game.current === null) {
@@ -50,25 +70,25 @@ export const PhaserGame = function PhaserGame({ ref, currentActiveScene }: IProp
     };
   }, [currentActiveScene, ref]);
 
-  useEffect(() => {
-    const resizeHandler = () => {
-      if (game.current) {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        game.current.scale.resize(width, height);
-        game.current.canvas.width = width;
-        game.current.canvas.height = height;
-        game.current.scale.refresh();
-        game.current.canvas.style.width = width + "px";
-        game.current.canvas.style.height = height + "px";
-      }
-    };
-    window.addEventListener("resize", resizeHandler);
+  // useEffect(() => {
+  //   const resizeHandler = () => {
+  //     if (game.current) {
+  //       const width = window.innerWidth;
+  //       const height = window.innerHeight;
+  //       game.current.scale.resize(width, height);
+  //       game.current.canvas.width = width;
+  //       game.current.canvas.height = height;
+  //       game.current.scale.refresh();
+  //       game.current.canvas.style.width = width + "px";
+  //       game.current.canvas.style.height = height + "px";
+  //     }
+  //   };
+  //   window.addEventListener("resize", resizeHandler);
 
-    return () => {
-      window.removeEventListener("resize", resizeHandler);
-    };
-  });
+  //   return () => {
+  //     window.removeEventListener("resize", resizeHandler);
+  //   };
+  // });
 
   return (
     <div id="game-container"></div>

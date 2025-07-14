@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { type IRefPhaserGame, PhaserGame } from "../games/PhaserGame";
 import { useTelegram } from "../hooks/use-telegram";
 import { authenticate } from "../api";
@@ -6,12 +6,11 @@ import { authenticate } from "../api";
 export function App() {
   const { webApp } = useTelegram();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const initAuth = async () => {
       try {
         const token = await authenticate();
         console.log("Authentication successful, token:", token);
-        webApp.requestFullscreen();
       } catch (error) {
         console.error("Authentication failed:", error);
         if (error instanceof Error) {

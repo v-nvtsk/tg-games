@@ -33,7 +33,7 @@ export class Intro extends Scene {
       color: "#fff",
       // backgroundColor: "#0008",
       padding: { left: 10, right: 10 },
-      wordWrap: { width: 400 },
+      wordWrap: { width: window.innerWidth * 0.8 },
       align: "center",
       // TODO: исправить шрифт
       fontFamily: "Serif",
@@ -96,4 +96,10 @@ export class Intro extends Scene {
 
     EventBus.emit("current-scene-ready", this);
   }
+
+  public resizeGame() {
+    this.scene.restart();
+    console.log("scene.restart: ");
+  }
+
 }
