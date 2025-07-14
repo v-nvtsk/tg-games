@@ -1,19 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { type IRefPhaserGame, PhaserGame } from "../games/PhaserGame";
+import { useTelegram } from "../hooks/use-telegram";
 import { authenticate } from "../api";
-import { useTelegram } from "./hooks/use-telegram/use-telegram";
-import { AppRouter } from "./routes";
 
-export const App = () => {
+export function App() {
   const { webApp } = useTelegram();
 
-  // Выполняем аутентификацию при загрузке приложения
   useEffect(() => {
     const initAuth = async () => {
       try {
-
         const token = await authenticate();
         console.log("Authentication successful, token:", token);
-        // Здесь можно сохранить токен в контекст или хранилище
+        webApp.requestFullscreen();
       } catch (error) {
         console.error("Authentication failed:", error);
         if (error instanceof Error) {
@@ -31,6 +29,10 @@ export const App = () => {
       console.warn("Telegram initData not available");
     }
   }, [webApp]);
-  return (<AppRouter/>
-  );
-};
+
+  const phaserRef = useRef<IRefPhaserGame | null>(null);
+
+  return <PhaserGame ref={phaserRef} />;
+
+}
+
