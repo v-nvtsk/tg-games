@@ -97,9 +97,4 @@ export class Intro extends Scene {
     EventBus.emit("current-scene-ready", this);
   }
 
-  public resizeGame() {
-    this.scene.restart();
-    console.log("scene.restart: ");
-  }
-
 }

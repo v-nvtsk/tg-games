@@ -26,13 +26,6 @@ export const PhaserGame = function PhaserGame({ ref, currentActiveScene }: IProp
     };
   }, []);
 
-  // useLayoutEffect(() => {
-  //   const resizeHandler = () => {
-  //     game.current?.scale.resize(window.innerWidth, window.innerHeight);
-  //   };
-  //   window.addEventListener("resize", resizeHandler);
-  // }, []);
-
   useLayoutEffect(() => {
     if (game.current === null) {
       game.current = StartGame("game-container");
@@ -69,26 +62,6 @@ export const PhaserGame = function PhaserGame({ ref, currentActiveScene }: IProp
       EventBus.removeListener("current-scene-ready");
     };
   }, [currentActiveScene, ref]);
-
-  // useEffect(() => {
-  //   const resizeHandler = () => {
-  //     if (game.current) {
-  //       const width = window.innerWidth;
-  //       const height = window.innerHeight;
-  //       game.current.scale.resize(width, height);
-  //       game.current.canvas.width = width;
-  //       game.current.canvas.height = height;
-  //       game.current.scale.refresh();
-  //       game.current.canvas.style.width = width + "px";
-  //       game.current.canvas.style.height = height + "px";
-  //     }
-  //   };
-  //   window.addEventListener("resize", resizeHandler);
-
-  //   return () => {
-  //     window.removeEventListener("resize", resizeHandler);
-  //   };
-  // });
 
   return (
     <div id="game-container"></div>
