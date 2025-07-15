@@ -5,6 +5,7 @@ import { authenticate } from "../api";
 
 export function App() {
   const { webApp } = useTelegram();
+  const phaserRef = useRef<IRefPhaserGame | null>(null);
 
   useLayoutEffect(() => {
     const initAuth = async () => {
@@ -24,14 +25,15 @@ export function App() {
 
     if (webApp.initData) {
       void initAuth();
+      if (phaserRef.current?.game) {
+        phaserRef.current.telegramWebApp = webApp;
+      }
     } else {
       console.warn("Telegram initData not available");
     }
   }, [webApp]);
 
-  const phaserRef = useRef<IRefPhaserGame | null>(null);
-
-  return <PhaserGame ref={phaserRef} />;
+  return <PhaserGame ref={phaserRef}/>;
 
 }
 

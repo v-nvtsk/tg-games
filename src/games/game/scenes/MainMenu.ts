@@ -56,7 +56,7 @@ export class MainMenu extends Scene {
       .setDepth(100)
       .setInteractive()
       .on("pointerdown", () => {
-        this.scene.start("PlayerScene"); // или "MainGame", в зависимости от того, какую сцену ты хочешь запустить
+        this.scene.start("MoveScene"); // или "MainGame", в зависимости от того, какую сцену ты хочешь запустить
       })
       .on("pointerover", () => {
         this.startButton.setStyle({ fill: "#ffff00" }); // при наведении
@@ -71,7 +71,7 @@ export class MainMenu extends Scene {
   }
 
   changeScene(): void {
-    this.scene.start("PlayerScene");
+    this.scene.start("MoveScene");
   }
 
   // moveLogo(vueCallback: ({ x, y }: { x: number; y: number }) => void): void {

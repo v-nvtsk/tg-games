@@ -1,21 +1,117 @@
-<link rel="stylesheet" href="../css/nameform.css">
-<div id="name-form-container" style="text-align: center; padding: 20px;">
-  <input type="text" id="nameField" name="nameField" placeholder="Введите имя"
-    style="padding: 10px; font-size: 16px; width: 200px; margin-bottom: 20px;" />
+<style>
+  #name-form-container {
+    text-align: center;
+    padding: 30px 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 400px;
+    max-width: 80%;
+    margin: auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    animation: fadeInUp 0.6s ease-out;
+  }
 
-  <div style="margin-bottom: 20px;">
-    <button type="button" id="male-button" name="genderButton" data-gender="male"
-      style="padding: 10px 20px; font-size: 16px; background-color: #333; color: white; border: none; border-radius: 5px; margin-right: 10px;">
-      Мужской
-    </button>
-    <button type="button" id="female-button" name="genderButton" data-gender="female"
-      style="padding: 10px 20px; font-size: 16px; background-color: #333; color: white; border: none; border-radius: 5px;">
-      Женский
-    </button>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  #name-form-container h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+
+  #name-form-container input {
+    padding: 12px 16px;
+    font-size: 16px;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 20px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  #name-form-container input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+  }
+
+  #name-form-container button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 5px;
+  }
+
+  #male-button,
+  #female-button {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 2px solid #ccc;
+  }
+
+  #male-button.selected,
+  #female-button.selected {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+
+  #play-button {
+    background-color: #007bff;
+    color: white;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 10px;
+    font-size: 18px;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    transition: background-color 0.3s ease, transform 0.1s ease;
+  }
+
+  #play-button:hover {
+    background-color: #0056b3;
+    transform: scale(1.02);
+  }
+
+  #play-button:active {
+    transform: scale(0.98);
+  }
+
+  .gender-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+</style>
+
+<div id="name-form-container">
+  <h2>Введите ваше имя и выберите пол</h2>
+
+  <input type="text" id="nameField" name="nameField" placeholder="Введите имя" />
+
+  <div class="gender-buttons">
+    <button type="button" id="male-button" name="genderButton" data-gender="male">Мужской</button>
+    <button type="button" id="female-button" name="genderButton" data-gender="female">Женский</button>
   </div>
 
-  <button type="button" id="play-button" name="playButton"
-    style="padding: 10px 20px; font-size: 18px; background-color: #007bff; color: white; border: none; border-radius: 5px;">
-    Начать игру
-  </button>
+  <button type="button" id="play-button" name="playButton">Начать игру</button>
 </div>

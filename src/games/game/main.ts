@@ -1,11 +1,11 @@
 import { Boot } from "./scenes/Boot";
 import { Game } from "phaser";
 import { Preloader } from "./scenes/Preloader";
-import { PlayerScene } from "./scenes/PlayerScene";
+import { MoveScene } from "./scenes/MoveScene";
 import { MainMenu } from "./scenes/MainMenu";
 import { GameOver } from "./scenes/GameOver";
-import { Game as MainGame } from "./scenes/Game";
 import { Intro } from "./scenes/Intro";
+import { MapScene } from "./scenes/Map";
 
 //  Find out more information about the Game Config at:
 //  https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
@@ -14,7 +14,7 @@ const config: Phaser.Types.Core.GameConfig = {
   width: window.innerWidth,
   height: window.innerHeight,
   parent: "game-container",
-  backgroundColor: "#028af8",
+  backgroundColor: "#767742",
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -28,7 +28,7 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [Boot, Preloader, Intro, MainMenu, MainGame, GameOver, PlayerScene],
+  scene: [Boot, Preloader, Intro, MainMenu, GameOver, MoveScene, MapScene],
   dom: {
     createContainer: true,
   },

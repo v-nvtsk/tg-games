@@ -25,19 +25,11 @@ export class Intro extends Scene {
     const height = this.scale.height;
 
     // Фон
-    this.add.image(width / 2, height / 2, "menu/background");
-
-    // Текст приглашения
-    const promptText = this.add.text(width / 2, height / 2 - 120, "Введите ваше имя и выберите пол", {
-      fontSize: "24px",
-      color: "#fff",
-      // backgroundColor: "#0008",
-      padding: { left: 10, right: 10 },
-      wordWrap: { width: window.innerWidth * 0.8 },
-      align: "center",
-      // TODO: исправить шрифт
-      fontFamily: "Serif",
-    }).setOrigin(0.5);
+    // this.scene;
+    this.add.image(width / 2, height / 2, "global/map")
+      .setOrigin(0.3, 0.5)
+      .setScale(0.5)
+      .setAlpha(0.5);
 
     // Загрузка формы
     this.formElement = this.add.dom(width / 2, height / 2).createFromCache("nameform");
@@ -55,11 +47,11 @@ export class Intro extends Scene {
         // Сброс стилей всех кнопок
         const buttons = this.formElement.getChildByID("name-form-container")?.querySelectorAll<HTMLButtonElement>("[data-gender]");
         buttons?.forEach((btn: HTMLButtonElement) => {
-          btn.style.backgroundColor = "#333";
+          btn.style.backgroundColor = "";
         });
 
         // Подсветка выбранной кнопки
-        target.style.backgroundColor = "#ff69b4";
+        target.style.backgroundColor = "#007bff";
       }
 
       // Клик по кнопке "Начать игру"
@@ -77,11 +69,22 @@ export class Intro extends Scene {
 
         // Скрываем форму
         this.formElement.setVisible(false);
-        promptText.setText(`Добро пожаловать, ${name}`);
+
+        this.add.text(width / 2, height / 2 - 120, `Добро пожаловать, ${name}`, {
+          fontSize: "24px",
+          color: "#fff",
+          padding: { left: 10, right: 10 },
+          wordWrap: { width: window.innerWidth * 0.8 },
+          align: "center",
+          // TODO: исправить шрифт
+          fontFamily: "Serif",
+        }).setOrigin(0.5);
 
         // Переход к следующей сцене
         this.time.delayedCall(1000, () => {
-          this.scene.start("MainMenu");
+          // this.scene.start("MainMenu");
+          this.scene.start("MapScene");
+
         });
       }
     });

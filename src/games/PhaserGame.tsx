@@ -2,10 +2,12 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 import StartGame from "./game/main";
 import { EventBus } from "./game/EventBus";
 import { handleResize } from "../utils/handle-resize";
+import WebApp from "@twa-dev/sdk";
 
 export interface IRefPhaserGame{
   game: Phaser.Game | null;
   scene: Phaser.Scene | null;
+  telegramWebApp?: typeof WebApp | null;
 }
 interface IProps{
   currentActiveScene?: (scene_instance: Phaser.Scene) => void

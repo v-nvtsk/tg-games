@@ -3,7 +3,7 @@ import { getAssetsPath } from "../../../utils/get-assets-path";
 import { EventBus } from "../EventBus";
 import { Scene } from "phaser";
 
-export class PlayerScene extends Scene {
+export class MoveScene extends Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private moveLeft = false;
@@ -11,7 +11,7 @@ export class PlayerScene extends Scene {
   private background!: Phaser.GameObjects.TileSprite;
 
   constructor() {
-    super("PlayerScene");
+    super("MoveScene");
   }
 
   preload(): void {
