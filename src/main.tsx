@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
 import "./global.css";
-import { App } from "./app/app";
+import { App } from "./app";
 
 const root = document.body.querySelector("#root");
 if (!root) {

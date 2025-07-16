@@ -1,6 +1,23 @@
-* {
+/* === src/index.css (ваш global.css) === */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
+  padding: 0;
+}
+
+
+:root,
+#root,
+html,
+body {
+  height: 100dvh;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  touch-action: none;
 }
 
 body {
@@ -12,7 +29,6 @@ body {
   background-color: #f9f6f2;
   color: #333;
   transition: background-color 0.3s ease, color 0.3s ease;
-
 }
 
 :root {
@@ -31,32 +47,4 @@ body {
   --color-item-512: #edc850;
   --color-item-1024: #edc53f;
   --color-item-2048: #edc22e;
-  --radius: 5px;
-  --font-family: sans-serif;
-}
-
-.darkTheme {
-  --color-bg: #1a1a1a;
-  --color-text: #f0f0f0;
-  --color-accent: #ccc;
-  --color-accent-light: #222;
-  --color-item-2: #1e1e1e;
-  --color-item-4: #2d2d2d;
-  --color-item-8: #3d3d3d;
-  --color-item-16: #4d4d4d;
-  --color-item-32: #5d5d5d;
-  --color-item-64: #6d6d6d;
-  --color-item-128: #7d7d7d;
-  --color-item-256: #8d8d8d;
-  --color-item-512: #9d9d9d;
-  --color-item-1024: #adadad;
-  --color-item-2048: #bdbdbd;
-}
-
-#root {
-  height: 100lvh;
-  width: 100vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }

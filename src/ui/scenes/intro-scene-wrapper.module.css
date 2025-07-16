@@ -1,0 +1,335 @@
+.sceneWrapper {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.gameContainer {
+  height: 100dvh;
+  width: 100vw;
+  background: linear-gradient(to bottom, #0f172a, #1e293b, #0f172a);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+
+  /* z-index: 100; - этот z-index может конфликтовать с z-index:10 в App.tsx, лучше оставить его в App.tsx */
+}
+
+.backgroundGradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgb(120 119 198 / 10%), transparent 50%);
+}
+
+.backgroundPattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.2;
+}
+
+.contentWrapper {
+  width: 100%;
+  max-width: 384px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+.gameTitle {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.titleContainer {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0.5em 10px;
+}
+
+.mainTitle {
+  font-size: 2rem;
+  font-weight: bold;
+  background: linear-gradient(to right, #fbbf24, #f97316, #dc2626);
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-align: center;
+  width: 100%;
+}
+
+.titleGlow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgb(251 191 36 / 20%), rgb(249 115 22 / 20%), rgb(220 38 38 / 20%));
+  filter: blur(16px);
+  z-index: -10;
+  padding: 0.1em;
+  border-radius: 50px;
+}
+
+.subtitle {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.gameCard {
+  background: rgb(30 41 59 / 80%);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgb(51 65 85 / 50%);
+  border-radius: 0.5rem;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 25%);
+}
+
+.cardContent {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  /* Это имитирует space-y-6, но для flex-контейнера */
+}
+
+.inputSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inputLabel {
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.nameInput {
+  background: rgb(51 65 85 / 50%);
+  color: white;
+  border: 1px solid #475569;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  height: 3rem;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.nameInput::placeholder {
+  color: #94a3b8;
+}
+
+.nameInput:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgb(245 158 11 / 20%);
+}
+
+.genderSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.genderLabel {
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.genderButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.genderButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.genderCard {
+  background: rgb(51 65 85 / 50%);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.genderOverlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.maleOverlay {
+  background: linear-gradient(to bottom right, rgb(37 99 235 / 20%), rgb(6 182 212 / 20%));
+}
+
+.femaleOverlay {
+  background: linear-gradient(to bottom right, rgb(219 39 119 / 20%), rgb(244 63 94 / 20%));
+}
+
+.genderButton:hover .genderOverlay {
+  opacity: 1;
+}
+
+.genderAvatar {
+  border-radius: 50%;
+  padding: 0.75rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.maleAvatar {
+  background: rgb(37 99 235 / 20%);
+}
+
+.femaleAvatar {
+  background: rgb(219 39 119 / 20%);
+}
+
+.genderIcon {
+  width: 2rem;
+  height: 2rem;
+  stroke-width: 2;
+}
+
+/* Вложенные стили для иконок */
+
+.maleAvatar .genderIcon {
+  color: #60a5fa;
+}
+
+.femaleAvatar .genderIcon {
+  color: #f472b6;
+}
+
+.genderText {
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.selectedIndicator {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Для выбранной кнопки пола */
+
+.genderButton.selected .selectedIndicator {
+  opacity: 1;
+}
+
+.checkIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #f59e0b;
+  stroke-width: 2;
+}
+
+.startButton {
+  width: 100%;
+  height: 3rem;
+  font-weight: bold;
+  font-size: 1.125rem;
+  letter-spacing: 0.05em;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.startButtonEnabled {
+  /* Заменяет :not(.disabled) */
+  background: linear-gradient(to right, #d97706, #ea580c);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%);
+}
+
+.startButtonEnabled:hover {
+  background: linear-gradient(to right, #f59e0b, #f97316);
+  box-shadow: 0 4px 6px -1px rgb(245 158 11 / 25%);
+}
+
+.startButtonDisabled {
+  background: #475569;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.buttonText {
+  display: block;
+  background: transparent;
+}
+
+.footerInfo {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.footerInfo p {
+  color: #64748b;
+  font-size: 0.75rem;
+  background: transparent;
+}
+
+/* Адаптивность для iPhone 13 */
+@media (width <=390px) {
+
+  .mainTitle {
+    font-size: 1.75rem;
+    letter-spacing: 0.02em;
+  }
+
+  .cardContent {
+    padding: 1.25rem;
+  }
+
+  .genderButtons {
+    gap: 0.75rem;
+  }
+}
+
+/* Для очень маленьких экранов */
+@media (width <=320px) {
+
+  .mainTitle {
+    font-size: 1.5rem;
+    letter-spacing: 0;
+  }
+}

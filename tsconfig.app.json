@@ -24,18 +24,19 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "baseUrl": "./src",
     "paths": {
       "@*": [
-        "./src/*"
+        "./*"
       ],
       "@components/*": [
-        "./src/components/*"
+        "./components/*"
       ],
       "@store/*": [
-        "./src/store/*"
+        "./store/*"
       ],
       "@utils/*": [
-        "./src/utils/*"
+        "./utils/*"
       ]
     },
     "types": [

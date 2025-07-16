@@ -1,0 +1,219 @@
+.headerContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 20;
+
+  /* Должен быть выше Phaser Canvas */
+  pointer-events: none;
+
+  /* Позволяет кликам проходить через контейнер по умолчанию */
+  padding: 1rem;
+
+  /* p-4 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, #111827, transparent);
+
+  /* from-gray-900 to-transparent */
+}
+
+.playerInfoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  /* space-x-3 */
+  pointer-events: auto;
+
+  /* Делает этот блок интерактивным */
+  color: #fff;
+
+  /* text-white */
+  background-color: rgb(55 65 81 / 70%);
+
+  /* bg-gray-800 bg-opacity-70 */
+  border-radius: 0.5rem;
+
+  /* rounded-lg */
+  padding: 0.5rem;
+
+  /* p-2 */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 10%), 0 2px 4px -2px rgb(0 0 0 / 10%);
+
+  /* shadow-lg */
+}
+
+@media (width >=640px) {
+  /* sm breakpoint */
+
+  .playerInfoWrapper {
+    gap: 1rem;
+
+    /* sm:space-x-4 */
+    padding: 0.75rem;
+
+    /* sm:p-3 */
+  }
+}
+
+.genderIcon {
+  width: 1.5rem;
+
+  /* w-6 */
+  height: 1.5rem;
+
+  /* h-6 */
+  stroke: currentcolor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.genderIcon.boy {
+  color: #60a5fa;
+
+  /* text-blue-400 */
+}
+
+.genderIcon.girl {
+  color: #f472b6;
+
+  /* text-pink-400 */
+}
+
+@media (width >=640px) {
+  /* sm breakpoint */
+
+  .genderIcon {
+    width: 2rem;
+
+    /* sm:w-8 */
+    height: 2rem;
+
+    /* sm:h-8 */
+  }
+}
+
+.playerName {
+  font-size: 1rem;
+
+  /* text-base */
+  font-weight: bold;
+  line-height: 1.25;
+
+  /* leading-tight */
+}
+
+@media (width >=640px) {
+  /* sm breakpoint */
+
+  .playerName {
+    font-size: 1.125rem;
+
+    /* sm:text-lg */
+  }
+}
+
+.playerRole {
+  font-size: 0.75rem;
+
+  /* text-xs */
+  color: #d1d5db;
+
+  /* text-gray-300 */
+}
+
+@media (width >=640px) {
+  /* sm breakpoint */
+
+  .playerRole {
+    font-size: 0.875rem;
+
+    /* sm:text-sm */
+  }
+}
+
+.introButton {
+  pointer-events: auto;
+
+  /* Делает кнопку интерактивной */
+  background-color: #ea580c;
+
+  /* bg-orange-600 */
+  color: #fff;
+
+  /* text-white */
+  font-weight: 600;
+
+  /* font-semibold */
+  padding: 0.5rem 0.75rem;
+
+  /* py-2 px-3 */
+  border-radius: 0.5rem;
+
+  /* rounded-lg */
+  font-size: 0.75rem;
+
+  /* text-xs */
+  transition: background-color 0.2s ease;
+
+  /* transition-colors duration-200 */
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%), 0 1px 2px -1px rgb(0 0 0 / 10%);
+
+  /* shadow-md */
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  /* space-x-1 */
+  border: none;
+
+  /* Убираем стандартные границы кнопки */
+  cursor: pointer;
+}
+
+.introButton:hover {
+  background-color: #f97316;
+
+  /* hover:bg-orange-700 */
+}
+
+@media (width >=640px) {
+  /* sm breakpoint */
+
+  .introButton {
+    padding: 0.5rem 1rem;
+
+    /* sm:px-4 */
+    font-size: 0.875rem;
+
+    /* sm:text-sm */
+  }
+}
+
+.introButtonIcon {
+  width: 1rem;
+
+  /* w-4 */
+  height: 1rem;
+
+  /* h-4 */
+  stroke: currentcolor;
+  stroke-width: 2;
+  fill: none;
+}
+
+@media (width >=640px) {
+  /* sm breakpoint */
+
+  .introButtonIcon {
+    width: 1.25rem;
+
+    /* sm:w-5 */
+    height: 1.25rem;
+
+    /* sm:h-5 */
+  }
+}
