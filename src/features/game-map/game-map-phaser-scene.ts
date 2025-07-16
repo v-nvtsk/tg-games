@@ -45,9 +45,9 @@ export default class GameMapPhaserScene extends Scene {
     this.load.image("gamemap-tileset-part3-key", getAssetsPath("images/map_part3.png"));
     this.load.tilemapTiledJSON("my_map", getAssetsPath("tiled/tiled-gamemap.json"));
 
-    this.load.spritesheet("player_marker", getAssetsPath("images/schoolboy.png"), {
-      frameWidth: 95,
-      frameHeight: 256,
+    this.load.spritesheet("player_marker", getAssetsPath("images/hero.png"), {
+      frameWidth: 174,
+      frameHeight: 300,
       startFrame: 0,
       endFrame: 0,
     });

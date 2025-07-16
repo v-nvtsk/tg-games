@@ -1,5 +1,5 @@
 import React from "react";
-import { gameFlowManager, type MoveSceneData } from "../../processes/game-flow/game-flow-manager";
+import { gameFlowManager } from "../../processes/game-flow/game-flow-manager";
 // import { useSceneState } from "../../core/state/scene-store";
 import styles from "./move-scene-wrapper.module.css";
 import { CloseIcon } from "@/ui/icons/close-icon"; // Или любая SVG-иконка "X"
