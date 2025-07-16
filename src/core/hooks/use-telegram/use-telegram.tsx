@@ -33,6 +33,8 @@ export const useTelegram = () => {
       WebApp.lockOrientation();
       WebApp.setHeaderColor("bg_color");
       WebApp.requestFullscreen();
+      WebApp.SettingsButton.hide();
+      WebApp.enableClosingConfirmation();
     }
 
     const handleThemeChange = () => {

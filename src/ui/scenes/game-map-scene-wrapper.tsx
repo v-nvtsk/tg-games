@@ -19,7 +19,8 @@ export const GameMapSceneWrapper: React.FC = () => {
     gameFlowManager.showIntro();
   };
 
-  const handleGoToMoveScene = () => {
+  const handleGoToMoveScene = (event: React.MouseEvent) => {
+    event.preventDefault();
     if (gameMapSceneData && gameMapSceneData.targetX !== undefined && gameMapSceneData.targetY !== undefined) {
       // Передаем данные о целевом городе в MoveScene
       gameFlowManager.showMoveScene({

@@ -26,7 +26,6 @@ export default class GameMapPhaserScene extends Scene {
   private currentZoom = 1;
 
   private isDragging = false;
-  private selectedCity: City | null = null;
 
   constructor() {
     super(GameScene.GameMap);
@@ -73,7 +72,7 @@ export default class GameMapPhaserScene extends Scene {
 
     camera.setBounds(0, 0, mapWidth, mapHeight);
 
-    this.player = this.add.sprite(this.cities[0].x, this.cities[0].y, "player_marker");
+    this.player = this.add.sprite(this.cities[0].x - 70, this.cities[0].y, "player_marker").setScale(0.5);
     this.player.setScrollFactor(1);
 
     this.cities.forEach((city) => {
@@ -84,7 +83,6 @@ export default class GameMapPhaserScene extends Scene {
 
       city.object.on("pointerup", () => {
         if (!this.isDragging) {
-          this.selectedCity = city; // Обновляем внутреннее состояние Phaser сцены
           camera.centerOn(city.x, city.y);
           this.startPulseAnimation(city.object as Phaser.GameObjects.Arc);
           // Обновляем состояние React, чтобы показать кнопку "Идти"
@@ -105,7 +103,6 @@ export default class GameMapPhaserScene extends Scene {
         this.touchStartY = pointer.y;
         this.lastTouchDistance = 0;
       }
-      this.selectedCity = null; // Сбрасываем выбранный город в Phaser сцене
       useSceneState.setState({ // Обновляем состояние React, сбрасывая данные
         currentScene: GameScene.GameMap,
         sceneData: null,

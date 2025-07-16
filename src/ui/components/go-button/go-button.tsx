@@ -3,7 +3,7 @@ import React from "react";
 import styles from "./style.module.css";
 
 interface GoButtonProps {
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   text?: string;
 }
 

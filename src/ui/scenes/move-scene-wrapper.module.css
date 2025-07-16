@@ -18,6 +18,7 @@
 }
 
 .infoBox {
+  position: relative;
   pointer-events: auto;
 
   /* Делает этот блок интерактивным */
@@ -31,7 +32,23 @@
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 20%), 0 4px 6px -4px rgb(0 0 0 / 10%);
   max-width: 90%;
 
-  /* Ограничение ширины */
+}
+
+.closeButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.closeButton svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: white;
 }
 
 .title {

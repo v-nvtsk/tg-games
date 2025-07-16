@@ -1,8 +1,11 @@
+// === ./src/features/move-phaser-scene/move-phaser-scene.ts ===
 import { createTiledBackground } from "@/utils/create-tiled-background";
 import { getAssetsPath } from "@/utils/get-assets-path";
 import { Scene } from "phaser";
 import { gameFlowManager } from "@/processes/game-flow/game-flow-manager";
 import type { MoveSceneData } from "@/processes/game-flow/game-flow-manager";
+
+const GROUND_HEIGHT = 50; // Consistent GROUND_HEIGHT
 
 export class MovePhaserScene extends Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
@@ -12,8 +15,7 @@ export class MovePhaserScene extends Scene {
   private background!: Phaser.GameObjects.TileSprite;
   private targetX: number | null = null;
   private targetY: number | null = null;
-  private groundVisual!: Phaser.GameObjects.TileSprite; // Визуальная часть платформы
-  private groundPhysics!: Phaser.Physics.Arcade.StaticGroup; // Физическая часть платформы
+  private platforms!: Phaser.Physics.Arcade.StaticGroup;
 
   constructor() {
     super("MoveScene");
@@ -31,12 +33,7 @@ export class MovePhaserScene extends Scene {
       frameHeight: 256,
     });
     this.load.image("move/background", getAssetsPath("images/background.png"));
-
-    const graphics = this.add.graphics();
-    graphics.fillStyle(0x6B8E23, 1);
-    graphics.fillRect(0, 0, 32, 32);
-    graphics.generateTexture("ground_texture_generated", 32, 32);
-    graphics.destroy();
+    this.load.image("ground", getAssetsPath("images/platform.png"));
   }
 
   create(): void {
@@ -47,40 +44,27 @@ export class MovePhaserScene extends Scene {
     const scaleY = height / this.background.height;
     this.background.setScale(scaleY);
 
-    const groundHeight = 50;
-    const groundY = height;
+    // Платформа
+    this.platforms = this.physics.add.staticGroup();
+    const platform = this.platforms.create(width, height, "ground") as Phaser.Physics.Arcade.Sprite;
+    platform.setOrigin(0.5, 0.5);
+    platform.displayWidth = width * 2;
+    platform.displayHeight = GROUND_HEIGHT * 1.5;
+    platform.refreshBody();
 
-    // Визуальная платформа
-    this.groundVisual = this.add.tileSprite(
-      0,
-      groundY,
-      width,
-      groundHeight,
-      "ground_texture_generated",
-    ).setOrigin(0, 1)
-      .setScrollFactor(0);
-
-    // Физическая платформа
-    this.groundPhysics = this.physics.add.staticGroup();
-    const groundPhysicsRect = this.add.rectangle(width / 2, groundY, width, groundHeight);
-    this.groundPhysics.add(groundPhysicsRect);
-    groundPhysicsRect.setVisible(false);
-
-    // Игрок — немного выше платформы
+    // Игрок
     this.player = this.physics.add.sprite(
       this.targetX || width / 2,
-      height - 150,
+      height - GROUND_HEIGHT,
       "player_main_sprite",
     );
-
     this.player
-      .setOrigin(0.2, 1) // центр по X, верх по Y
+      .setOrigin(0.5, 1)
       .setCollideWorldBounds(true)
       .setBounce(0.2)
       .setGravityY(500);
-
     this.player.body?.setSize(50, 150);
-    this.player.body?.setOffset(25, -50);
+    // this.player.body?.setOffset(25, 50);
 
     // Анимации
     this.anims.create({
@@ -89,7 +73,6 @@ export class MovePhaserScene extends Scene {
       frameRate: 8,
       repeat: -1,
     });
-
     this.anims.create({
       key: "idle",
       frames: this.anims.generateFrameNumbers("player_main_sprite", { start: 0, end: 0 }),
@@ -104,11 +87,12 @@ export class MovePhaserScene extends Scene {
     this.input.addPointer(1);
 
     // Камера
-    this.cameras.main.startFollow(this.player, true, 0.5, 0, 0, 50);
-    this.cameras.main.setDeadzone(width * 0.1, height * 0.1);
+    this.cameras.main.setOrigin(0.5, 1);
+    this.cameras.main.startFollow(this.player, true, 0.5, 1, 0, height / 2); // Смещаем центр камеры вниз
+    this.cameras.main.setDeadzone(width * 0.1, 0);
 
-    // Коллизия между игроком и платформой
-    this.physics.add.collider(this.player, this.groundPhysics);
+    // Коллизия
+    this.physics.add.collider(this.player, this.platforms);
 
     // Подписка на ресайз
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -131,32 +115,34 @@ export class MovePhaserScene extends Scene {
 
   resizeGame(gameSize: { width: number; height: number }) {
     const { width, height } = gameSize;
-    const groundHeight = 50;
+    console.log("gamesize width, height: ", width, height);
 
     if (this.background) {
       this.background.displayWidth = width;
       this.background.displayHeight = height;
-      this.background.setOrigin(0, 0);
     }
 
-    if (this.groundVisual) {
-      this.groundVisual.setPosition(0, height - groundHeight);
-      this.groundVisual.setSize(width, groundHeight);
+    // Если хочешь вручную обновлять платформу (не обязательно, Phaser делает это сам):
+    if (this.platforms && this.platforms.getChildren().length > 0) {
+      const platform = this.platforms.getChildren()[0] as Phaser.Physics.Arcade.Sprite;
+      platform.setX(width / 2); // Center horizontally
+      platform.setY(height); // Position at the very bottom
+      platform.setOrigin(0.5, 1); // Center horizontally, bottom edge at Y
+      platform.displayWidth = width; // Ensure it stretches across the width
+      platform.displayHeight = GROUND_HEIGHT; // Keep consistent height
+      platform.refreshBody();
     }
 
-    if (this.groundPhysics && this.groundPhysics.getChildren().length > 0) {
-      const groundPhysicsRect = this.groundPhysics.getChildren()[0] as Phaser.GameObjects.Rectangle;
-      groundPhysicsRect.setPosition(width / 2, height - groundHeight / 2);
-      groundPhysicsRect.setSize(width, groundHeight);
-      this.groundPhysics.refresh();
-    }
-
+    // Adjust player position on resize
     if (this.player) {
-      this.player.setPosition(this.player.x, height - groundHeight - 100);
+      this.player.setX(this.targetX || width / 2); // Keep horizontal position or center
+      this.player.setY(height - GROUND_HEIGHT); // Maintain distance from platform
     }
 
-    this.physics.world.setBounds(0, 0, width * 2, height);
-    this.cameras.main.setDeadzone(width * 0.1, height * 0.1);
+    // this.physics.world.setBounds(0, 0, width * 2.2, height * 1.1);
+    // this.cameras.main.setDeadzone(width * 0.1, height * 0.1);
+
+    this.cameras.main.setDeadzone(0, 0);
   }
 
   update(): void {
@@ -206,7 +192,8 @@ export class MovePhaserScene extends Scene {
 
     if (this.player.body.velocity.x !== 0) {
       const speedFactor = 0.5;
-      this.groundVisual.tilePositionX += this.player.body.velocity.x * speedFactor * this.game.loop.delta / 1000;
+      // Commented out: this.groundVisual is not initialized as a TileSprite
+      // this.groundVisual.tilePositionX += this.player.body.velocity.x * speedFactor * this.game.loop.delta / 1000;
       this.background.tilePositionX += this.player.body.velocity.x * speedFactor * this.game.loop.delta / 1000;
     }
   }
