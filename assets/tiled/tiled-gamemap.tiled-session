@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "tiled-gamemap.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -25,8 +25,8 @@
             "scale": 0.3085092905405405,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 2147.4231743207174,
-                "y": 1473.213332420779
+                "x": 1653.1106700431185,
+                "y": 993.4870987612073
             }
         },
         "tiled-gamemap.json#gamemap-tileset-part1": {
@@ -43,7 +43,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 1617.1389080856948,
-                "y": -480.3040774015208
+                "y": 542.5017277125085
             }
         },
         "tiled-gamemap.tmx#gamemap-tileset-part1": {
@@ -51,10 +51,12 @@
             "scaleInEditor": 1
         },
         "tiled-gamemap.tmx#gamemap-tileset-part2": {
-            "scaleInDock": 0.12
+            "scaleInDock": 0.12,
+            "scaleInEditor": 1
         },
         "tiled-gamemap.tmx#gamemap-tileset-part3": {
-            "scaleInDock": 0.12
+            "scaleInDock": 0.12,
+            "scaleInEditor": 1
         }
     },
     "last.exportedFilePath": "/home/vladislav/dev/game-dev/tg-games/src/assets/tiled",
@@ -73,9 +75,9 @@
     ],
     "project": "tiled-gamemap.tiled-project",
     "recentFiles": [
-        "tiled-gamemap.tmx",
-        "gamemap-tileset.tsx",
         "tiled-gamemap.json",
+        "gamemap-tileset.tsx",
+        "tiled-gamemap.tmx",
         "gamemap-tileset.json"
     ],
     "tileset.embedInMap": true,

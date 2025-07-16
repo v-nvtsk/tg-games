@@ -46,7 +46,7 @@
         {
          "columns":16,
          "firstgid":1,
-         "image":"..\/map_part1.png",
+         "image":"..\/images\/map_part1.png",
          "imageheight":2944,
          "imagewidth":2048,
          "margin":0,
@@ -60,7 +60,7 @@
         {
          "columns":16,
          "firstgid":369,
-         "image":"..\/map_part2.png",
+         "image":"..\/images\/map_part2.png",
          "imageheight":2944,
          "imagewidth":2048,
          "margin":0,
@@ -74,7 +74,7 @@
         {
          "columns":5,
          "firstgid":737,
-         "image":"..\/map_part3.png",
+         "image":"..\/images\/map_part3.png",
          "imageheight":2944,
          "imagewidth":640,
          "margin":0,
