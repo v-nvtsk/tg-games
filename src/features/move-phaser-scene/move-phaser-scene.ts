@@ -63,7 +63,7 @@ export class MovePhaserScene extends Scene {
       .setCollideWorldBounds(true)
       .setBounce(0.2)
       .setGravityY(500);
-    // this.player.body?.setSize(50, 150);
+    this.player.body?.setSize(50, 150);
     // this.player.body?.setOffset(25, 50);
 
     // Анимации
@@ -97,20 +97,6 @@ export class MovePhaserScene extends Scene {
     // Подписка на ресайз
     // eslint-disable-next-line @typescript-eslint/unbound-method
     this.scale.on("resize", this.resizeGame, this);
-
-    // Кнопка возврата
-    const backButton = this.add.text(width / 2, 50, "Вернуться на карту", {
-      fontSize: "24px",
-      color: "#fff",
-      backgroundColor: "#880000",
-      padding: { x: 10, y: 5 },
-    })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true });
-    backButton.setScrollFactor(0);
-    backButton.on("pointerdown", () => {
-      gameFlowManager.startGameMap();
-    });
   }
 
   resizeGame(gameSize: { width: number; height: number }) {

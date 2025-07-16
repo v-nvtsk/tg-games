@@ -1,35 +1,18 @@
 .goButton {
   position: fixed;
-
-  /* Или absolute, если родитель имеет position: relative */
   bottom: 2rem;
-
-  /* Отступ от низа */
-  right: 2rem;
-
-  /* Отступ от правого края */
+  left: 0;
+  width: 100%;
   z-index: 30;
-
-  /* Выше Phaser и других UI-элементов */
   pointer-events: auto;
-
-  /* Делает кнопку кликабельной */
   background: linear-gradient(to right, #4CAF50, #66BB6A);
-
-  /* Зеленый градиент */
   color: #fff;
   font-family: Arial, sans-serif;
-  font-size: 1.25rem;
-
-  /* 20px */
+  font-size: 2rem;
   font-weight: bold;
   padding: 0.75rem 1.5rem;
-
-  /* py-3 px-6 */
   border: none;
   border-radius: 9999px;
-
-  /* rounded-full */
   box-shadow: 0 4px 10px rgb(0 0 0 / 30%);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -37,14 +20,11 @@
   align-items: center;
   gap: 0.5rem;
 
-  /* Отступ между текстом и иконкой */
 }
 
 .goButton:hover {
   background: linear-gradient(to right, #66BB6A, #81C784);
   transform: translateY(-2px);
-
-  /* Легкий эффект поднятия */
   box-shadow: 0 6px 15px rgb(0 0 0 / 40%);
 }
 
@@ -53,30 +33,24 @@
   box-shadow: 0 2px 5px rgb(0 0 0 / 20%);
 }
 
-.buttonText {
-  /* Если текст нужно дополнительно стилизовать */
-}
-
 .buttonIcon {
-  width: 1.5rem;
-
-  /* Размер иконки */
-  height: 1.5rem;
+  width: 2rem;
+  height: 2rem;
   stroke-width: 2;
 }
 
-/* Адаптивность для меньших экранов */
+
 @media (width <=640px) {
 
   .goButton {
     bottom: 1rem;
     right: 1rem;
-    font-size: 1rem;
+    font-size: 2rem;
     padding: 0.6rem 1.2rem;
   }
 
   .buttonIcon {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 2rem;
+    height: 2rem;
   }
 }
