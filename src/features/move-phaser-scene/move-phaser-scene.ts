@@ -2,7 +2,6 @@
 import { createTiledBackground } from "@/utils/create-tiled-background";
 import { getAssetsPath } from "@/utils/get-assets-path";
 import { Scene } from "phaser";
-import { gameFlowManager } from "@/processes/game-flow/game-flow-manager";
 import type { MoveSceneData } from "@/processes/game-flow/game-flow-manager";
 
 const GROUND_HEIGHT = 50; // Consistent GROUND_HEIGHT
@@ -32,7 +31,7 @@ export class MovePhaserScene extends Scene {
       frameWidth: 174,
       frameHeight: 300,
     });
-    this.load.image("move/background", getAssetsPath("images/background.png"));
+    this.load.image("move/background", getAssetsPath("images/background-variant.png"));
     this.load.image("ground", getAssetsPath("images/platform.png"));
   }
 
