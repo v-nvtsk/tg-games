@@ -19,7 +19,7 @@ export class Intro extends Scene {
   preload(): void {
     // Загружаем HTML-форму
     this.load.html("nameform", getAssetsPath("text/nameform/index.html"));
-    this.load.image("map", getAssetsPath("map.png"));
+    // this.load.image("map", getAssetsPath("map.png"));
   }
 
   create(): void {
@@ -28,7 +28,7 @@ export class Intro extends Scene {
 
     this.formElement = this.add.dom(width / 2, height / 2).createFromCache("nameform");
 
-    this.add.image(width / 2, height / 2, "map").setOrigin(0.3, 0.5)
+    this.add.image(width / 2, height / 2, "global/map").setOrigin(0.3, 0.5)
       .setScale(0.5)
       .setAlpha(0.5);
 

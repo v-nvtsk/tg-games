@@ -1,10 +1,10 @@
 import { GameObjects, Scene } from "phaser";
 import { EventBus } from "../EventBus";
-import { setBackground } from "../../../utils/set-background";
+// import { setBackground } from "../../../utils/set-background";
 
 export class MainMenu extends Scene {
   background!: GameObjects.Image;
-  logo!: GameObjects.Image;
+  // logo!: GameObjects.Image;
   title!: GameObjects.Text;
   startButton!: GameObjects.Text;
   // logoTween: Phaser.Tweens.Tween | null;
@@ -22,13 +22,13 @@ export class MainMenu extends Scene {
     const scale = this.cameras.main.width > this.cameras.main.height ? this.cameras.main.height / 768 : this.cameras.main.width / 1024;
 
     // Фон
-    setBackground(this, "menu/background", true);
+    // setBackground(this, "menu/background", true);
 
     // Логотип
     y += midY;
-    this.logo = this.add.image(midX, y, "logo")
-      .setDepth(100)
-      .setScale(scale);
+    // this.logo = this.add.image(midX, y, "logo")
+    //   .setDepth(100)
+    //   .setScale(scale);
 
     // Заголовок
     y += 160 * scale;
@@ -56,7 +56,7 @@ export class MainMenu extends Scene {
       .setDepth(100)
       .setInteractive()
       .on("pointerdown", () => {
-        this.scene.start("MoveScene"); // или "MainGame", в зависимости от того, какую сцену ты хочешь запустить
+        this.scene.start("MapScene"); // или "MainGame", в зависимости от того, какую сцену ты хочешь запустить
       })
       .on("pointerover", () => {
         this.startButton.setStyle({ fill: "#ffff00" }); // при наведении
@@ -71,7 +71,7 @@ export class MainMenu extends Scene {
   }
 
   changeScene(): void {
-    this.scene.start("MoveScene");
+    this.scene.start("MapScene");
   }
 
   // moveLogo(vueCallback: ({ x, y }: { x: number; y: number }) => void): void {

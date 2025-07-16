@@ -11,7 +11,7 @@ interface Cities {
 }
 
 export class MapScene extends Scene {
-  private mapImage!: Phaser.GameObjects.Image;
+  private mapImage!: Phaser.Tilemaps.Tilemap;
   private player!: Phaser.GameObjects.Sprite;
 
   // Жесты
@@ -39,7 +39,12 @@ export class MapScene extends Scene {
   ];
 
   preload(): void {
-    this.load.image("map", getAssetsPath("map.png"));
+    // 1. Загружаем файл JSON карты Tiled
+    this.load.image("gamemap-tileset-part1-key", getAssetsPath("map_part1.png"));
+    this.load.image("gamemap-tileset-part2-key", getAssetsPath("map_part2.png"));
+    this.load.image("gamemap-tileset-part3-key", getAssetsPath("map_part3.png"));
+    this.load.tilemapTiledJSON("my_map", getAssetsPath("tiled/tiled-gamemap.json"));
+
     this.load.spritesheet("player_marker", getAssetsPath("schoolboy.png"), {
       frameWidth: 95,
       frameHeight: 256,
@@ -50,12 +55,25 @@ export class MapScene extends Scene {
 
   create(): void {
     // --- ФОН ---
-    this.mapImage = this.add.image(0, 0, "map").setOrigin(0, 0);
+    this.mapImage = this.make.tilemap({ key: "my_map" });
+
+    const tileset1 = this.mapImage.addTilesetImage("gamemap-tileset-part1", "gamemap-tileset-part1-key");
+    const tileset2 = this.mapImage.addTilesetImage("gamemap-tileset-part2", "gamemap-tileset-part2-key");
+    const tileset3 = this.mapImage.addTilesetImage("gamemap-tileset-part3", "gamemap-tileset-part3-key");
+
+    if (tileset1 && tileset2 && tileset3) {
+      this.mapImage.createLayer("Tile Layer 1", [tileset1, tileset2, tileset3], 0, 0);
+    } else {
+      console.error("Ошибка: Один или несколько тайлсетов не были загружены.");
+    }
+
+    // Настройка размеров мира для камеры
+    this.cameras.main.setBounds(0, 0, this.mapImage.widthInPixels, this.mapImage.heightInPixels);
 
     // --- КАМЕРА ---
     const camera = this.cameras.main;
-    const mapWidth = this.mapImage.width;
-    const mapHeight = this.mapImage.height;
+    const mapWidth = this.mapImage.widthInPixels;
+    const mapHeight = this.mapImage.heightInPixels;
 
     // Устанавливаем границы камеры
     camera.setBounds(0, 0, mapWidth, mapHeight);
@@ -69,7 +87,7 @@ export class MapScene extends Scene {
       // draw a circle R=CITY_RADIUS
       city.object = this.add.circle(city.x, city.y, CITY_RADIUS, 0xffe600, 0.2)
         .setScrollFactor(1)
-        .setAlpha(0.00001)
+        .setAlpha(0.5)
         .setInteractive();
 
       city.object.on("pointerup", () => {
