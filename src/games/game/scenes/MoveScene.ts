@@ -17,10 +17,10 @@ export class MoveScene extends Scene {
   preload(): void {
     // Загружаем спрайты
     this.load.spritesheet("player_walk", getAssetsPath("schoolboy.png"), {
-      frameWidth: 100,
+      frameWidth: 103,
       frameHeight: 256,
       startFrame: 1,
-      endFrame: 8,
+      endFrame: 5,
 
     });
     this.load.spritesheet("player_idle", getAssetsPath("schoolboy.png"), {
@@ -51,8 +51,8 @@ export class MoveScene extends Scene {
     // Анимации
     this.anims.create({
       key: "walk",
-      frames: this.anims.generateFrameNumbers("player_walk", { start: 0, end: 8 }),
-      frameRate: 16,
+      frames: this.anims.generateFrameNumbers("player_walk", { start: 1, end: 5 }),
+      frameRate: 8,
       repeat: -1,
     });
 

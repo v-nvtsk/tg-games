@@ -1,3 +1,4 @@
+import { getAssetsPath } from "../../../utils/get-assets-path";
 import { EventBus } from "../EventBus";
 import { Scene } from "phaser";
 
@@ -17,79 +18,61 @@ export class Intro extends Scene {
 
   preload(): void {
     // Загружаем HTML-форму
-    this.load.html("nameform", "assets/text/nameform/index.html");
+    this.load.html("nameform", getAssetsPath("text/nameform/index.html"));
+    this.load.image("map", getAssetsPath("map.png"));
   }
 
   create(): void {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    // Фон
-    // this.scene;
-    this.add.image(width / 2, height / 2, "global/map")
-      .setOrigin(0.3, 0.5)
+    this.formElement = this.add.dom(width / 2, height / 2).createFromCache("nameform");
+
+    this.add.image(width / 2, height / 2, "map").setOrigin(0.3, 0.5)
       .setScale(0.5)
       .setAlpha(0.5);
 
-    // Загрузка формы
-    this.formElement = this.add.dom(width / 2, height / 2).createFromCache("nameform");
+    // Получаем корневой узел формы
+    const formNode = this.formElement.node;
 
-    // Подписываемся на клики по кнопкам внутри формы
-    this.formElement.addListener("click");
+    // === Обработка кликов на уровне DOM ===
+    formNode.addEventListener("click", (event: Event) => {
+      const target = event.target as HTMLElement;
 
-    this.formElement.on("click", (event: React.MouseEvent<HTMLButtonElement>) => {
-      const target = event.target as HTMLButtonElement;
+      // --- Клик по кнопке выбора пола ---
+      if (target.closest(".gender-button")) {
+        const genderBtn = target.closest(".gender-button") as HTMLButtonElement;
+        this.selectedGender = genderBtn.dataset.gender || null;
 
-      // Выбор пола
-      if (target.name === "genderButton") {
-        this.selectedGender = target.dataset.gender || null;
+        // Обновляем стили
+        const buttons = formNode.querySelectorAll<HTMLButtonElement>(".gender-button");
+        buttons.forEach((btn) => btn.classList.remove("selected"));
+        genderBtn.classList.add("selected");
 
-        // Сброс стилей всех кнопок
-        const buttons = this.formElement.getChildByID("name-form-container")?.querySelectorAll<HTMLButtonElement>("[data-gender]");
-        buttons?.forEach((btn: HTMLButtonElement) => {
-          btn.style.backgroundColor = "";
-        });
-
-        // Подсветка выбранной кнопки
-        target.style.backgroundColor = "#007bff";
+        this.checkFormValidity();
       }
 
-      // Клик по кнопке "Начать игру"
-      if (target.id === "play-button") {
-        const input = this.formElement.getChildByID("nameField") as HTMLInputElement;
-        const name = input?.value.trim();
-
-        if (!name || !this.selectedGender) {
-          alert("Пожалуйста, введите имя и выберите пол");
-          return;
-        }
-
-        // FIX: Remove this later
-        console.log("User Data:", { name, gender: this.selectedGender });
-
-        // Скрываем форму
-        this.formElement.setVisible(false);
-
-        this.add.text(width / 2, height / 2 - 120, `Добро пожаловать, ${name}`, {
-          fontSize: "24px",
-          color: "#fff",
-          padding: { left: 10, right: 10 },
-          wordWrap: { width: window.innerWidth * 0.8 },
-          align: "center",
-          // TODO: исправить шрифт
-          fontFamily: "Serif",
-        }).setOrigin(0.5);
-
-        // Переход к следующей сцене
-        this.time.delayedCall(1000, () => {
-          // this.scene.start("MainMenu");
-          this.scene.start("MapScene");
-
-        });
+      // --- Клик по кнопке "Начать игру" ---
+      if (target.id === "startGameBtn" && !target.classList.contains("disabled")) {
+        this.handleStartButtonClick();
       }
     });
 
-    // Анимация появления формы
+    // === Обработка ввода имени ===
+    const nameInput = formNode.querySelector("#nameInput") as HTMLInputElement;
+    if (nameInput) {
+      nameInput.addEventListener("input", () => {
+        this.checkFormValidity();
+      });
+
+      nameInput.addEventListener("keypress", (e: KeyboardEvent) => {
+        if (e.key === "Enter" && !formNode.querySelector("#startGameBtn")?.classList.contains("disabled")) {
+          this.handleStartButtonClick();
+        }
+      });
+    }
+
+    // Анимация появления
     this.tweens.add({
       targets: this.formElement,
       y: height / 2,
@@ -100,4 +83,42 @@ export class Intro extends Scene {
     EventBus.emit("current-scene-ready", this);
   }
 
+  private checkFormValidity(): void {
+    const nameInput = this.formElement.node.querySelector<HTMLInputElement>("#nameInput");
+    const genderBtn = this.formElement.node.querySelector<HTMLButtonElement>(".gender-button.selected");
+    const startBtn = this.formElement.node.querySelector<HTMLButtonElement>("#startGameBtn");
+
+    if (nameInput && startBtn) {
+      if (nameInput.value.trim() && genderBtn) {
+        startBtn.classList.remove("disabled");
+        startBtn.textContent = "НАЧАТЬ ИГРУ";
+      } else {
+        startBtn?.classList.add("disabled");
+        startBtn.textContent = "ЗАПОЛНИТЕ ВСЕ ПОЛЯ";
+      }
+    }
+  }
+
+  private handleStartButtonClick(): void {
+    const nameInput = this.formElement.node.querySelector<HTMLInputElement>("#nameInput");
+    const name = nameInput?.value.trim();
+
+    if (!name || !this.selectedGender) return;
+
+    this.formElement.setVisible(false);
+
+    this.add.text(this.scale.width / 2, this.scale.height / 2 - 120, `Добро пожаловать, ${name}`, {
+      fontSize: "24px",
+      color: "#fff",
+      padding: { left: 10, right: 10 },
+      wordWrap: { width: window.innerWidth * 0.8 },
+      align: "center",
+      fontFamily: "Serif",
+    }).setOrigin(0.5);
+
+    this.time.delayedCall(1000, () => {
+      // TODO: надо удалить все слушатели кнопок и прочих элементов
+      this.scene.start("MapScene");
+    });
+  }
 }
