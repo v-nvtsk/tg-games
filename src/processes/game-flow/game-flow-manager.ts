@@ -19,22 +19,25 @@ export const GameScene = {
 export type GameScene = typeof GameScene[keyof typeof GameScene];
 
 export interface FoodGameLevelData {
+  type: "food";
   levelId: string;
 
 }
 
 export interface GameMapSceneData {
+  type: "map";
   selectedCity: string;
   targetX: number;
   targetY: number;
 }
 
 export interface MoveSceneData {
+  type: "move";
   targetX: number;
   targetY: number;
 }
 
-export type SceneDataPayload = Record<string, unknown> | FoodGameLevelData | GameMapSceneData | MoveSceneData;
+export type SceneDataPayload = GameMapSceneData | MoveSceneData | FoodGameLevelData | Record<string, unknown>;
 
 class GameFlowManager {
   private game: Phaser.Game | null = null;

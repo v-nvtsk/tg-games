@@ -4,13 +4,13 @@
   <export target="tiled-gamemap.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" name="gamemap-tileset-part1" tilewidth="128" tileheight="128" tilecount="368" columns="16">
-  <image source="../map_part1.png" trans="ff00ff" width="2048" height="2944"/>
+  <image source="../images/map_part1.png" trans="ff00ff" width="2048" height="2944"/>
  </tileset>
  <tileset firstgid="369" name="gamemap-tileset-part2" tilewidth="128" tileheight="128" tilecount="368" columns="16">
-  <image source="../map_part2.png" trans="ff00ff" width="2048" height="2944"/>
+  <image source="../images/map_part2.png" trans="ff00ff" width="2048" height="2944"/>
  </tileset>
  <tileset firstgid="737" name="gamemap-tileset-part3" tilewidth="128" tileheight="128" tilecount="115" columns="5">
-  <image source="../map_part3.png" trans="ff00ff" width="640" height="2944"/>
+  <image source="../images/map_part3.png" trans="ff00ff" width="640" height="2944"/>
  </tileset>
  <layer id="1" name="Tile Layer 1" width="37" height="23">
   <data encoding="csv">

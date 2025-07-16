@@ -4,7 +4,7 @@ import { getAssetsPath } from "@/utils/get-assets-path";
 import { GameScene, type GameMapSceneData } from "@/processes/game-flow/game-flow-manager"; // Импортируем GameMapSceneData
 import { useSceneState } from "@/core/state/scene-store";
 
-const CITY_RADIUS = 150;
+const CITY_RADIUS = 100;
 
 interface City {
   name: string;
@@ -26,6 +26,8 @@ export default class GameMapPhaserScene extends Scene {
   private currentZoom = 1;
 
   private isDragging = false;
+
+  private selectedCity = "";
 
   constructor() {
     super(GameScene.GameMap);
@@ -78,19 +80,22 @@ export default class GameMapPhaserScene extends Scene {
     this.cities.forEach((city) => {
       city.object = this.add.circle(city.x, city.y, CITY_RADIUS, 0xffe600, 0.2)
         .setScrollFactor(1)
-        .setAlpha(0.5)
+        .setAlpha(0.000001)
         .setInteractive();
 
       city.object.on("pointerup", () => {
         if (!this.isDragging) {
           camera.centerOn(city.x, city.y);
-          this.startPulseAnimation(city.object as Phaser.GameObjects.Arc);
+          if (city.name !== this.selectedCity) {
+            this.startPulseAnimation(city.object as Phaser.GameObjects.Arc);
+          }
           // Обновляем состояние React, чтобы показать кнопку "Идти"
           // Передаем данные, соответствующие GameMapSceneData
           useSceneState.setState({
             currentScene: GameScene.GameMap,
             sceneData: { selectedCity: city.name, targetX: city.x, targetY: city.y } as GameMapSceneData,
           });
+          this.selectedCity = city.name;
         }
       });
     });
@@ -173,9 +178,9 @@ export default class GameMapPhaserScene extends Scene {
       scaleX: 1.2,
       scaleY: 1.2,
       alpha: 1,
-      duration: 800,
+      duration: 300,
       ease: "Linear",
-      repeat: -1,
+      repeat: 0,
       yoyo: true,
     });
   }

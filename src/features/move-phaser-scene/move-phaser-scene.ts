@@ -28,9 +28,9 @@ export class MovePhaserScene extends Scene {
   }
 
   preload(): void {
-    this.load.spritesheet("player_main_sprite", getAssetsPath("images/schoolboy.png"), {
-      frameWidth: 103,
-      frameHeight: 256,
+    this.load.spritesheet("player_main_sprite", getAssetsPath("images/hero.png"), {
+      frameWidth: 174,
+      frameHeight: 300,
     });
     this.load.image("move/background", getAssetsPath("images/background.png"));
     this.load.image("ground", getAssetsPath("images/platform.png"));
@@ -63,14 +63,14 @@ export class MovePhaserScene extends Scene {
       .setCollideWorldBounds(true)
       .setBounce(0.2)
       .setGravityY(500);
-    this.player.body?.setSize(50, 150);
+    // this.player.body?.setSize(50, 150);
     // this.player.body?.setOffset(25, 50);
 
     // Анимации
     this.anims.create({
       key: "walk",
-      frames: this.anims.generateFrameNumbers("player_main_sprite", { start: 1, end: 5 }),
-      frameRate: 8,
+      frames: this.anims.generateFrameNumbers("player_main_sprite", { start: 0, end: 5 }),
+      frameRate: 6,
       repeat: -1,
     });
     this.anims.create({
