@@ -28,9 +28,9 @@ export class Intro extends Scene {
 
     this.formElement = this.add.dom(width / 2, height / 2).createFromCache("nameform");
 
-    this.add.image(width / 2, height / 2, "global/map").setOrigin(0.3, 0.5)
-      .setScale(0.5)
-      .setAlpha(0.5);
+    // this.add.image(width / 2, height / 2, "global/map").setOrigin(0.3, 0.5)
+    //   .setScale(0.5)
+    //   .setAlpha(0.5);
 
     // Получаем корневой узел формы
     const formNode = this.formElement.node;
