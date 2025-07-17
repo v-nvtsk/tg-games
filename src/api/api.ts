@@ -50,7 +50,6 @@ export const authenticate = async (): Promise<AuthResponse> => {
   return response.json() as Promise<AuthResponse>;
 };
 
-// Обновляем функции
 export const get2048HighScore = async (token: string): Promise<number> => {
   const response = await fetch(`${API_BASE_URL}/game2048/high-score`, {
     headers: { Authorization: `Bearer ${token}` },

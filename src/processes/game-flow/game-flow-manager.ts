@@ -1,12 +1,12 @@
 import Phaser from "phaser";
-import { gameConfig } from "@/core/game-engine/config";
-import { useSceneState } from "@/core/state/scene-store";
+import { gameConfig } from "@core/game-engine/config";
+import { useSceneStore, type FoodGameLevelData, type MoveSceneData } from "@core/state";
 
-import { IntroPhaserScene } from "@/features/intro-phaser-scene";
-import { FoodGamePhaserScene } from "@/features/food-game";
-import { GameMapPhaserScene } from "@/features/game-map";
-import { Game2048PhaserScene } from "@/features/2048-game";
-import { MovePhaserScene } from "@/features/move-phaser-scene";
+import { IntroPhaserScene } from "@features/intro-phaser-scene";
+import { FoodGamePhaserScene } from "@features/food-game";
+import { GameMapPhaserScene } from "@features/game-map";
+import { Game2048PhaserScene } from "@features/2048-game";
+import { MovePhaserScene } from "@features/move-phaser-scene";
 
 export const GameScene = {
   Intro: "Intro",
@@ -17,27 +17,6 @@ export const GameScene = {
 } as const;
 
 export type GameScene = typeof GameScene[keyof typeof GameScene];
-
-export interface FoodGameLevelData {
-  type: "food";
-  levelId: string;
-
-}
-
-export interface GameMapSceneData {
-  type: "map";
-  selectedCity: string;
-  targetX: number;
-  targetY: number;
-}
-
-export interface MoveSceneData {
-  type: "move";
-  targetX: number;
-  targetY: number;
-}
-
-export type SceneDataPayload = GameMapSceneData | MoveSceneData | FoodGameLevelData | Record<string, unknown>;
 
 class GameFlowManager {
   private game: Phaser.Game | null = null;
@@ -70,7 +49,7 @@ class GameFlowManager {
       this.game.scene.stop(GameScene.FoodGame);
       this.game.scene.stop(GameScene.Game2048);
       this.game.scene.start(GameScene.Intro);
-      useSceneState.setState({ currentScene: GameScene.Intro, sceneData: null });
+      useSceneStore.setState({ currentScene: GameScene.Intro, sceneData: null });
       console.log("Showing Intro Scene");
     }
   }
@@ -82,7 +61,7 @@ class GameFlowManager {
       this.game.scene.stop(GameScene.FoodGame);
       this.game.scene.stop(GameScene.Game2048);
       this.game.scene.start(GameScene.GameMap);
-      useSceneState.setState({ currentScene: GameScene.GameMap, sceneData: null });
+      useSceneStore.setState({ currentScene: GameScene.GameMap, sceneData: null });
       console.log("Starting Game Map Scene");
     }
   }
@@ -91,7 +70,7 @@ class GameFlowManager {
     if (this.game) {
       this.game.scene.stop(GameScene.GameMap);
       this.game.scene.start(GameScene.Move, data);
-      useSceneState.setState({ currentScene: GameScene.Move, sceneData: data });
+      useSceneStore.setState({ currentScene: GameScene.Move, sceneData: data });
       console.log("Showing Move Scene with data:", data);
     }
   }
@@ -101,7 +80,7 @@ class GameFlowManager {
       this.game.scene.stop(GameScene.GameMap);
       this.game.scene.stop(GameScene.Move);
       this.game.scene.start(GameScene.FoodGame, data);
-      useSceneState.setState({ currentScene: GameScene.FoodGame, sceneData: data });
+      useSceneStore.setState({ currentScene: GameScene.FoodGame, sceneData: data });
       console.log("Starting Food Game Scene with data:", data);
     }
   }
@@ -111,7 +90,7 @@ class GameFlowManager {
       this.game.scene.stop(GameScene.GameMap);
       this.game.scene.stop(GameScene.Move);
       this.game.scene.start(GameScene.Game2048);
-      useSceneState.setState({ currentScene: GameScene.Game2048, sceneData: null });
+      useSceneStore.setState({ currentScene: GameScene.Game2048, sceneData: null });
       console.log("Starting 2048 Game Scene");
     }
   }

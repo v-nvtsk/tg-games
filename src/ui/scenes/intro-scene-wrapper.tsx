@@ -1,7 +1,7 @@
 // === src/ui/scenes/intro-scene-wrapper.tsx ===
 import React from "react";
-import { gameFlowManager } from "../../processes/game-flow/game-flow-manager";
-import { usePlayerState } from "@/core/state/player-store";
+import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
+import { usePlayerState } from "@core/state/player-store";
 
 import styles from "./intro-scene-wrapper.module.css"; // Импортируем наш CSS-модуль
 

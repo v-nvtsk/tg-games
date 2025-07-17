@@ -1,14 +1,11 @@
 import React from "react";
-import { gameFlowManager, type FoodGameLevelData } from "../../processes/game-flow/game-flow-manager";
-import { useSceneState } from "../../core/state/scene-store";
-
-// Удаляем пустой интерфейс, если props не передаются
-// interface FoodGameSceneWrapperProps {}
+import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
+import { useSceneStore } from "@core/state/scene-store";
+import type { FoodGameLevelData } from "@core/state";
 
 export const FoodGameSceneWrapper: React.FC = () => {
-  const sceneData = useSceneState((state) => state.sceneData);
-  // Приводим к конкретному типу FoodGameLevelData, так как знаем, что это FoodGame
-  const foodGameLevelData = sceneData as FoodGameLevelData | undefined;
+  const sceneData = useSceneStore((state) => state.sceneData);
+  const foodGameLevelData = sceneData as FoodGameLevelData;
 
   const handleGoToMap = () => {
     gameFlowManager.startGameMap();

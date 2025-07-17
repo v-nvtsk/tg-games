@@ -1,8 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef } from "react";
 import "./global.css";
-import { gameFlowManager } from "./processes/game-flow/game-flow-manager";
-import { useSceneState } from "./core/state/scene-store";
-import { GameScene } from "./processes/game-flow/game-flow-manager"; // Убедитесь, что GameScene импортирован
+import { gameFlowManager, GameScene } from "./processes/game-flow/game-flow-manager";
+import { useSceneStore } from "./core/state/scene-store";
 import { IntroSceneWrapper, GameMapSceneWrapper, FoodGameSceneWrapper, Game2048SceneWrapper, MoveSceneWrapper } from "./ui/scenes";
 import { useTelegram } from "./core/hooks";
 import { authenticate } from "./api";
@@ -11,7 +10,7 @@ export const App: React.FC = () => {
   const { webApp } = useTelegram();
 
   const phaserCanvasRef = useRef<HTMLDivElement>(null);
-  const currentScene = useSceneState((state) => state.currentScene);
+  const currentScene = useSceneStore((state) => state.currentScene);
 
   useLayoutEffect(() => {
     const initAuth = async () => {
@@ -50,11 +49,10 @@ export const App: React.FC = () => {
     case GameScene.GameMap:
       return <GameMapSceneWrapper />;
     case GameScene.FoodGame:
-      // sceneData теперь SceneDataPayload | null, поэтому передаем как есть
       return <FoodGameSceneWrapper />;
     case GameScene.Game2048:
       return <Game2048SceneWrapper />;
-    case GameScene.Move: // Добавляем рендеринг для MoveScene
+    case GameScene.Move:
       return <MoveSceneWrapper />;
     default:
       return null;

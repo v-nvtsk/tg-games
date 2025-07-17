@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { getAssetsPath } from "@/utils/get-assets-path"; // Убедитесь, что этот импорт есть
+import { getAssetsPath } from "@utils/get-assets-path";
 
 export default class IntroPhaserScene extends Phaser.Scene {
   constructor() {
@@ -7,7 +7,7 @@ export default class IntroPhaserScene extends Phaser.Scene {
   }
 
   preload(): void {
-    // Убедитесь, что эта строка раскомментирована
+
     this.load.image("intro-background", getAssetsPath("images/bg.png"));
   }
 
@@ -15,7 +15,6 @@ export default class IntroPhaserScene extends Phaser.Scene {
     const width = this.scale.width;
     const height = this.scale.height;
 
-    // Убедитесь, что эта строка раскомментирована
     const background = this.add.image(width / 2, height / 2, "intro-background");
     background.setOrigin(0.5);
     background.displayWidth = this.sys.game.config.width as number;
@@ -23,6 +22,6 @@ export default class IntroPhaserScene extends Phaser.Scene {
   }
 
   update() {
-    // Ваша логика обновления, если есть
+    /* */
   }
 }

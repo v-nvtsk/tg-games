@@ -1,15 +1,15 @@
+// src/core/state/scene-store.ts (обновленный)
 import { create } from "zustand";
-import type { GameScene } from "@/processes/game-flow/game-flow-manager";
-import type { SceneDataPayload } from "@/processes/game-flow/game-flow-manager"; // Добавляем импорт SceneDataPayload
+import { type SceneName, type SceneDataMap } from "./scene-types";
 
 interface SceneState {
-  currentScene: GameScene | null;
-  sceneData: SceneDataPayload | null;
-  setCurrentScene: (scene: GameScene, data?: SceneDataPayload) => void;
+  currentScene: SceneName;
+  sceneData: SceneDataMap[SceneName]; // Используем SceneDataMap
+  setScene: <T extends SceneName>(scene: T, data: SceneDataMap[T]) => void;
 }
 
-export const useSceneState = create<SceneState>((set) => ({
-  currentScene: null,
+export const useSceneStore = create<SceneState>((set) => ({
+  currentScene: "Intro",
   sceneData: null,
-  setCurrentScene: (scene, data) => set({ currentScene: scene, sceneData: data }),
+  setScene: (scene, data) => set({ currentScene: scene, sceneData: data }),
 }));

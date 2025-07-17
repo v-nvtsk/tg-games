@@ -1,8 +1,8 @@
-// === src/features/food-game/food-game-phaser-scene.ts ===
 import Phaser from "phaser";
-import { gameFlowManager, type FoodGameLevelData } from "@/processes/game-flow/game-flow-manager";
-import { getAssetsPath } from "@/utils/get-assets-path";
-import { setBackground } from "@/utils/set-background";
+import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
+import { getAssetsPath } from "@utils/get-assets-path";
+import { setBackground } from "@utils/set-background";
+import type { FoodGameLevelData } from "@core/state";
 
 export default class FoodGamePhaserScene extends Phaser.Scene {
   private levelData!: FoodGameLevelData;
@@ -57,7 +57,7 @@ export default class FoodGamePhaserScene extends Phaser.Scene {
 
     this.time.addEvent({
       delay: 1500,
-      callback: () => this.spawnItem(), // Исправлено: использование стрелочной функции
+      callback: () => this.spawnItem(),
       callbackScope: this,
       loop: true,
     });
@@ -144,6 +144,6 @@ export default class FoodGamePhaserScene extends Phaser.Scene {
   }
 
   update(): void {
-    // Логика обновления, если нужна (например, движение фона)
+    /* */
   }
 }

@@ -1,12 +1,9 @@
 import React from "react";
-import { gameFlowManager } from "../../processes/game-flow/game-flow-manager";
-// import { useSceneState } from "../../core/state/scene-store";
+import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
 import styles from "./move-scene-wrapper.module.css";
-import { CloseIcon } from "@/ui/icons/close-icon"; // Или любая SVG-иконка "X"
+import { CloseIcon } from "@ui/icons/close-icon";
 
 export const MoveSceneWrapper: React.FC = () => {
-  // const sceneData = useSceneState((state) => state.sceneData);
-  // const moveSceneData = sceneData as MoveSceneData | undefined;
   const [isVisible, setIsVisible] = React.useState(true);
 
   const handleGoToMap = () => {
@@ -22,7 +19,6 @@ export const MoveSceneWrapper: React.FC = () => {
   return (
     <div className={styles.sceneWrapper}>
       <div className={styles.infoBox}>
-        {/* Кнопка закрытия */}
         <button
           className={styles.closeButton}
           onClick={handleClose}

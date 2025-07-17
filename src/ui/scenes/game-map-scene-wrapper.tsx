@@ -1,18 +1,15 @@
-// === src/features/game-map/game-map-scene-wrapper.tsx ===
 import React from "react";
-import { gameFlowManager, type GameMapSceneData } from "../../processes/game-flow/game-flow-manager"; // Импортируем GameMapSceneData
-import { usePlayerState } from "@/core/state/player-store";
-import { GoButton } from "../../ui/components/go-button";
-import { useSceneState } from "../../core/state/scene-store";
+import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
+import { useSceneStore, usePlayerState, type GameMapSceneData } from "@core/state";
+import { GoButton } from "@ui/components/go-button";
 
 import styles from "./game-map-scene-wrapper.module.css";
 
 export const GameMapSceneWrapper: React.FC = () => {
   const playerName = usePlayerState((state) => state.playerName);
   const playerGender = usePlayerState((state) => state.playerGender);
-  const sceneData = useSceneState((state) => state.sceneData); // Получаем данные сцены
+  const sceneData = useSceneStore((state) => state.sceneData);
 
-  // Приводим sceneData к типу GameMapSceneData для безопасного доступа к свойствам
   const gameMapSceneData = sceneData as GameMapSceneData | undefined;
 
   const handleGoToIntro = () => {
@@ -22,9 +19,8 @@ export const GameMapSceneWrapper: React.FC = () => {
   const handleGoToMoveScene = (event: React.MouseEvent) => {
     event.preventDefault();
     if (gameMapSceneData && gameMapSceneData.targetX !== undefined && gameMapSceneData.targetY !== undefined) {
-      // Передаем данные о целевом городе в MoveScene
+
       gameFlowManager.showMoveScene({
-        type: "move",
         targetX: gameMapSceneData.targetX,
         targetY: gameMapSceneData.targetY,
       });
@@ -33,7 +29,6 @@ export const GameMapSceneWrapper: React.FC = () => {
     }
   };
 
-  // Проверяем, есть ли выбранный город в gameMapSceneData
   const showGoButton = gameMapSceneData && gameMapSceneData.selectedCity;
 
   return (
@@ -68,10 +63,10 @@ export const GameMapSceneWrapper: React.FC = () => {
       </div>
 
       {/* Кнопка "Идти" - рендерится условно */}
-      {showGoButton && gameMapSceneData && ( // Добавляем проверку gameMapSceneData
+      {showGoButton && gameMapSceneData && (
         <GoButton
           onClick={handleGoToMoveScene}
-          text={`Идти в ${gameMapSceneData.selectedCity}`} // Динамический текст кнопки
+          text={`Идти в ${gameMapSceneData.selectedCity}`}
         />
       )}
     </>

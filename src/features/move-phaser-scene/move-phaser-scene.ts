@@ -1,10 +1,8 @@
-// === ./src/features/move-phaser-scene/move-phaser-scene.ts ===
-import { createTiledBackground } from "@/utils/create-tiled-background";
-import { getAssetsPath } from "@/utils/get-assets-path";
 import { Scene } from "phaser";
-import type { MoveSceneData } from "@/processes/game-flow/game-flow-manager";
+import { createTiledBackground, getAssetsPath } from "$/utils";
+import type { MoveSceneData } from "@core/state";
 
-const GROUND_HEIGHT = 50; // Consistent GROUND_HEIGHT
+const GROUND_HEIGHT = 50;
 
 export class MovePhaserScene extends Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
@@ -38,12 +36,10 @@ export class MovePhaserScene extends Scene {
   create(): void {
     const { width, height } = this.sys.game.canvas;
 
-    // Фон
     this.background = createTiledBackground(this, "move/background");
     const scaleY = height / this.background.height;
     this.background.setScale(scaleY);
 
-    // Платформа
     this.platforms = this.physics.add.staticGroup();
     const platform = this.platforms.create(width, height, "ground") as Phaser.Physics.Arcade.Sprite;
     platform.setOrigin(0.5, 0.5);
@@ -51,7 +47,6 @@ export class MovePhaserScene extends Scene {
     platform.displayHeight = GROUND_HEIGHT * 1.5;
     platform.refreshBody();
 
-    // Игрок
     this.player = this.physics.add.sprite(
       this.targetX || width / 2,
       height - GROUND_HEIGHT,
@@ -63,9 +58,7 @@ export class MovePhaserScene extends Scene {
       .setBounce(0.2)
       .setGravityY(500);
     this.player.body?.setSize(50, 150);
-    // this.player.body?.setOffset(25, 50);
 
-    // Анимации
     this.anims.create({
       key: "walk",
       frames: this.anims.generateFrameNumbers("player_main_sprite", { start: 0, end: 5 }),
@@ -79,21 +72,17 @@ export class MovePhaserScene extends Scene {
       repeat: -1,
     });
 
-    // Управление
     if (this.input.keyboard) {
       this.cursors = this.input.keyboard.createCursorKeys();
     }
     this.input.addPointer(1);
 
-    // Камера
     this.cameras.main.setOrigin(0.5, 1);
-    this.cameras.main.startFollow(this.player, true, 0.5, 1, 0, height / 2); // Смещаем центр камеры вниз
+    this.cameras.main.startFollow(this.player, true, 0.5, 1, 0, height / 2);
     this.cameras.main.setDeadzone(width * 0.1, 0);
 
-    // Коллизия
     this.physics.add.collider(this.player, this.platforms);
 
-    // Подписка на ресайз
     // eslint-disable-next-line @typescript-eslint/unbound-method
     this.scale.on("resize", this.resizeGame, this);
   }
@@ -107,25 +96,20 @@ export class MovePhaserScene extends Scene {
       this.background.displayHeight = height;
     }
 
-    // Если хочешь вручную обновлять платформу (не обязательно, Phaser делает это сам):
     if (this.platforms && this.platforms.getChildren().length > 0) {
       const platform = this.platforms.getChildren()[0] as Phaser.Physics.Arcade.Sprite;
-      platform.setX(width / 2); // Center horizontally
-      platform.setY(height); // Position at the very bottom
-      platform.setOrigin(0.5, 1); // Center horizontally, bottom edge at Y
-      platform.displayWidth = width; // Ensure it stretches across the width
-      platform.displayHeight = GROUND_HEIGHT; // Keep consistent height
+      platform.setX(width / 2);
+      platform.setY(height);
+      platform.setOrigin(0.5, 1);
+      platform.displayWidth = width;
+      platform.displayHeight = GROUND_HEIGHT;
       platform.refreshBody();
     }
 
-    // Adjust player position on resize
     if (this.player) {
-      this.player.setX(this.targetX || width / 2); // Keep horizontal position or center
-      this.player.setY(height - GROUND_HEIGHT); // Maintain distance from platform
+      this.player.setX(this.targetX || width / 2);
+      this.player.setY(height - GROUND_HEIGHT);
     }
-
-    // this.physics.world.setBounds(0, 0, width * 2.2, height * 1.1);
-    // this.cameras.main.setDeadzone(width * 0.1, height * 0.1);
 
     this.cameras.main.setDeadzone(0, 0);
   }
@@ -177,8 +161,7 @@ export class MovePhaserScene extends Scene {
 
     if (this.player.body.velocity.x !== 0) {
       const speedFactor = 0.5;
-      // Commented out: this.groundVisual is not initialized as a TileSprite
-      // this.groundVisual.tilePositionX += this.player.body.velocity.x * speedFactor * this.game.loop.delta / 1000;
+
       this.background.tilePositionX += this.player.body.velocity.x * speedFactor * this.game.loop.delta / 1000;
     }
   }

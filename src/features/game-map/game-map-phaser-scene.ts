@@ -1,8 +1,7 @@
-// === src/features/game-map/GameMapPhaserScene.ts ===
 import { Scene } from "phaser";
-import { getAssetsPath } from "@/utils/get-assets-path";
-import { GameScene, type GameMapSceneData } from "@/processes/game-flow/game-flow-manager"; // Импортируем GameMapSceneData
-import { useSceneState } from "@/core/state/scene-store";
+import { getAssetsPath } from "@utils/get-assets-path";
+import { GameScene } from "@processes/game-flow/game-flow-manager";
+import { useSceneStore } from "@core/state";
 
 const CITY_RADIUS = 100;
 
@@ -89,11 +88,9 @@ export default class GameMapPhaserScene extends Scene {
           if (city.name !== this.selectedCity) {
             this.startPulseAnimation(city.object as Phaser.GameObjects.Arc);
           }
-          // Обновляем состояние React, чтобы показать кнопку "Идти"
-          // Передаем данные, соответствующие GameMapSceneData
-          useSceneState.setState({
+          useSceneStore.setState({
             currentScene: GameScene.GameMap,
-            sceneData: { selectedCity: city.name, targetX: city.x, targetY: city.y } as GameMapSceneData,
+            sceneData: { selectedCity: city.name, targetX: city.x, targetY: city.y },
           });
           this.selectedCity = city.name;
         }
@@ -108,7 +105,7 @@ export default class GameMapPhaserScene extends Scene {
         this.touchStartY = pointer.y;
         this.lastTouchDistance = 0;
       }
-      useSceneState.setState({ // Обновляем состояние React, сбрасывая данные
+      useSceneStore.setState({
         currentScene: GameScene.GameMap,
         sceneData: null,
       });
@@ -167,7 +164,7 @@ export default class GameMapPhaserScene extends Scene {
       this.isDragging = false;
     });
 
-    useSceneState.setState({ currentScene: GameScene.GameMap, sceneData: null }); // Использование useSceneState.setState
+    useSceneStore.setState({ currentScene: GameScene.GameMap, sceneData: null });
   }
 
   private startPulseAnimation(circle: Phaser.GameObjects.Arc): void {
@@ -186,6 +183,6 @@ export default class GameMapPhaserScene extends Scene {
   }
 
   update(): void {
-    // Логика обновления, если есть
+    /* */
   }
 }

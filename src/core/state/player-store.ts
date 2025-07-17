@@ -5,7 +5,7 @@ interface PlayerState {
   playerGender: "boy" | "girl" | null;
   setPlayerName: (name: string) => void;
   setPlayerGender: (gender: "boy" | "girl" | null) => void;
-  resetPlayerState: () => void; // Можно добавить для сброса состояния
+  resetPlayerState: () => void;
 }
 
 export const usePlayerState = create<PlayerState>((set) => ({

@@ -2,8 +2,8 @@ import React from "react";
 
 interface CloseIconProps {
   className?: string;
-  size?: number | string; // Размер иконки
-  color?: string; // Цвет
+  size?: number | string;
+  color?: string;
 }
 
 export const CloseIcon: React.FC<CloseIconProps> = ({ className, size = "1.5rem", color = "white" }) => {

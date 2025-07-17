@@ -1,9 +1,9 @@
-// src/app/hooks/use-auth.ts
-import { useEffect, useState } from "react";
-import { authenticate } from "@/api";
+import { useEffect } from "react";
+import { authenticate } from "$/api";
+import { useAuthStore } from "@core/state/auth-store";
 
 export const useAuth = () => {
-  const [token, setToken] = useState<string | null>(null);
+  const { token, setToken } = useAuthStore();
 
   useEffect(() => {
     const auth = async () => {
@@ -12,12 +12,13 @@ export const useAuth = () => {
         setToken(access_token);
       } catch (error) {
         console.error("Authentication error:", error);
-        // Дополнительная обработка ошибок
       }
     };
 
-    void auth();
-  }, []);
+    if (!token) {
+      void auth();
+    }
+  }, [token, setToken]);
 
   return token;
 };

@@ -1,6 +1,5 @@
 import WebApp from "@twa-dev/sdk";
 
-// Тип для данных пользователя (только те поля, что точно есть)
 export interface TelegramUser {
   id: number;
   first_name: string;
