@@ -11,7 +11,7 @@ import stylistic from '@stylistic/eslint-plugin'
 export default tseslint.config(
   tseslint.configs.strict,
   tseslint.configs.stylistic,
-  { ignores: ['dist', 'src/assets'] },
+  { ignores: ['dist', 'src/assets', "src2", "src-bak"] },
   {
     extends: [
       js.configs.recommended,

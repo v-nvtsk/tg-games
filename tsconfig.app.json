@@ -26,14 +26,26 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": "./src",
     "paths": {
-      "@*": [
+      "$*": [
         "./*"
+      ],
+      "@api/*": [
+        "./api"
       ],
       "@components/*": [
         "./components/*"
       ],
-      "@store/*": [
-        "./store/*"
+      "@core/*": [
+        "./core/*"
+      ],
+      "@features/*": [
+        "./features/*"
+      ],
+      "@processes/*": [
+        "./processes/*"
+      ],
+      "@ui/*": [
+        "./ui/*"
       ],
       "@utils/*": [
         "./utils/*"
