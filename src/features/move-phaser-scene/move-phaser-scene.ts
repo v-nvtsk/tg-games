@@ -41,15 +41,18 @@ export class MovePhaserScene extends Scene {
     this.background.setScale(scaleY);
 
     this.platforms = this.physics.add.staticGroup();
-    const platform = this.platforms.create(width, height, "ground") as Phaser.Physics.Arcade.Sprite;
+    const platform = this.platforms.create(0, height, "ground") as Phaser.Physics.Arcade.Sprite;
     platform.setOrigin(0.5, 0.5);
     platform.displayWidth = width * 2;
     platform.displayHeight = GROUND_HEIGHT * 1.5;
+    platform.setDepth(1000);
+    platform.setBounce(0);
+    platform.setImmovable(true);
     platform.refreshBody();
 
     this.player = this.physics.add.sprite(
       this.targetX || width / 2,
-      height - GROUND_HEIGHT,
+      height,
       "player_main_sprite",
     );
     this.player
@@ -58,6 +61,7 @@ export class MovePhaserScene extends Scene {
       .setBounce(0.2)
       .setGravityY(500);
     this.player.body?.setSize(50, 150);
+    this.player.setDepth(2000);
 
     this.anims.create({
       key: "walk",
@@ -141,6 +145,7 @@ export class MovePhaserScene extends Scene {
           this.player.play("idle", true);
         }
       }
+      this.platforms.setX(this.player.x);
     }
 
     if (this.input.pointer1.isDown) {

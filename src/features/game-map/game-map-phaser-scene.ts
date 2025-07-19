@@ -81,6 +81,7 @@ export default class GameMapPhaserScene extends Scene {
         .setScrollFactor(1)
         .setAlpha(0.000001)
         .setInteractive();
+      // FIXME: Добавить колбэк в setInteractive для логирования и возможно для отработки действий
 
       city.object.on("pointerup", () => {
         if (!this.isDragging) {

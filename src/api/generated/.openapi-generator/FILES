@@ -1,0 +1,14 @@
+.gitignore
+.npmignore
+api.ts
+base.ts
+common.ts
+configuration.ts
+docs/ActivityLogResponseDto.md
+docs/ActivityLogsApi.md
+docs/AuthApi.md
+docs/AuthResponseDto.md
+docs/CreateActivityLogDto.md
+docs/UserInfoDto.md
+git_push.sh
+index.ts

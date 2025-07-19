@@ -1,22 +1,97 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import WebApp from "@twa-dev/sdk";
+import { type UserInfoDto, Configuration, AuthApi, ActivityLogsApi } from "$/api/generated";
+import { logAppError } from "@utils/log-app-error";
 
 interface AuthState {
   token: string | null;
-  setToken: (token: string | null) => void;
-  clearToken: () => void;
+  user: UserInfoDto | null;
+  sessionId: string | null;
+  isAuthenticated: boolean;
+  setToken: (token: string) => void;
+  setUser: (user: UserInfoDto) => void;
+  setSessionId: (sessionId: string) => void;
+  authenticateUser: () => Promise<void>;
+  logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      token: null,
-      setToken: (token) => set({ token }),
-      clearToken: () => set({ token: null }),
-    }),
-    {
-      name: "auth-storage",
-      storage: createJSONStorage(() => localStorage),
-    },
-  ),
-);
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const authConfig = new Configuration({ basePath: API_BASE_URL });
+const authApi = new AuthApi(authConfig);
+
+export const useAuthStore = create<AuthState>((set, get) => ({
+  token: localStorage.getItem("token") || null,
+  user: JSON.parse(localStorage.getItem("user") || "null") as UserInfoDto | null,
+  sessionId: localStorage.getItem("sessionId") || null,
+  isAuthenticated: !!localStorage.getItem("token"),
+
+  setToken: (token) => {
+    set({ token, isAuthenticated: !!token });
+    localStorage.setItem("token", token);
+  },
+  setUser: (user) => {
+    set({ user });
+    localStorage.setItem("user", JSON.stringify(user));
+  },
+  setSessionId: (sessionId) => {
+    set({ sessionId });
+    localStorage.setItem("sessionId", sessionId);
+  },
+
+  authenticateUser: async () => {
+    if (!WebApp.initData) {
+      console.error("Telegram initData not available");
+      return;
+    }
+
+    try {
+
+      const authResponse = await authApi.authControllerLogin({
+        initData: WebApp.initData,
+      });
+
+      const { accessToken, user, sessionId } = authResponse.data;
+
+      get().setToken(accessToken);
+      get().setUser(user);
+      get().setSessionId(sessionId);
+
+      try {
+        const activityLogsConfig = new Configuration({
+          basePath: API_BASE_URL,
+
+          accessToken: () => accessToken,
+        });
+        const activityLogsApi = new ActivityLogsApi(activityLogsConfig);
+
+        const details: Record<string, string> = {
+          userAgent: navigator.userAgent,
+          telegramVersion: WebApp.version,
+        };
+
+        await activityLogsApi.activityLogControllerCreate({
+          userId: user.id,
+          action: "user_authenticated",
+          details: details,
+          sessionId: sessionId,
+        });
+        console.log("Logged user agent and Telegram version on authentication.");
+      } catch (logError: unknown) {
+        logAppError("Authentication Logging", logError);
+      }
+
+    } catch (error: unknown) {
+      logAppError("Authentication", error);
+      get().logout();
+      throw error;
+    }
+  },
+
+  logout: () => {
+    set({ token: null, user: null, sessionId: null, isAuthenticated: false });
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("sessionId");
+  },
+}));

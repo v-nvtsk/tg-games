@@ -122,7 +122,7 @@ export const IntroSceneWrapper: React.FC = () => {
 
           {/* Подпись */}
           <div className={styles.footerInfo}>
-            <p className={styles.footerInfoText}>Версия 1.0 • Telegram Mini App</p>
+            <p className={styles.footerInfoText}>Версия 1.001 • Telegram Mini App</p>
           </div>
         </div>
       </div>

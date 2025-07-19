@@ -1,24 +1,14 @@
 import { useEffect } from "react";
-import { authenticate } from "$/api";
-import { useAuthStore } from "@core/state/auth-store";
+import { useAuthStore } from "../../state";
 
 export const useAuth = () => {
-  const { token, setToken } = useAuthStore();
+  const { isAuthenticated, token, authenticateUser } = useAuthStore();
 
   useEffect(() => {
-    const auth = async () => {
-      try {
-        const { access_token } = await authenticate();
-        setToken(access_token);
-      } catch (error) {
-        console.error("Authentication error:", error);
-      }
-    };
-
-    if (!token) {
-      void auth();
+    if (!isAuthenticated) {
+      void authenticateUser();
     }
-  }, [token, setToken]);
+  }, [isAuthenticated, authenticateUser]);
 
   return token;
 };
