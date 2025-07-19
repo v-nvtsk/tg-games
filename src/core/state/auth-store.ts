@@ -8,6 +8,7 @@ interface AuthState {
   user: UserInfoDto | null;
   sessionId: string | null;
   isAuthenticated: boolean;
+  isVerifying: boolean;
   setToken: (token: string) => void;
   setUser: (user: UserInfoDto) => void;
   setSessionId: (sessionId: string) => void;
@@ -24,7 +25,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   token: localStorage.getItem("token") || null,
   user: JSON.parse(localStorage.getItem("user") || "null") as UserInfoDto | null,
   sessionId: localStorage.getItem("sessionId") || null,
-  isAuthenticated: !!localStorage.getItem("token"),
+  isAuthenticated: false,
+  isVerifying: false,
 
   setToken: (token) => {
     set({ token, isAuthenticated: !!token });
@@ -45,8 +47,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return;
     }
 
-    try {
+    if (get().isVerifying) return;
 
+    set({ isVerifying: true });
+
+    try {
       const authResponse = await authApi.authControllerLogin({
         initData: WebApp.initData,
       });
@@ -79,12 +84,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         console.log("Logged user agent and Telegram version on authentication.");
       } catch (logError: unknown) {
         logAppError("Authentication Logging", logError);
+        set({ isVerifying: false });
+        set({ isAuthenticated: false });
       }
 
     } catch (error: unknown) {
       logAppError("Authentication", error);
       get().logout();
       throw error;
+    } finally {
+      set({ isVerifying: false });
     }
   },
 

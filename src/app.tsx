@@ -62,8 +62,6 @@ export const App: React.FC = () => {
     <div
       id="game-container"
       ref={phaserCanvasRef}
-      className="relative w-full h-full overflow-hidden"
-      style={{ touchAction: "none" }}
     >
       {renderSceneWrapper()}
     </div>

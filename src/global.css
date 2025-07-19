@@ -46,3 +46,10 @@ body {
   --color-item-1024: #edc53f;
   --color-item-2048: #edc22e;
 }
+
+#game-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
