@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useAuthStore } from "../../state";
+import { useAuthStore } from "@core/state";
 
 export const useAuth = () => {
   const { isAuthenticated, token, authenticateUser } = useAuthStore();

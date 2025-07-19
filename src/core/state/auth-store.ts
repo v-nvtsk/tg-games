@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import WebApp from "@twa-dev/sdk";
-import { type UserInfoDto, Configuration, AuthApi, ActivityLogsApi } from "$/api/generated";
+import { type UserInfoDto, apiClient } from "$/api";
 import { logAppError } from "@utils/log-app-error";
 
 interface AuthState {
@@ -15,11 +15,6 @@ interface AuthState {
   authenticateUser: () => Promise<void>;
   logout: () => void;
 }
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-const authConfig = new Configuration({ basePath: API_BASE_URL });
-const authApi = new AuthApi(authConfig);
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   token: localStorage.getItem("token") || null,
@@ -52,7 +47,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isVerifying: true });
 
     try {
-      const authResponse = await authApi.authControllerLogin({
+      const authResponse = await apiClient.auth.authControllerLogin({
         initData: WebApp.initData,
       });
 
@@ -63,19 +58,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       get().setSessionId(sessionId);
 
       try {
-        const activityLogsConfig = new Configuration({
-          basePath: API_BASE_URL,
-
-          accessToken: () => accessToken,
-        });
-        const activityLogsApi = new ActivityLogsApi(activityLogsConfig);
-
         const details: Record<string, string> = {
           userAgent: navigator.userAgent,
           telegramVersion: WebApp.version,
         };
 
-        await activityLogsApi.activityLogControllerCreate({
+        await apiClient.activityLogs.activityLogControllerCreate({
           userId: user.id,
           action: "user_authenticated",
           details: details,
@@ -85,7 +73,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } catch (logError: unknown) {
         logAppError("Authentication Logging", logError);
         set({ isVerifying: false });
-        set({ isAuthenticated: false });
       }
 
     } catch (error: unknown) {

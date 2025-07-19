@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import "./global.css";
 import { gameFlowManager, GameScene } from "./processes/game-flow/game-flow-manager";
 import { useSceneStore } from "./core/state/scene-store";
@@ -41,7 +41,7 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  const renderSceneWrapper = () => {
+  const renderSceneWrapper = useCallback(() => {
     switch (currentScene) {
     case GameScene.Intro:
       return <IntroSceneWrapper />;
@@ -56,7 +56,7 @@ export const App: React.FC = () => {
     default:
       return null;
     }
-  };
+  }, [currentScene]);
 
   return (
     <div
