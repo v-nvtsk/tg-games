@@ -8,13 +8,40 @@ export interface Slide {
   message: string;
 }
 
-const SLIDE_TIMEOUT = 1000;
+const SLIDE_TIMEOUT = 3000;
+
 const colors = {
   messageBackground: 0xffffff,
   messageText: 0x000000,
   nextButton: 0x000000,
   progressBar: 0x888888,
   progressBarFill: 0x4CAF50,
+};
+
+const UI_CONSTANTS = {
+  NEXT_BUTTON_OFFSET: 80,
+  NEXT_BUTTON_APPEAR_SCALE: 1.2,
+  NEXT_BUTTON_APPEAR_DURATION: 300,
+  NEXT_BUTTON_BLINK_DURATION: 500,
+  NEXT_BUTTON_BLINK_ALPHA_FROM: 1,
+  NEXT_BUTTON_BLINK_ALPHA_TO: 0.5,
+
+  PROGRESS_BAR_WIDTH_FACTOR: 0.6,
+  PROGRESS_BAR_HEIGHT: 10,
+  PROGRESS_BAR_Y_OFFSET: 30,
+
+  BUBBLE_PADDING: 20,
+  POINTER_WIDTH: 20,
+  POINTER_HEIGHT: 15,
+  BORDER_RADIUS: 15,
+  MESSAGE_FONT_SIZE: "28px",
+  MESSAGE_WORD_WRAP_FACTOR: 0.7,
+  MESSAGE_INITIAL_Y_FACTOR: 0.75,
+  MESSAGE_APPEAR_Y_FACTOR: 0.70,
+
+  BACKGROUND_ALPHA_DURATION: 500,
+  THOUGHT_BUBBLE_APPEAR_DURATION: 700,
+  FADE_OUT_DURATION: 500,
 };
 
 export class IntroPhaserScene extends Phaser.Scene {
@@ -123,11 +150,11 @@ export class IntroPhaserScene extends Phaser.Scene {
 
     this.thoughtBubbleContainer = this.createThoughtBubble(message);
     this.thoughtBubbleContainer.setAlpha(0);
-    this.thoughtBubbleContainer.setPosition(this.scale.width / 2, this.scale.height * 0.75);
+    this.thoughtBubbleContainer.setPosition(this.scale.width / 2, this.scale.height * UI_CONSTANTS.MESSAGE_INITIAL_Y_FACTOR);
 
     this.nextButton = this.add.image(
-      this.scale.width - 80,
-      this.scale.height - 80,
+      this.scale.width - UI_CONSTANTS.NEXT_BUTTON_OFFSET,
+      this.scale.height - UI_CONSTANTS.NEXT_BUTTON_OFFSET,
       "nextButtonIcon",
     )
       .setOrigin(0.5)
@@ -139,10 +166,10 @@ export class IntroPhaserScene extends Phaser.Scene {
       this.handleTap();
     });
 
-    const progressBarWidth = this.scale.width * 0.6;
-    const progressBarHeight = 10;
+    const progressBarWidth = this.scale.width * UI_CONSTANTS.PROGRESS_BAR_WIDTH_FACTOR;
+    const progressBarHeight = UI_CONSTANTS.PROGRESS_BAR_HEIGHT;
     const progressBarX = (this.scale.width - progressBarWidth) / 2;
-    const progressBarY = this.scale.height - 30;
+    const progressBarY = this.scale.height - UI_CONSTANTS.PROGRESS_BAR_Y_OFFSET;
     const progressBarRadius = progressBarHeight / 2;
 
     this.progressBarBackground = this.add.graphics({ fillStyle: { color: colors.progressBar,
@@ -156,13 +183,13 @@ export class IntroPhaserScene extends Phaser.Scene {
     this.tweens.add({
       targets: this.background,
       alpha: 1,
-      duration: 500,
+      duration: UI_CONSTANTS.BACKGROUND_ALPHA_DURATION,
       onComplete: () => {
         this.tweens.add({
           targets: this.thoughtBubbleContainer,
           alpha: 1,
-          y: this.scale.height * 0.70,
-          duration: 700,
+          y: this.scale.height * UI_CONSTANTS.MESSAGE_APPEAR_Y_FACTOR,
+          duration: UI_CONSTANTS.THOUGHT_BUBBLE_APPEAR_DURATION,
           ease: "Power2",
           onComplete: () => {
             this.tweens.add({
@@ -187,17 +214,17 @@ export class IntroPhaserScene extends Phaser.Scene {
                 this.tweens.add({
                   targets: this.nextButton,
                   alpha: 1,
-                  scale: 1.2,
-                  duration: 300,
+                  scale: UI_CONSTANTS.NEXT_BUTTON_APPEAR_SCALE,
+                  duration: UI_CONSTANTS.NEXT_BUTTON_APPEAR_DURATION,
                   yoyo: true,
                   repeat: 0,
                   ease: "Power1",
                   onComplete: () => {
                     this.tweens.add({
                       targets: this.nextButton,
-                      alpha: { from: 1,
-                        to: 0.5 },
-                      duration: 500,
+                      alpha: { from: UI_CONSTANTS.NEXT_BUTTON_BLINK_ALPHA_FROM,
+                        to: UI_CONSTANTS.NEXT_BUTTON_BLINK_ALPHA_TO },
+                      duration: UI_CONSTANTS.NEXT_BUTTON_BLINK_DURATION,
                       yoyo: true,
                       repeat: -1,
                       ease: "Sine.easeInOut",
@@ -213,17 +240,17 @@ export class IntroPhaserScene extends Phaser.Scene {
   }
 
   private createThoughtBubble(message: string): Phaser.GameObjects.Container {
-    const bubblePadding = 20;
-    const pointerWidth = 20;
-    const pointerHeight = 15;
-    const borderRadius = 15;
+    const bubblePadding = UI_CONSTANTS.BUBBLE_PADDING;
+    const pointerWidth = UI_CONSTANTS.POINTER_WIDTH;
+    const pointerHeight = UI_CONSTANTS.POINTER_HEIGHT;
+    const borderRadius = UI_CONSTANTS.BORDER_RADIUS;
 
     const text = this.add.text(0, 0, message, {
       fontFamily: "Arial",
-      fontSize: "28px",
-      color: "#000000",
+      fontSize: UI_CONSTANTS.MESSAGE_FONT_SIZE,
+      color: colors.messageText.toString(),
       align: "center",
-      wordWrap: { width: this.scale.width * 0.7,
+      wordWrap: { width: this.scale.width * UI_CONSTANTS.MESSAGE_WORD_WRAP_FACTOR,
         useAdvancedWrap: true },
     }).setOrigin(0.5);
 
@@ -264,7 +291,7 @@ export class IntroPhaserScene extends Phaser.Scene {
       this.tweens.add({
         targets: [this.background, this.thoughtBubbleContainer, this.nextButton, this.progressBarBackground, this.progressBarFill],
         alpha: 0,
-        duration: 500,
+        duration: UI_CONSTANTS.FADE_OUT_DURATION,
         onComplete: () => {
           this.background.destroy();
           this.thoughtBubbleContainer.destroy();
