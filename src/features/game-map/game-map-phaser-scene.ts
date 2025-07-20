@@ -1,7 +1,9 @@
+// === src/features/game-map/game-map-phaser-scene.ts ===
 import { Scene } from "phaser";
 import { getAssetsPath } from "@utils/get-assets-path";
 import { GameScene } from "@processes/game-flow/game-flow-manager";
 import { useSceneStore } from "@core/state";
+import { logActivity } from "$/api/log-activity";
 
 const CITY_RADIUS = 100;
 const TAP_THRESHOLD = 10;
@@ -16,18 +18,6 @@ interface City {
 export default class GameMapPhaserScene extends Scene {
   private mapImage!: Phaser.Tilemaps.Tilemap;
   private player!: Phaser.GameObjects.Sprite;
-
-  private lastTouchDistance = 0;
-  private minZoom = 0.5;
-  private maxZoom = 3;
-  private currentZoom = 1;
-
-  private selectedCity = "";
-
-  constructor() {
-    super(GameScene.GameMap);
-  }
-
   private cities: City[] = [
     { name: "Москва",
       x: 920,
@@ -42,6 +32,17 @@ export default class GameMapPhaserScene extends Scene {
       y: 1350,
       object: null },
   ];
+
+  private lastTouchDistance = 0;
+  private minZoom = 0.5;
+  private maxZoom = 3;
+  private currentZoom = 1;
+
+  private selectedCity = "";
+
+  constructor() {
+    super(GameScene.GameMap);
+  }
 
   preload(): void {
     this.load.image("gamemap-tileset-part1-key", getAssetsPath("images/map_part1.png"));
@@ -68,6 +69,7 @@ export default class GameMapPhaserScene extends Scene {
       this.mapImage.createLayer("Tile Layer 1", [tileset1, tileset2, tileset3], 0, 0);
     } else {
       console.error("Ошибка: Один или несколько тайлсетов не были загружены.");
+      void logActivity("map_tileset_load_error", { error: "One or more tilesets failed to load" }, GameScene.GameMap);
     }
 
     this.cameras.main.setBounds(0, 0, this.mapImage.widthInPixels, this.mapImage.heightInPixels);
@@ -96,6 +98,16 @@ export default class GameMapPhaserScene extends Scene {
         );
 
         if (distance < TAP_THRESHOLD) {
+          // Логируем успешный тап по городу
+          void logActivity("city_tapped_success", {
+            cityName: city.name,
+            tapDistance: distance,
+            pointerDown: { x: pointer.downX,
+              y: pointer.downY },
+            pointerUp: { x: pointer.upX,
+              y: pointer.upY },
+          }, GameScene.GameMap);
+
           camera.centerOn(city.x, city.y);
           if (city.name !== this.selectedCity) {
             this.startPulseAnimation(city.object as Phaser.GameObjects.Arc);
@@ -107,6 +119,17 @@ export default class GameMapPhaserScene extends Scene {
               targetY: city.y },
           });
           this.selectedCity = city.name;
+        } else {
+          // Логируем "неуспешный" тап (интерпретированный как драг)
+          void logActivity("city_tapped_fail_drag", {
+            cityName: city.name,
+            tapDistance: distance,
+            threshold: TAP_THRESHOLD,
+            pointerDown: { x: pointer.downX,
+              y: pointer.downY },
+            pointerUp: { x: pointer.upX,
+              y: pointer.upY },
+          }, GameScene.GameMap);
         }
       });
     });
@@ -117,6 +140,12 @@ export default class GameMapPhaserScene extends Scene {
       if (pointer.event instanceof TouchEvent && pointer.event.touches.length >= 1) {
         this.lastTouchDistance = 0;
       }
+      void logActivity("map_pointer_down", {
+        x: pointer.x,
+        y: pointer.y,
+        isTouch: pointer.event instanceof TouchEvent,
+        numPointers: pointer.event instanceof TouchEvent ? pointer.event.touches.length : 1,
+      }, GameScene.GameMap);
     });
 
     this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
@@ -136,6 +165,9 @@ export default class GameMapPhaserScene extends Scene {
 
           camera.scrollX += dx;
           camera.scrollY += dy;
+          void logActivity("map_pan", { dx,
+            dy,
+            zoom: camera.zoom }, GameScene.GameMap);
         } else if (pointer.event instanceof TouchEvent && pointer.event.touches.length === 2) {
           const touches = pointer.event.touches;
           const touch1 = touches[0];
@@ -152,6 +184,8 @@ export default class GameMapPhaserScene extends Scene {
             const zoomFactor = currentDistance / this.lastTouchDistance;
             this.currentZoom = Phaser.Math.Clamp(this.currentZoom * zoomFactor, this.minZoom, this.maxZoom);
             camera.setZoom(this.currentZoom);
+            void logActivity("map_zoom", { zoomFactor,
+              currentZoom: this.currentZoom }, GameScene.GameMap);
           }
 
           this.lastTouchDistance = currentDistance;
@@ -166,10 +200,17 @@ export default class GameMapPhaserScene extends Scene {
       }
     });
 
-    this.input.on("pointerup", (_pointer: Phaser.Input.Pointer) => {
+    this.input.on("pointerup", (pointer: Phaser.Input.Pointer) => {
       this.lastTouchDistance = 0;
+      void logActivity("map_pointer_up", {
+        x: pointer.x,
+        y: pointer.y,
+        isTouch: pointer.event instanceof TouchEvent,
+      }, GameScene.GameMap);
     });
 
+    // Логируем событие входа в сцену Map
+    void logActivity("scene_enter", { scene: GameScene.GameMap }, GameScene.GameMap);
   }
 
   private startPulseAnimation(circle: Phaser.GameObjects.Arc): void {
@@ -187,11 +228,13 @@ export default class GameMapPhaserScene extends Scene {
       onComplete: () => {
         circle.setAlpha(0.000001);
         circle.setScale(1);
+        void logActivity("city_pulse_animation_complete", { cityName: this.selectedCity }, GameScene.GameMap);
       },
     });
+    void logActivity("city_pulse_animation_start", { cityName: this.selectedCity }, GameScene.GameMap);
   }
 
   update(): void {
-    //
+    /* */
   }
 }

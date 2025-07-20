@@ -1,7 +1,9 @@
-import React from "react";
+// === src/ui/scenes/game-map-scene-wrapper.tsx ===
+import React, { useEffect } from "react";
 import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
 import { useSceneStore, usePlayerState, type GameMapSceneData } from "@core/state";
 import { GoButton } from "@ui/components/go-button";
+import { logActivity } from "$/api/log-activity"; // Импортируем logActivity
 
 import styles from "./game-map-scene-wrapper.module.css";
 
@@ -12,20 +14,39 @@ export const GameMapSceneWrapper: React.FC = () => {
 
   const gameMapSceneData = sceneData as GameMapSceneData | undefined;
 
+  useEffect(() => {
+    // Логируем монтирование компонента-враппера MapScene
+    void logActivity("wrapper_mounted", { wrapper: "GameMapSceneWrapper" }, "GameMap");
+    return () => {
+      // Логируем размонтирование компонента-враппера MapScene
+      void logActivity("wrapper_unmounted", { wrapper: "GameMapSceneWrapper" }, "GameMap");
+    };
+  }, []);
+
   const handleGoToIntro = () => {
-    gameFlowManager.showAuth();
+    void logActivity("go_to_intro_button_clicked", {}, "GameMap");
+    gameFlowManager.showAuth(); // showAuth ведет на AuthScene, которая ведет на Intro
   };
 
   const handleGoToMoveScene = (event: React.MouseEvent) => {
     event.preventDefault();
     if (gameMapSceneData && gameMapSceneData.targetX !== undefined && gameMapSceneData.targetY !== undefined) {
-
+      void logActivity("go_to_move_scene_button_clicked", {
+        selectedCity: gameMapSceneData.selectedCity,
+        targetX: gameMapSceneData.targetX,
+        targetY: gameMapSceneData.targetY,
+      }, "GameMap");
       gameFlowManager.showMoveScene({
         targetX: gameMapSceneData.targetX,
         targetY: gameMapSceneData.targetY,
       });
     } else {
       console.error("Недостаточно данных для перехода в MoveScene.");
+      void logActivity("go_to_move_scene_data_missing", {
+        selectedCity: gameMapSceneData?.selectedCity || "N/A",
+        targetX: gameMapSceneData?.targetX || "N/A",
+        targetY: gameMapSceneData?.targetY || "N/A",
+      }, "GameMap");
     }
   };
 

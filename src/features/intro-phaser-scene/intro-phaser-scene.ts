@@ -1,4 +1,3 @@
-// === src/features/intro-phaser-scene/intro-phaser-scene.ts ===
 import Phaser from "phaser";
 import { getAssetsPathByType, setBackground } from "$/utils";
 import { gameFlowManager } from "$/processes";
@@ -6,21 +5,30 @@ import { gameFlowManager } from "$/processes";
 export interface Slide {
   key: string;
   path: string;
-  message: string; // Добавляем поле для сообщения
+  message: string;
 }
+
+const SLIDE_TIMEOUT = 1000;
+const colors = {
+  messageBackground: 0xffffff,
+  messageText: 0x000000,
+  nextButton: 0x000000,
+  progressBar: 0x888888,
+  progressBarFill: 0x4CAF50,
+};
 
 export class IntroPhaserScene extends Phaser.Scene {
   private slides: Slide[];
   private currentSlideIndex = 0;
   private background!: Phaser.GameObjects.Image;
-  private thoughtBubbleContainer!: Phaser.GameObjects.Container; // Контейнер для облачка мыслей и текста
-  private nextButton!: Phaser.GameObjects.Image; // Объект для кнопки "дальше"
-  private progressBarBackground!: Phaser.GameObjects.Graphics; // Фон индикатора прогресса
-  private progressBarFill!: Phaser.GameObjects.Graphics; // Заполняющая часть индикатора прогресса (теперь Graphics)
-  private tapAllowed = false; // Флаг, разрешающий тап для переключения слайда
+  private thoughtBubbleContainer!: Phaser.GameObjects.Container;
+  private nextButton!: Phaser.GameObjects.Image;
+  private progressBarBackground!: Phaser.GameObjects.Graphics;
+  private progressBarFill!: Phaser.GameObjects.Graphics;
+  private tapAllowed = false;
 
   constructor() {
-    super("Intro"); // Ключ сцены "Intro"
+    super("Intro");
     this.slides = [
       { key: "slide1",
         path: getAssetsPathByType({ type: "images",
@@ -55,8 +63,6 @@ export class IntroPhaserScene extends Phaser.Scene {
       this.load.image(slide.key, slide.path);
     });
 
-    // Загружаем изображение для кнопки "дальше" из файла SVG в assets
-    // Путь: src/assets/images/icons/next-arrow.svg
     this.load.svg("nextButtonIcon", getAssetsPathByType({ type: "images",
       filename: "icons/next-arrow.svg" }), { width: 64,
       height: 64 });
@@ -64,37 +70,32 @@ export class IntroPhaserScene extends Phaser.Scene {
 
   create() {
     this.showSlide(this.currentSlideIndex);
-    // Явно привязываем контекст 'this' к handleTap для Phaser.Input.on
     this.input.on("pointerdown", this.handleTap.bind(this));
   }
 
   private showSlide(index: number) {
-    // Сбрасываем флаг разрешения тапа при показе нового слайда
     this.tapAllowed = false;
 
     if (index >= this.slides.length) {
       this.scene.stop();
       gameFlowManager.startGameMap();
-      // Уничтожаем кнопку и индикатор прогресса, если они существуют и мы переходим на карту
       if (this.nextButton) {
-        this.tweens.killTweensOf(this.nextButton); // Останавливаем мерцание
+        this.tweens.killTweensOf(this.nextButton);
         this.nextButton.destroy();
       }
       if (this.progressBarBackground) {
         this.progressBarBackground.destroy();
       }
       if (this.progressBarFill) {
-        this.tweens.killTweensOf(this.progressBarFill); // Останавливаем твин прогресса
+        this.tweens.killTweensOf(this.progressBarFill);
         this.progressBarFill.destroy();
       }
-      // Уничтожаем облачко мыслей
       if (this.thoughtBubbleContainer) {
         this.thoughtBubbleContainer.destroy();
       }
       return;
     }
 
-    // Уничтожаем предыдущие объекты, если они существуют
     if (this.background) {
       this.background.destroy();
     }
@@ -102,129 +103,104 @@ export class IntroPhaserScene extends Phaser.Scene {
       this.thoughtBubbleContainer.destroy();
     }
     if (this.nextButton) {
-      this.tweens.killTweensOf(this.nextButton); // Останавливаем мерцание перед уничтожением
+      this.tweens.killTweensOf(this.nextButton);
       this.nextButton.destroy();
     }
     if (this.progressBarBackground) {
       this.progressBarBackground.destroy();
     }
     if (this.progressBarFill) {
-      this.tweens.killTweensOf(this.progressBarFill); // Останавливаем твин прогресса перед уничтожением
+      this.tweens.killTweensOf(this.progressBarFill);
       this.progressBarFill.destroy();
     }
 
     const { key, message } = this.slides[index];
 
-    // Используем setBackground для установки изображения с сохранением пропорций и заполнением высоты
-    // coverMode = true по умолчанию, но явно указываем для ясности
     this.background = setBackground(this, key, true);
 
-    // После того как setBackground установил origin(0,0) и масштабировал изображение,
-    // мы меняем его позицию и origin, чтобы оно центрировалось на экране.
-    // Сначала устанавливаем origin в центр изображения (0.5, 0.5)
     this.background.setOrigin(0.5, 0.5);
-    // Затем позиционируем центр изображения в центр экрана
     this.background.setPosition(this.scale.width / 2, this.scale.height / 2);
 
-    // Создаем облачко мыслей с текстом
     this.thoughtBubbleContainer = this.createThoughtBubble(message);
-    this.thoughtBubbleContainer.setAlpha(0); // Изначально делаем облачко невидимым
-    this.thoughtBubbleContainer.setPosition(this.scale.width / 2, this.scale.height * 0.75); // Позиционируем контейнер
+    this.thoughtBubbleContainer.setAlpha(0);
+    this.thoughtBubbleContainer.setPosition(this.scale.width / 2, this.scale.height * 0.75);
 
-    // Создаем кнопку "дальше"
     this.nextButton = this.add.image(
-      this.scale.width - 80, // Позиция по X (справа)
-      this.scale.height - 80, // Позиция по Y (снизу)
-      "nextButtonIcon", // Ключ загруженного изображения кнопки
+      this.scale.width - 80,
+      this.scale.height - 80,
+      "nextButtonIcon",
     )
-      .setOrigin(0.5) // Центрируем кнопку
-      .setScale(1) // Начальный масштаб
-      .setAlpha(0) // Изначально невидима
-      .setInteractive({ useHandCursor: true }); // Делаем интерактивной
+      .setOrigin(0.5)
+      .setScale(1)
+      .setAlpha(0)
+      .setInteractive({ useHandCursor: true });
 
-    // Добавляем обработчик для кнопки
     this.nextButton.on("pointerdown", () => {
-      // Вызываем handleTap, чтобы обработать переход к следующему слайду
-      // Это также учтет задержку в 3 секунды через tapAllowed
       this.handleTap();
     });
 
-    // Создаем индикатор прогресса
-    const progressBarWidth = this.scale.width * 0.6; // Ширина 60% от ширины экрана
-    const progressBarHeight = 10; // Высота индикатора
-    const progressBarX = (this.scale.width - progressBarWidth) / 2; // Центр по X
-    const progressBarY = this.scale.height - 30; // Позиция у нижнего края
-    const progressBarRadius = progressBarHeight / 2; // Радиус для скругления углов
+    const progressBarWidth = this.scale.width * 0.6;
+    const progressBarHeight = 10;
+    const progressBarX = (this.scale.width - progressBarWidth) / 2;
+    const progressBarY = this.scale.height - 30;
+    const progressBarRadius = progressBarHeight / 2;
 
-    // Фон индикатора (используем fillRoundedRect)
-    this.progressBarBackground = this.add.graphics({ fillStyle: { color: 0x888888,
+    this.progressBarBackground = this.add.graphics({ fillStyle: { color: colors.progressBar,
       alpha: 0.5 } });
     this.progressBarBackground.fillRoundedRect(progressBarX, progressBarY, progressBarWidth, progressBarHeight, progressBarRadius);
 
-    // Сам прогресс-бар, который будет заполняться (теперь также Graphics)
-    this.progressBarFill = this.add.graphics({ fillStyle: { color: 0x4CAF50,
+    this.progressBarFill = this.add.graphics({ fillStyle: { color: colors.progressBarFill,
       alpha: 1 } });
-    // Изначально не рисуем его здесь, а рисуем в onUpdate, чтобы контролировать его форму
 
-    // Анимация появления фона
     this.background.alpha = 0;
     this.tweens.add({
       targets: this.background,
       alpha: 1,
       duration: 500,
       onComplete: () => {
-        // Анимация появления облачка мыслей после появления фона
         this.tweens.add({
           targets: this.thoughtBubbleContainer,
           alpha: 1,
-          y: this.scale.height * 0.70, // Небольшое движение вверх при появлении
+          y: this.scale.height * 0.70,
           duration: 700,
           ease: "Power2",
           onComplete: () => {
-            // Запускаем анимацию прогресс-бара
             this.tweens.add({
-              targets: { currentWidth: 0 }, // Анимируем вспомогательное свойство
-              currentWidth: progressBarWidth, // До полной ширины
-              duration: 3000, // Длительность 3 секунды
+              targets: { currentWidth: 0 },
+              currentWidth: progressBarWidth,
+              duration: SLIDE_TIMEOUT,
               ease: "Linear",
               onUpdate: (tween) => {
-                // Перерисовываем прогресс-бар на каждом кадре анимации
                 this.progressBarFill.clear();
                 const currentAnimatedWidth = tween.getValue() || 0;
 
                 if (currentAnimatedWidth > 0) {
-                  // Если ширина меньше, чем радиус * 2 (чтобы обеспечить закругление с обеих сторон),
-                  // рисуем круг, который растет.
                   if (currentAnimatedWidth < progressBarRadius * 2) {
                     this.progressBarFill.fillCircle(progressBarX + currentAnimatedWidth / 2, progressBarY + progressBarRadius, currentAnimatedWidth / 2);
                   } else {
-                    // Иначе рисуем закругленный прямоугольник
                     this.progressBarFill.fillRoundedRect(progressBarX, progressBarY, currentAnimatedWidth, progressBarHeight, progressBarRadius);
                   }
                 }
               },
               onComplete: () => {
-                // Разрешаем тап только после завершения анимации прогресс-бара
                 this.tapAllowed = true;
-                // Анимация появления кнопки "дальше" и запуск мерцания
                 this.tweens.add({
                   targets: this.nextButton,
                   alpha: 1,
-                  scale: 1.2, // Небольшое увеличение для привлечения внимания
+                  scale: 1.2,
                   duration: 300,
-                  yoyo: true, // Возврат к исходному размеру
+                  yoyo: true,
                   repeat: 0,
                   ease: "Power1",
                   onComplete: () => {
-                    // Запускаем мерцание кнопки после ее появления
                     this.tweens.add({
                       targets: this.nextButton,
                       alpha: { from: 1,
-                        to: 0.5 }, // Мерцание от полной прозрачности до половины
-                      duration: 500, // Скорость мерцания
-                      yoyo: true, // Туда-обратно
-                      repeat: -1, // Бесконечное повторение
-                      ease: "Sine.easeInOut", // Плавное мерцание
+                        to: 0.5 },
+                      duration: 500,
+                      yoyo: true,
+                      repeat: -1,
+                      ease: "Sine.easeInOut",
                     });
                   },
                 });
@@ -236,21 +212,19 @@ export class IntroPhaserScene extends Phaser.Scene {
     });
   }
 
-  // Новый метод для создания облачка мыслей
   private createThoughtBubble(message: string): Phaser.GameObjects.Container {
     const bubblePadding = 20;
     const pointerWidth = 20;
     const pointerHeight = 15;
     const borderRadius = 15;
 
-    // Создаем текстовый объект, чтобы определить его размеры
     const text = this.add.text(0, 0, message, {
       fontFamily: "Arial",
-      fontSize: "28px", // Немного уменьшим размер шрифта для облачка
-      color: "#000000", // Цвет текста внутри облачка
+      fontSize: "28px",
+      color: "#000000",
       align: "center",
       wordWrap: { width: this.scale.width * 0.7,
-        useAdvancedWrap: true }, // Ограничиваем ширину текста
+        useAdvancedWrap: true },
     }).setOrigin(0.5);
 
     const textWidth = text.width;
@@ -259,54 +233,46 @@ export class IntroPhaserScene extends Phaser.Scene {
     const bubbleWidth = textWidth + bubblePadding * 2;
     const bubbleHeight = textHeight + bubblePadding * 2;
 
-    // Создаем графику для облачка
     const graphics = this.add.graphics();
-    graphics.fillStyle(0xffffff, 0.9); // Белый цвет, полупрозрачный
-    graphics.lineStyle(2, 0x000000, 1); // Черная обводка
+    graphics.fillStyle(colors.messageBackground, 0.9);
+    graphics.lineStyle(2, colors.messageText, 1);
 
-    // Рисуем закругленный прямоугольник
     graphics.fillRoundedRect(-bubbleWidth / 2, -bubbleHeight / 2, bubbleWidth, bubbleHeight, borderRadius);
     graphics.strokeRoundedRect(-bubbleWidth / 2, -bubbleHeight / 2, bubbleWidth, bubbleHeight, borderRadius);
 
-    // Рисуем "хвостик" облачка (треугольник)
     graphics.beginPath();
-    graphics.moveTo(0, bubbleHeight / 2 - borderRadius / 2); // Нижний центр облачка
-    graphics.lineTo(-pointerWidth / 2, bubbleHeight / 2 + pointerHeight); // Левая точка хвостика
-    graphics.lineTo(pointerWidth / 2, bubbleHeight / 2 + pointerHeight); // Правая точка хвостика
+    graphics.moveTo(0, bubbleHeight / 2 - borderRadius / 2);
+    graphics.lineTo(-pointerWidth / 2, bubbleHeight / 2 + pointerHeight);
+    graphics.lineTo(pointerWidth / 2, bubbleHeight / 2 + pointerHeight);
     graphics.closePath();
     graphics.fillPath();
     graphics.strokePath();
 
-    // Создаем контейнер для облачка и текста
     const container = this.add.container(0, 0, [graphics, text]);
-    container.setDepth(10); // Убедимся, что облачко поверх всего
+    container.setDepth(10);
 
     return container;
   }
 
   private handleTap(): void {
-    // Проверяем, разрешен ли тап для переключения слайда
     if (this.tapAllowed) {
-      this.tapAllowed = false; // Сразу сбрасываем флаг, чтобы избежать множественных тапов
+      this.tapAllowed = false;
 
-      // Останавливаем все твины для кнопки перед ее исчезновением
       this.tweens.killTweensOf(this.nextButton);
-      // Останавливаем твин прогресс-бара
       this.tweens.killTweensOf(this.progressBarFill);
 
-      // Анимация исчезновения текущего слайда, текста, кнопки и прогресс-бара
       this.tweens.add({
-        targets: [this.background, this.thoughtBubbleContainer, this.nextButton, this.progressBarBackground, this.progressBarFill], // Анимируем все объекты
+        targets: [this.background, this.thoughtBubbleContainer, this.nextButton, this.progressBarBackground, this.progressBarFill],
         alpha: 0,
         duration: 500,
         onComplete: () => {
-          this.background.destroy(); // Уничтожаем изображение после исчезновения
-          this.thoughtBubbleContainer.destroy(); // Уничтожаем контейнер облачка
-          this.nextButton.destroy(); // Уничтожаем кнопку
-          this.progressBarBackground.destroy(); // Уничтожаем фон прогресс-бара
-          this.progressBarFill.destroy(); // Уничтожаем заполняющую часть прогресс-бара
-          this.currentSlideIndex++; // Переходим к следующему слайду
-          this.showSlide(this.currentSlideIndex); // Показываем следующий слайд
+          this.background.destroy();
+          this.thoughtBubbleContainer.destroy();
+          this.nextButton.destroy();
+          this.progressBarBackground.destroy();
+          this.progressBarFill.destroy();
+          this.currentSlideIndex++;
+          this.showSlide(this.currentSlideIndex);
         },
       });
     }

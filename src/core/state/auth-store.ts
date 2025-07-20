@@ -2,6 +2,7 @@ import { create } from "zustand";
 import WebApp from "@twa-dev/sdk";
 import { type UserInfoDto, apiClient } from "$/api";
 import { logAppError } from "@utils/log-app-error";
+import { logActivity } from "../../api/log-activity";
 
 interface AuthState {
   token: string | null;
@@ -61,21 +62,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       try {
         const details: Record<string, string> = {
           userAgent: navigator.userAgent,
+          userId: String(user.id),
           telegramVersion: WebApp.version,
+          sessionId,
         };
 
-        await apiClient.activityLogs.activityLogControllerCreate({
-          userId: user.id,
-          action: "user_authenticated",
-          details: details,
-          sessionId: sessionId,
-        });
+        await logActivity("user_authenticated", details, "Auth");
+
         console.log("Logged user agent and Telegram version on authentication.");
       } catch (logError: unknown) {
         logAppError("Authentication Logging", logError);
-        set({ isVerifying: false });
       }
-
+      set({ isVerifying: false });
     } catch (error: unknown) {
       logAppError("Authentication", error);
       get().logout();
