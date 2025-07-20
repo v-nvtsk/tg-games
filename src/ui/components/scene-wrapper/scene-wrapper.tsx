@@ -1,5 +1,14 @@
-import React from "react";
 import { CloseIcon } from "@ui/icons/close-icon";
+import defaultStyles from "./default-scene-wrapper.module.css";
+import type { FC } from "react";
+
+interface SceneWrapperStyles {
+  sceneWrapper?: string;
+  infoBox?: string;
+  closeButton?: string;
+  title?: string;
+  description?: string;
+}
 
 interface SceneWrapperProps {
   title: string;
@@ -7,30 +16,36 @@ interface SceneWrapperProps {
   onClose: () => void;
   children?: React.ReactNode;
   closeLabel?: string;
-  styles?: CSSModuleClasses;
+  styles?: SceneWrapperStyles;
 }
 
-export const SceneWrapper: React.FC<SceneWrapperProps> = ({
+export const SceneWrapper: FC<SceneWrapperProps> = ({
   title,
   description,
   onClose,
   children,
   closeLabel = "Закрыть",
-  styles,
+  styles = null,
 }) => {
+  if (!styles)styles = {};
+
   return (
-    <div className={styles?.sceneWrapper || ""}>
-      <div className={styles?.infoBox || ""}>
+    <div className={`${defaultStyles.sceneWrapper} ${styles.sceneWrapper || ""}`}>
+      <div className={`${defaultStyles.infoBox} ${styles.infoBox || ""}`}>
         <button
-          className={styles?.closeButton || ""}
+          className={`${defaultStyles.closeButton} ${styles.closeButton || ""}`}
           onClick={onClose}
           aria-label={closeLabel}
         >
           <CloseIcon />
         </button>
 
-        <h2 className={styles?.title || ""}>{title}</h2>
-        {description && <p className={styles?.description || ""}>{description}</p>}
+        <h2 className={`${defaultStyles.title} ${styles.title || ""}`}>{title}</h2>
+        {description && (
+          <p className={`${defaultStyles.description} ${styles.description || ""}`}>
+            {description}
+          </p>
+        )}
 
         {children}
       </div>

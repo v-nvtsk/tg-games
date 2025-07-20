@@ -69,7 +69,12 @@ export default tseslint.config(
       "@stylistic/arrow-parens": ["error", "always"],
       "@stylistic/arrow-spacing": "error",
       "@stylistic/quotes": ["error", "double"],
+      "@stylistic/object-property-newline": "error",
       "@typescript-eslint/no-unused-vars": "error",
+      '@typescript-eslint/no-unused-vars': ['error', {
+        'argsIgnorePattern': '^_',
+        'varsIgnorePattern': '^_',
+      }],
     },
     settings: {
       "react": {

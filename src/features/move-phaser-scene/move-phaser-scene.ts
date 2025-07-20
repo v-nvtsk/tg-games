@@ -65,13 +65,15 @@ export class MovePhaserScene extends Scene {
 
     this.anims.create({
       key: "walk",
-      frames: this.anims.generateFrameNumbers("player_main_sprite", { start: 0, end: 5 }),
+      frames: this.anims.generateFrameNumbers("player_main_sprite", { start: 0,
+        end: 5 }),
       frameRate: 6,
       repeat: -1,
     });
     this.anims.create({
       key: "idle",
-      frames: this.anims.generateFrameNumbers("player_main_sprite", { start: 0, end: 0 }),
+      frames: this.anims.generateFrameNumbers("player_main_sprite", { start: 0,
+        end: 0 }),
       frameRate: 1,
       repeat: -1,
     });
@@ -91,7 +93,8 @@ export class MovePhaserScene extends Scene {
     this.scale.on("resize", this.resizeGame, this);
   }
 
-  resizeGame(gameSize: { width: number; height: number }) {
+  resizeGame(gameSize: { width: number;
+    height: number }) {
     const { width, height } = gameSize;
     console.log("gamesize width, height: ", width, height);
 

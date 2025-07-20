@@ -1,9 +1,9 @@
 import Phaser from "phaser";
 import { getAssetsPath } from "@utils/get-assets-path";
 
-export default class IntroPhaserScene extends Phaser.Scene {
+export default class AuthPhaserScene extends Phaser.Scene {
   constructor() {
-    super("Intro");
+    super("Auth");
   }
 
   preload(): void {

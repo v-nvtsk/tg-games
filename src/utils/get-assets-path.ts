@@ -13,5 +13,7 @@ export function getAssetsPathByType({
   filename: string;
   scene?: string;
 }) {
-  return `${getAssetsPath()}${type}/${scene || ""}/${filename}`;
+  const scenePath = scene ? `scenes/${scene}/` : "";
+
+  return `${getAssetsPath()}${type}/${scenePath}/${filename}`;
 }

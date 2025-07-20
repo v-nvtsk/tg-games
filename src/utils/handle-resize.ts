@@ -1,26 +1,22 @@
 export const handleResize = (game: Phaser.Game | null) => {
   if (!game) return;
 
-  // Обновляем размер игры
   game.scale.resize(window.innerWidth, window.innerHeight);
 
-  // Перезапускаем событие ресайза для сцен
-  game.scene.scenes.forEach((scene: Phaser.Scene & { resizeGame?: (args: { width: number; height: number }) => void }) => {
+  game.scene.scenes.forEach((scene: Phaser.Scene & { resizeGame?: (args: { width: number;
+    height: number }) => void }) => {
     scene.scale.canvas.width = window.innerWidth;
     scene.scale.canvas.height = window.innerHeight;
 
-    // Если есть пользовательский метод resizeGame — вызываем его
     if ("resizeGame" in scene && typeof scene["resizeGame"] === "function") {
-      scene["resizeGame"]({ width: window.innerWidth, height: window.innerHeight });
+      scene["resizeGame"]({ width: window.innerWidth,
+        height: window.innerHeight });
     }
 
-    // Обновляем камеры
     game.scale.resize(window.innerWidth, window.innerHeight);
     scene.scale.setGameSize(window.innerWidth, window.innerHeight);
-    // scene.cameras.main.setViewport(0, 0, window.innerWidth, window.innerHeight);
   });
 
-  // Обновляем DOM элементы, если они есть
   const container = document.getElementById("game-container");
   if (container) {
     container.style.width = `${window.innerWidth}px`;

@@ -17,7 +17,8 @@ export const CloseIcon: React.FC<CloseIconProps> = ({ className, size = "1.5rem"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{ width: size, height: size }}
+      style={{ width: size,
+        height: size }}
     >
       <path d="M18 6L6 18M6 6l12 12" />
     </svg>

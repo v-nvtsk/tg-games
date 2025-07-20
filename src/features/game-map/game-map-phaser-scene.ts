@@ -4,6 +4,7 @@ import { GameScene } from "@processes/game-flow/game-flow-manager";
 import { useSceneStore } from "@core/state";
 
 const CITY_RADIUS = 100;
+const TAP_THRESHOLD = 10;
 
 interface City {
   name: string;
@@ -17,14 +18,9 @@ export default class GameMapPhaserScene extends Scene {
   private player!: Phaser.GameObjects.Sprite;
 
   private lastTouchDistance = 0;
-  private touchStartX = 0;
-  private touchStartY = 0;
-
   private minZoom = 0.5;
   private maxZoom = 3;
   private currentZoom = 1;
-
-  private isDragging = false;
 
   private selectedCity = "";
 
@@ -33,9 +29,18 @@ export default class GameMapPhaserScene extends Scene {
   }
 
   private cities: City[] = [
-    { name: "Москва", x: 920, y: 1100, object: null },
-    { name: "Санкт-Петербург", x: 950, y: 800, object: null },
-    { name: "Казань", x: 1150, y: 1350, object: null },
+    { name: "Москва",
+      x: 920,
+      y: 1100,
+      object: null },
+    { name: "Санкт-Петербург",
+      x: 950,
+      y: 800,
+      object: null },
+    { name: "Казань",
+      x: 1150,
+      y: 1350,
+      object: null },
   ];
 
   preload(): void {
@@ -81,17 +86,25 @@ export default class GameMapPhaserScene extends Scene {
         .setScrollFactor(1)
         .setAlpha(0.000001)
         .setInteractive();
-      // FIXME: Добавить колбэк в setInteractive для логирования и возможно для отработки действий
 
-      city.object.on("pointerup", () => {
-        if (!this.isDragging) {
+      city.object.on("pointerup", (pointer: Phaser.Input.Pointer) => {
+        const distance = Phaser.Math.Distance.Between(
+          pointer.downX,
+          pointer.downY,
+          pointer.upX,
+          pointer.upY,
+        );
+
+        if (distance < TAP_THRESHOLD) {
           camera.centerOn(city.x, city.y);
           if (city.name !== this.selectedCity) {
             this.startPulseAnimation(city.object as Phaser.GameObjects.Arc);
           }
           useSceneStore.setState({
             currentScene: GameScene.GameMap,
-            sceneData: { selectedCity: city.name, targetX: city.x, targetY: city.y },
+            sceneData: { selectedCity: city.name,
+              targetX: city.x,
+              targetY: city.y },
           });
           this.selectedCity = city.name;
         }
@@ -102,70 +115,61 @@ export default class GameMapPhaserScene extends Scene {
 
     this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
       if (pointer.event instanceof TouchEvent && pointer.event.touches.length >= 1) {
-        this.touchStartX = pointer.x;
-        this.touchStartY = pointer.y;
         this.lastTouchDistance = 0;
       }
-      useSceneStore.setState({
-        currentScene: GameScene.GameMap,
-        sceneData: null,
-      });
     });
 
     this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
       if (!pointer.isDown) return;
 
-      this.isDragging = true;
+      const distanceMoved = Phaser.Math.Distance.Between(
+        pointer.downX,
+        pointer.downY,
+        pointer.x,
+        pointer.y,
+      );
 
-      if (pointer.event instanceof TouchEvent && pointer.event.touches.length === 1) {
-        const dx = pointer.x - this.touchStartX;
-        const dy = pointer.y - this.touchStartY;
+      if (distanceMoved > TAP_THRESHOLD) {
+        if (pointer.event instanceof TouchEvent && pointer.event.touches.length === 1) {
+          const dx = pointer.prevPosition.x - pointer.x;
+          const dy = pointer.prevPosition.y - pointer.y;
 
-        const newScrollX = camera.scrollX - dx;
-        const newScrollY = camera.scrollY - dy;
+          camera.scrollX += dx;
+          camera.scrollY += dy;
+        } else if (pointer.event instanceof TouchEvent && pointer.event.touches.length === 2) {
+          const touches = pointer.event.touches;
+          const touch1 = touches[0];
+          const touch2 = touches[1];
 
-        camera.setScroll(newScrollX, newScrollY);
+          const currentDistance = Phaser.Math.Distance.Between(
+            touch1.clientX,
+            touch1.clientY,
+            touch2.clientX,
+            touch2.clientY,
+          );
 
-        this.touchStartX = pointer.x;
-        this.touchStartY = pointer.y;
-      }
+          if (this.lastTouchDistance > 0 && currentDistance !== this.lastTouchDistance) {
+            const zoomFactor = currentDistance / this.lastTouchDistance;
+            this.currentZoom = Phaser.Math.Clamp(this.currentZoom * zoomFactor, this.minZoom, this.maxZoom);
+            camera.setZoom(this.currentZoom);
+          }
 
-      if (pointer.event instanceof TouchEvent && pointer.event.touches.length === 2) {
-        const touches = pointer.event.touches;
-        const touch1 = touches[0];
-        const touch2 = touches[1];
+          this.lastTouchDistance = currentDistance;
 
-        const currentDistance = Phaser.Math.Distance.Between(
-          touch1.clientX,
-          touch1.clientY,
-          touch2.clientX,
-          touch2.clientY,
-        );
-
-        if (this.lastTouchDistance > 0 && currentDistance !== this.lastTouchDistance) {
-          const zoomFactor = currentDistance / this.lastTouchDistance;
-          this.currentZoom = Phaser.Math.Clamp(this.currentZoom * zoomFactor, this.minZoom, this.maxZoom);
-          camera.setZoom(this.currentZoom);
-        }
-
-        this.lastTouchDistance = currentDistance;
-
-        const centerX = (touch1.clientX + touch2.clientX) / 2;
-        const centerY = (touch1.clientY + touch2.clientY) / 2;
-        if (currentDistance !== this.lastTouchDistance) {
-          const worldPoint = camera.getWorldPoint(centerX, centerY);
-          camera.centerOn(worldPoint.x, worldPoint.y);
+          const centerX = (touch1.clientX + touch2.clientX) / 2;
+          const centerY = (touch1.clientY + touch2.clientY) / 2;
+          if (currentDistance !== this.lastTouchDistance) {
+            const worldPoint = camera.getWorldPoint(centerX, centerY);
+            camera.centerOn(worldPoint.x, worldPoint.y);
+          }
         }
       }
     });
 
-    this.input.on("pointerup", () => {
+    this.input.on("pointerup", (_pointer: Phaser.Input.Pointer) => {
       this.lastTouchDistance = 0;
-      camera.setZoom(this.currentZoom);
-      this.isDragging = false;
     });
 
-    useSceneStore.setState({ currentScene: GameScene.GameMap, sceneData: null });
   }
 
   private startPulseAnimation(circle: Phaser.GameObjects.Arc): void {
@@ -180,10 +184,14 @@ export default class GameMapPhaserScene extends Scene {
       ease: "Linear",
       repeat: 0,
       yoyo: true,
+      onComplete: () => {
+        circle.setAlpha(0.000001);
+        circle.setScale(1);
+      },
     });
   }
 
   update(): void {
-    /* */
+    //
   }
 }

@@ -7,6 +7,7 @@ import { FoodGamePhaserScene } from "@features/food-game";
 import { GameMapPhaserScene } from "@features/game-map";
 import { Game2048PhaserScene } from "@features/2048-game";
 import { MovePhaserScene } from "@features/move-phaser-scene";
+import { IntroPhaserScene } from "@features/intro-phaser-scene";
 
 export const GameScene = {
   Auth: "Auth",
@@ -29,6 +30,7 @@ class GameFlowManager {
         parent: parent,
         scene: [
           AuthPhaserScene,
+          IntroPhaserScene,
           GameMapPhaserScene,
           MovePhaserScene,
           FoodGamePhaserScene,
@@ -51,8 +53,23 @@ class GameFlowManager {
       this.game.scene.stop(GameScene.Game2048);
       this.game.scene.stop(GameScene.Intro);
       this.game.scene.start(GameScene.Auth);
-      useSceneStore.setState({ currentScene: GameScene.Auth, sceneData: null });
+      useSceneStore.setState({ currentScene: GameScene.Auth,
+        sceneData: null });
       console.log("Showing Auth Scene");
+    }
+  }
+
+  showIntro() {
+    if (this.game) {
+      this.game.scene.stop(GameScene.GameMap);
+      this.game.scene.stop(GameScene.Move);
+      this.game.scene.stop(GameScene.FoodGame);
+      this.game.scene.stop(GameScene.Game2048);
+      this.game.scene.stop(GameScene.Auth);
+      this.game.scene.start(GameScene.Intro);
+      useSceneStore.setState({ currentScene: GameScene.Intro,
+        sceneData: null });
+      console.log("Showing Intro Scene");
     }
   }
 
@@ -62,8 +79,10 @@ class GameFlowManager {
       this.game.scene.stop(GameScene.Move);
       this.game.scene.stop(GameScene.FoodGame);
       this.game.scene.stop(GameScene.Game2048);
+      this.game.scene.stop(GameScene.Intro);
       this.game.scene.start(GameScene.GameMap);
-      useSceneStore.setState({ currentScene: GameScene.GameMap, sceneData: null });
+      useSceneStore.setState({ currentScene: GameScene.GameMap,
+        sceneData: null });
       console.log("Starting Game Map Scene");
     }
   }
@@ -72,7 +91,8 @@ class GameFlowManager {
     if (this.game) {
       this.game.scene.stop(GameScene.GameMap);
       this.game.scene.start(GameScene.Move, data);
-      useSceneStore.setState({ currentScene: GameScene.Move, sceneData: data });
+      useSceneStore.setState({ currentScene: GameScene.Move,
+        sceneData: data });
       console.log("Showing Move Scene with data:", data);
     }
   }
@@ -82,7 +102,8 @@ class GameFlowManager {
       this.game.scene.stop(GameScene.GameMap);
       this.game.scene.stop(GameScene.Move);
       this.game.scene.start(GameScene.FoodGame, data);
-      useSceneStore.setState({ currentScene: GameScene.FoodGame, sceneData: data });
+      useSceneStore.setState({ currentScene: GameScene.FoodGame,
+        sceneData: data });
       console.log("Starting Food Game Scene with data:", data);
     }
   }
@@ -92,7 +113,8 @@ class GameFlowManager {
       this.game.scene.stop(GameScene.GameMap);
       this.game.scene.stop(GameScene.Move);
       this.game.scene.start(GameScene.Game2048);
-      useSceneStore.setState({ currentScene: GameScene.Game2048, sceneData: null });
+      useSceneStore.setState({ currentScene: GameScene.Game2048,
+        sceneData: null });
       console.log("Starting 2048 Game Scene");
     }
   }

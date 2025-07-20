@@ -21,7 +21,8 @@ export const useSceneStore = create<SceneState>((set, get) => ({
 
     const previousScene = get().currentScene;
 
-    set({ currentScene: scene, sceneData: data });
+    set({ currentScene: scene,
+      sceneData: data });
 
     try {
       const { user, sessionId, token } = useAuthStore.getState();

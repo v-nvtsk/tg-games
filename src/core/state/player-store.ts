@@ -13,5 +13,6 @@ export const usePlayerState = create<PlayerState>((set) => ({
   playerGender: null,
   setPlayerName: (name) => set({ playerName: name }),
   setPlayerGender: (gender) => set({ playerGender: gender }),
-  resetPlayerState: () => set({ playerName: "", playerGender: null }),
+  resetPlayerState: () => set({ playerName: "",
+    playerGender: null }),
 }));

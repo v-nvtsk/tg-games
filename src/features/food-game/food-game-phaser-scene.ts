@@ -34,12 +34,15 @@ export default class FoodGamePhaserScene extends Phaser.Scene {
 
     setBackground(this, "food-game-background");
 
-    this.add.text(width / 2, 50, `Уровень: ${this.levelData.levelId}`, { fontSize: "32px", color: "#fff" })
+    this.add.text(width / 2, 50, `Уровень: ${this.levelData.levelId}`, { fontSize: "32px",
+      color: "#fff" })
       .setOrigin(0.5);
 
-    this.scoreText = this.add.text(50, 50, `Счет: ${this.score}`, { fontSize: "24px", color: "#fff" });
+    this.scoreText = this.add.text(50, 50, `Счет: ${this.score}`, { fontSize: "24px",
+      color: "#fff" });
 
-    const timerText = this.add.text(width - 50, 50, `Время: ${this.timeLeft}`, { fontSize: "24px", color: "#fff" })
+    const timerText = this.add.text(width - 50, 50, `Время: ${this.timeLeft}`, { fontSize: "24px",
+      color: "#fff" })
       .setOrigin(1, 0);
 
     this.timerEvent = this.time.addEvent({
@@ -62,7 +65,11 @@ export default class FoodGamePhaserScene extends Phaser.Scene {
       loop: true,
     });
 
-    const exitButton = this.add.text(width / 2, height - 50, "Выйти на карту", { fontSize: "24px", color: "#fff", backgroundColor: "#880000", padding: { x: 10, y: 5 } })
+    const exitButton = this.add.text(width / 2, height - 50, "Выйти на карту", { fontSize: "24px",
+      color: "#fff",
+      backgroundColor: "#880000",
+      padding: { x: 10,
+        y: 5 } })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
 
@@ -131,7 +138,11 @@ export default class FoodGamePhaserScene extends Phaser.Scene {
     this.timerEvent.destroy();
 
     if (!forceExit) {
-      this.add.text(this.scale.width / 2, this.scale.height / 2, `Игра окончена! Ваш счет: ${this.score}`, { fontSize: "48px", color: "#ff0", backgroundColor: "#000", padding: { x: 20, y: 10 } })
+      this.add.text(this.scale.width / 2, this.scale.height / 2, `Игра окончена! Ваш счет: ${this.score}`, { fontSize: "48px",
+        color: "#ff0",
+        backgroundColor: "#000",
+        padding: { x: 20,
+          y: 10 } })
         .setOrigin(0.5)
         .setDepth(100);
 

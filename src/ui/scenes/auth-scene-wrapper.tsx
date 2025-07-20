@@ -16,7 +16,7 @@ export const AuthSceneWrapper: React.FC = () => {
 
   const handleStartGame = () => {
     if (playerName && selectedGender) {
-      gameFlowManager.startGameMap();
+      gameFlowManager.showIntro();
     }
   };
 

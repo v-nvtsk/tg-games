@@ -1,24 +1,37 @@
 import { useState } from "react";
-import { SceneWrapper } from "@ui/components/scene-wrapper";
-import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
-import styles from "./intro-scene-wrapper.module.css";
+import styles from "./move-scene-wrapper.module.css";
+import { CloseIcon } from "@ui/icons/close-icon";
 
 export const IntroSceneWrapper = () => {
   const [isVisible, setIsVisible] = useState(true);
 
-  const handleGoToMap = () => {
+  const handleClose = () => {
     setIsVisible(false);
-    gameFlowManager.startGameMap();
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) {
+    return null;
+  }
 
   return (
-    <SceneWrapper
-      title="Сцена Вступления"
-      description="Используйте стрелки или тапы по сторонам экрана для движения персонажа."
-      onClose={handleGoToMap}
-      styles={styles}
-    />
+    <div className={styles.sceneWrapper}>
+      <div className={styles.infoBox}>
+        {}
+        <button
+          className={styles.closeButton}
+          onClick={handleClose}
+          aria-label="Закрыть"
+        >
+          <CloseIcon />
+        </button>
+
+        {}
+        <h2 className={styles.title}>Добро пожаловать!</h2>
+        <p className={styles.description}>
+          Игра начинается...
+        </p>
+        {}
+      </div>
+    </div>
   );
 };

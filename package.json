@@ -20,6 +20,7 @@
   "dependencies": {
     "@twa-dev/sdk": "^8.0.2",
     "axios": "^1.10.0",
+    "clsx": "^2.1.1",
     "motion": "^12.23.0",
     "phaser": "^3.90.0",
     "react": "^19.1.0",
