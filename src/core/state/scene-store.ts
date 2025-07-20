@@ -14,7 +14,7 @@ interface SceneState {
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const useSceneStore = create<SceneState>((set, get) => ({
-  currentScene: "Intro",
+  currentScene: "Auth",
   sceneData: null,
 
   setScene: async (scene, data) => {

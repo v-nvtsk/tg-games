@@ -2,13 +2,14 @@ import Phaser from "phaser";
 import { gameConfig } from "@core/game-engine/config";
 import { useSceneStore, type FoodGameLevelData, type MoveSceneData } from "@core/state";
 
-import { IntroPhaserScene } from "@features/intro-phaser-scene";
+import { AuthPhaserScene } from "$features/auth-phaser-scene";
 import { FoodGamePhaserScene } from "@features/food-game";
 import { GameMapPhaserScene } from "@features/game-map";
 import { Game2048PhaserScene } from "@features/2048-game";
 import { MovePhaserScene } from "@features/move-phaser-scene";
 
 export const GameScene = {
+  Auth: "Auth",
   Intro: "Intro",
   GameMap: "GameMap",
   FoodGame: "FoodGame",
@@ -27,7 +28,7 @@ class GameFlowManager {
         ...gameConfig,
         parent: parent,
         scene: [
-          IntroPhaserScene,
+          AuthPhaserScene,
           GameMapPhaserScene,
           MovePhaserScene,
           FoodGamePhaserScene,

@@ -44,7 +44,6 @@ export default tseslint.config(
       "react/react-in-jsx-scope": "off",
       "react/jsx-uses-react": "off",
       "react/jsx-indent": ['error', 2],
-      "indent": ["warn", 2],
       "semi": ["error"],
       "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 1, "maxBOF": 0 }],
       "eol-last": 1,

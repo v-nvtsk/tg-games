@@ -1,10 +1,10 @@
-import React from "react";
+import { useState } from "react";
 import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
 import styles from "./move-scene-wrapper.module.css";
 import { CloseIcon } from "@ui/icons/close-icon";
 
-export const MoveSceneWrapper: React.FC = () => {
-  const [isVisible, setIsVisible] = React.useState(true);
+export const MoveSceneWrapper = () => {
+  const [isVisible, setIsVisible] = useState(true);
 
   const handleGoToMap = () => {
     gameFlowManager.startGameMap();

@@ -3,3 +3,15 @@ export const getAssetsPath = (filename?: string) => {
 
   return filename ? `${basePath}${filename}` : basePath;
 };
+
+export function getAssetsPathByType({
+  type,
+  filename,
+  scene,
+}: {
+  type: "images" | "sounds" | "json" | "tiled" | "fonts";
+  filename: string;
+  scene?: string;
+}) {
+  return `${getAssetsPath()}${type}/${scene || ""}/${filename}`;
+}

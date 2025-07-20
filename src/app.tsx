@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import "./global.css";
 import { gameFlowManager, GameScene } from "./processes/game-flow/game-flow-manager";
 import { useSceneStore } from "./core/state/scene-store";
-import { IntroSceneWrapper, GameMapSceneWrapper, FoodGameSceneWrapper, Game2048SceneWrapper, MoveSceneWrapper } from "./ui/scenes";
+import { IntroSceneWrapper, AuthSceneWrapper, GameMapSceneWrapper, FoodGameSceneWrapper, Game2048SceneWrapper, MoveSceneWrapper } from "./ui/scenes";
 import { useAuth, useTelegram } from "./core/hooks";
 
 export const App: React.FC = () => {
@@ -43,6 +43,8 @@ export const App: React.FC = () => {
 
   const renderSceneWrapper = useCallback(() => {
     switch (currentScene) {
+    case GameScene.Auth:
+      return <AuthSceneWrapper />;
     case GameScene.Intro:
       return <IntroSceneWrapper />;
     case GameScene.GameMap:
@@ -59,10 +61,7 @@ export const App: React.FC = () => {
   }, [currentScene]);
 
   return (
-    <div
-      id="game-container"
-      ref={phaserCanvasRef}
-    >
+    <div id="game-container" ref={phaserCanvasRef}>
       {renderSceneWrapper()}
     </div>
   );

@@ -22,8 +22,14 @@ export interface FoodGameLevelData {
   targetY: number;
 }
 
+export interface IntroSceneData {
+  targetX: number;
+  targetY: number;
+}
+
 export interface SceneDataMap {
-  Intro: null;
+  Auth: null;
+  Intro: IntroSceneData;
   MoveScene: MoveSceneData;
   GameMap: GameMapSceneData;
   FoodGame: FoodGameLevelData;

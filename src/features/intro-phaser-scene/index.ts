@@ -1,1 +1,1 @@
-export { default as IntroPhaserScene } from "./intro-phaser-scene";
+export * from "./intro-phaser-scene";
