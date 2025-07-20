@@ -5,6 +5,7 @@ import { logAppError } from "@utils/log-app-error";
 import { logActivity } from "../../api/log-activity";
 
 interface AuthState {
+  isTelegram: boolean | null;
   token: string | null;
   user: UserInfoDto | null;
   sessionId: string | null;
@@ -18,6 +19,7 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
+  isTelegram: null,
   token: localStorage.getItem("token") || null,
   user: JSON.parse(localStorage.getItem("user") || "null") as UserInfoDto | null,
   sessionId: localStorage.getItem("sessionId") || null,
@@ -39,10 +41,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   authenticateUser: async () => {
-    if (!WebApp.initData) {
+    let isTelegram = get().isTelegram;
+    if (isTelegram === null && !WebApp.initData) {
+      isTelegram = false;
+      set({ isTelegram });
       console.error("Telegram initData not available");
       return;
     }
+
+    set({ isTelegram: true });
 
     if (get().isVerifying) return;
 
