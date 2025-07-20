@@ -43,15 +43,16 @@ class GameFlowManager {
     }
   }
 
-  showIntro() {
+  showAuth() {
     if (this.game) {
       this.game.scene.stop(GameScene.GameMap);
       this.game.scene.stop(GameScene.Move);
       this.game.scene.stop(GameScene.FoodGame);
       this.game.scene.stop(GameScene.Game2048);
-      this.game.scene.start(GameScene.Intro);
-      useSceneStore.setState({ currentScene: GameScene.Intro, sceneData: null });
-      console.log("Showing Intro Scene");
+      this.game.scene.stop(GameScene.Intro);
+      this.game.scene.start(GameScene.Auth);
+      useSceneStore.setState({ currentScene: GameScene.Auth, sceneData: null });
+      console.log("Showing Auth Scene");
     }
   }
 

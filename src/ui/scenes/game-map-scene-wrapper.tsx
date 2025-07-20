@@ -13,7 +13,7 @@ export const GameMapSceneWrapper: React.FC = () => {
   const gameMapSceneData = sceneData as GameMapSceneData | undefined;
 
   const handleGoToIntro = () => {
-    gameFlowManager.showIntro();
+    gameFlowManager.showAuth();
   };
 
   const handleGoToMoveScene = (event: React.MouseEvent) => {

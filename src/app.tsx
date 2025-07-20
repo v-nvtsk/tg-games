@@ -37,7 +37,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (phaserCanvasRef.current) {
       gameFlowManager.initializeGame(phaserCanvasRef.current.id);
-      gameFlowManager.showIntro();
+      gameFlowManager.showAuth();
     }
   }, []);
 
