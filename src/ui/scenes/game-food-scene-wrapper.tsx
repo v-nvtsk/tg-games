@@ -1,11 +1,11 @@
 import React from "react";
 import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
 import { useSceneStore } from "@core/state/scene-store";
-import type { FoodGameLevelData } from "@core/state";
+import type { GameFoodLevelData } from "@core/state";
 
-export const FoodGameSceneWrapper: React.FC = () => {
+export const GameFoodSceneWrapper: React.FC = () => {
   const sceneData = useSceneStore((state) => state.sceneData);
-  const foodGameLevelData = sceneData as FoodGameLevelData;
+  const gameFoodLevelData = sceneData as GameFoodLevelData;
 
   const handleGoToMap = () => {
     gameFlowManager.startGameMap();
@@ -15,7 +15,7 @@ export const FoodGameSceneWrapper: React.FC = () => {
     <div className="absolute inset-0 z-10 pointer-events-none">
       <div className="absolute top-4 left-4 bg-yellow-800 bg-opacity-75 p-4 rounded-lg text-white pointer-events-auto">
         <h2 className="text-xl font-bold">Food Game</h2>
-        <p className="text-md">Уровень: {foodGameLevelData?.levelId || "Загрузка..."}</p>
+        <p className="text-md">Уровень: {gameFoodLevelData?.levelId || "Загрузка..."}</p>
       </div>
 
       <div className="absolute top-4 right-4 pointer-events-auto">

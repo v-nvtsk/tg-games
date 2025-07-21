@@ -1,11 +1,11 @@
 import Phaser from "phaser";
 import { gameConfig } from "@core/game-engine/config";
-import { useSceneStore, type FoodGameLevelData, type MoveSceneData } from "@core/state";
+import { useSceneStore, type GameFoodLevelData, type MoveSceneData } from "@core/state";
 
 import { AuthPhaserScene } from "$features/auth-phaser-scene";
-import { FoodGamePhaserScene } from "@features/food-game";
+import { GameFoodPhaserScene } from "$features/game-food";
 import { GameMapPhaserScene } from "@features/game-map";
-import { Game2048PhaserScene } from "@features/2048-game";
+import { Game2048PhaserScene } from "$features/game-2048";
 import { MovePhaserScene } from "@features/move-phaser-scene";
 import { IntroPhaserScene } from "@features/intro-phaser-scene";
 
@@ -13,7 +13,7 @@ export const GameScene = {
   Auth: "Auth",
   Intro: "Intro",
   GameMap: "GameMap",
-  FoodGame: "FoodGame",
+  GameFood: "GameFood",
   Game2048: "Game2048",
   Move: "MoveScene",
 } as const;
@@ -33,7 +33,7 @@ class GameFlowManager {
           IntroPhaserScene,
           GameMapPhaserScene,
           MovePhaserScene,
-          FoodGamePhaserScene,
+          GameFoodPhaserScene,
           Game2048PhaserScene,
         ],
       });
@@ -49,7 +49,7 @@ class GameFlowManager {
     if (this.game) {
       this.game.scene.stop(GameScene.GameMap);
       this.game.scene.stop(GameScene.Move);
-      this.game.scene.stop(GameScene.FoodGame);
+      this.game.scene.stop(GameScene.GameFood);
       this.game.scene.stop(GameScene.Game2048);
       this.game.scene.stop(GameScene.Intro);
       this.game.scene.start(GameScene.Auth);
@@ -63,7 +63,7 @@ class GameFlowManager {
     if (this.game) {
       this.game.scene.stop(GameScene.GameMap);
       this.game.scene.stop(GameScene.Move);
-      this.game.scene.stop(GameScene.FoodGame);
+      this.game.scene.stop(GameScene.GameFood);
       this.game.scene.stop(GameScene.Game2048);
       this.game.scene.stop(GameScene.Auth);
       this.game.scene.start(GameScene.Intro);
@@ -77,7 +77,7 @@ class GameFlowManager {
     if (this.game) {
       this.game.scene.stop(GameScene.Intro);
       this.game.scene.stop(GameScene.Move);
-      this.game.scene.stop(GameScene.FoodGame);
+      this.game.scene.stop(GameScene.GameFood);
       this.game.scene.stop(GameScene.Game2048);
       this.game.scene.stop(GameScene.Intro);
       this.game.scene.start(GameScene.GameMap);
@@ -97,12 +97,12 @@ class GameFlowManager {
     }
   }
 
-  showFoodGame(data: FoodGameLevelData) {
+  showGameFood(data: GameFoodLevelData) {
     if (this.game) {
       this.game.scene.stop(GameScene.GameMap);
       this.game.scene.stop(GameScene.Move);
-      this.game.scene.start(GameScene.FoodGame, data);
-      useSceneStore.setState({ currentScene: GameScene.FoodGame,
+      this.game.scene.start(GameScene.GameFood, data);
+      useSceneStore.setState({ currentScene: GameScene.GameFood,
         sceneData: data });
       console.log("Starting Food Game Scene with data:", data);
     }

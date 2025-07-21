@@ -2,20 +2,20 @@ import Phaser from "phaser";
 import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
 import { getAssetsPath } from "@utils/get-assets-path";
 import { setBackground } from "@utils/set-background";
-import type { FoodGameLevelData } from "@core/state";
+import type { GameFoodLevelData } from "@core/state";
 
-export default class FoodGamePhaserScene extends Phaser.Scene {
-  private levelData!: FoodGameLevelData;
+export default class GameFoodPhaserScene extends Phaser.Scene {
+  private levelData!: GameFoodLevelData;
   private score = 0;
   private scoreText!: Phaser.GameObjects.Text;
   private timerEvent!: Phaser.Time.TimerEvent;
   private timeLeft = 30;
 
   constructor() {
-    super("FoodGame");
+    super("GameFood");
   }
 
-  init(data: FoodGameLevelData): void {
+  init(data: GameFoodLevelData): void {
     this.levelData = data;
     this.score = 0;
     this.timeLeft = 30;

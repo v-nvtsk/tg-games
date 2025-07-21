@@ -1,6 +1,6 @@
-export * from "./2048-game";
+export * from "./game-2048";
 
-export * from "./food-game";
+export * from "./game-food";
 
 export * from "./game-map";
 

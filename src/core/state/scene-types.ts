@@ -14,7 +14,7 @@ export interface GameMapSceneData {
   targetY: number;
 }
 
-export interface FoodGameLevelData {
+export interface GameFoodLevelData {
   levelId?: string;
   currentScore?: number;
   targetScore?: number;
@@ -32,7 +32,7 @@ export interface SceneDataMap {
   Intro: IntroSceneData;
   MoveScene: MoveSceneData;
   GameMap: GameMapSceneData;
-  FoodGame: FoodGameLevelData;
+  GameFood: GameFoodLevelData;
   Game2048: null;
 }
 

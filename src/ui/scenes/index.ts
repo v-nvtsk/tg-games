@@ -1,4 +1,4 @@
-export * from "./food-game-scene-wrapper";
+export * from "./game-food-scene-wrapper";
 
 export * from "./game-2048-scene-wrapper";
 

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import "./global.css";
 import { gameFlowManager, GameScene } from "./processes/game-flow/game-flow-manager";
 import { useSceneStore } from "./core/state/scene-store";
-import { IntroSceneWrapper, AuthSceneWrapper, GameMapSceneWrapper, FoodGameSceneWrapper, Game2048SceneWrapper, MoveSceneWrapper } from "./ui/scenes";
+import { IntroSceneWrapper, AuthSceneWrapper, GameMapSceneWrapper, GameFoodSceneWrapper, Game2048SceneWrapper, MoveSceneWrapper } from "./ui/scenes";
 import { useAuth, useTelegram } from "./core/hooks";
 
 export const App: React.FC = () => {
@@ -49,8 +49,8 @@ export const App: React.FC = () => {
       return <IntroSceneWrapper />;
     case GameScene.GameMap:
       return <GameMapSceneWrapper />;
-    case GameScene.FoodGame:
-      return <FoodGameSceneWrapper />;
+    case GameScene.GameFood:
+      return <GameFoodSceneWrapper />;
     case GameScene.Game2048:
       return <Game2048SceneWrapper />;
     case GameScene.Move:

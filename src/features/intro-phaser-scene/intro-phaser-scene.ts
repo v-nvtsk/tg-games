@@ -8,7 +8,8 @@ export interface Slide {
   message: string;
 }
 
-const SLIDE_TIMEOUT = 3000;
+// TODO: исправить
+const SLIDE_TIMEOUT = 100;
 
 const colors = {
   messageBackground: 0xffffff,
