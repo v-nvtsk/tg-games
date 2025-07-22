@@ -294,6 +294,11 @@
   max-width: 420px;
   margin: 0 auto;
   border-radius: 32px 32px 0 0;
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.4,0,0.6,1);
+}
+.inputButtonContainer.fadeIn {
+  opacity: 1;
 }
 @media (max-width: 600px) {
   .inputButtonContainer {
@@ -301,4 +306,26 @@
     max-width: 100vw;
     border-radius: 18px 18px 0 0;
   }
+}
+
+.chooseCharacterPulse {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 32px;
+  z-index: 30;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.25);
+  letter-spacing: 0.04em;
+  animation: pulseText 1.2s infinite cubic-bezier(0.4,0,0.6,1);
+  pointer-events: none;
+}
+
+@keyframes pulseText {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
 }
