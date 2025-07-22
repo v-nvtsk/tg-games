@@ -12,4 +12,4 @@ export * from "./intro-phaser-scene";
 
 export * from "./move-phaser-scene";
 
-export { default as AuthPhaserScene } from "./auth-phaser-scene";
+export * from "./auth-phaser-scene";

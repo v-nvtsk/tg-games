@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { type SceneName, type SceneDataMap } from "./scene-types";
+import { type SceneName, type SceneDataMap } from "@core/types/common-types";
 import { useAuthStore } from "./auth-store";
-import { logAppError } from "../../utils/log-app-error";
-import { logActivity } from "../../api/log-activity";
+import { logAppError } from "@utils/log-app-error";
+import { logActivity } from "$/api/log-activity";
 
 interface SceneState {
   currentScene: SceneName;

@@ -5,7 +5,7 @@ import { useSceneStore } from "./core/state/scene-store";
 import { IntroSceneWrapper, AuthSceneWrapper, GameMapSceneWrapper, GameFoodSceneWrapper, Game2048SceneWrapper, MoveSceneWrapper } from "./ui/scenes";
 import { useAuth, useTelegram } from "./core/hooks";
 import { FlyingGameSceneWrapper } from "./ui/scenes/flying-game-scene-wrapper";
-import { GameScene } from "./core/state";
+import { GameScene } from "@core/types/common-types";
 
 export const App: React.FC = () => {
   const { webApp } = useTelegram();

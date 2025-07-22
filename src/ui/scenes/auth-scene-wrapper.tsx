@@ -3,7 +3,7 @@ import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
 import { usePlayerState } from "@core/state/player-store";
 import styles from "./auth-scene-wrapper.module.css";
 
-type Firefly = {
+interface Firefly {
   id: string;
   x: number;
   y: number;
@@ -13,40 +13,43 @@ type Firefly = {
   angle: string;
   lifeTime: number;
   createdAt?: number;
-};
+}
 
-type FireflyZone = {
+interface FireflyZone {
   color: string;
   minX: number;
   maxX: number;
   minY: number;
   maxY: number;
-};
+}
 
 function createFireflySpawner({ color, minX, maxX, minY, maxY, setState }: FireflyZone & { setState: React.Dispatch<React.SetStateAction<Firefly[]>> }) {
   return setInterval(() => {
-    setState(fireflies => [
+    setState((fireflies) => [
       ...fireflies,
       {
-        id: Math.random().toString(36).slice(2),
+        id: Math.random().toString(36)
+          .slice(2),
         x: minX + Math.random() * (maxX - minX),
         y: minY + Math.random() * (maxY - minY),
         dx: (Math.random() - 0.5) * 40,
         dy: -30 - Math.random() * 30,
         color,
         angle: `${Math.round(Math.random() * 60 - 30)}deg`,
-        lifeTime: 1300 + Math.random() * 800
-      }
+        lifeTime: 1300 + Math.random() * 800,
+      },
     ]);
   }, 220);
 }
 
-function spawnFireflyBurst({ color, minX, maxX, minY, maxY, setState, count = 30 }: FireflyZone & { setState: React.Dispatch<React.SetStateAction<Firefly[]>>; count?: number }) {
+function spawnFireflyBurst({ color, minX, maxX, minY, maxY, setState, count = 30 }: FireflyZone & { setState: React.Dispatch<React.SetStateAction<Firefly[]>>;
+  count?: number }) {
   const now = Date.now();
-  setState(fireflies => [
+  setState((fireflies) => [
     ...fireflies,
     ...Array.from({ length: count }).map(() => ({
-      id: Math.random().toString(36).slice(2),
+      id: Math.random().toString(36)
+        .slice(2),
       x: minX + Math.random() * (maxX - minX),
       y: minY + Math.random() * (maxY - minY),
       dx: (Math.random() - 0.5) * 80,
@@ -54,19 +57,27 @@ function spawnFireflyBurst({ color, minX, maxX, minY, maxY, setState, count = 30
       color,
       angle: `${Math.round(Math.random() * 60 - 30)}deg`,
       lifeTime: 1000 + Math.random() * 800,
-      createdAt: now
-    }))
+      createdAt: now,
+    })),
   ]);
 }
 
-const boyZone: FireflyZone = { color: '#3b82f6', minX: 0, maxX: 50, minY: 40, maxY: 90 };
-const girlZone: FireflyZone = { color: '#fb7185', minX: 50, maxX: 100, minY: 40, maxY: 90 };
+const boyZone: FireflyZone = { color: "#3b82f6",
+  minX: 0,
+  maxX: 50,
+  minY: 40,
+  maxY: 90 };
+const girlZone: FireflyZone = { color: "#fb7185",
+  minX: 50,
+  maxX: 100,
+  minY: 40,
+  maxY: 90 };
 
 export const AuthSceneWrapper: React.FC = () => {
-  const setPlayerName = usePlayerState(state => state.setPlayerName);
-  const setPlayerGender = usePlayerState(state => state.setPlayerGender);
-  const playerName = usePlayerState(state => state.playerName);
-  const selectedGender = usePlayerState(state => state.playerGender);
+  const setPlayerName = usePlayerState((state) => state.setPlayerName);
+  const setPlayerGender = usePlayerState((state) => state.setPlayerGender);
+  const playerName = usePlayerState((state) => state.playerName);
+  const selectedGender = usePlayerState((state) => state.playerGender);
   const [fireflies, setFireflies] = useState<Firefly[]>([]);
   const [showInput, setShowInput] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -81,10 +92,12 @@ export const AuthSceneWrapper: React.FC = () => {
 
   useEffect(() => {
     let spawner: number | null = null;
-    if (selectedGender === 'boy') {
-      spawner = createFireflySpawner({ ...boyZone, setState: setFireflies });
-    } else if (selectedGender === 'girl') {
-      spawner = createFireflySpawner({ ...girlZone, setState: setFireflies });
+    if (selectedGender === "boy") {
+      spawner = createFireflySpawner({ ...boyZone,
+        setState: setFireflies });
+    } else if (selectedGender === "girl") {
+      spawner = createFireflySpawner({ ...girlZone,
+        setState: setFireflies });
     }
     return () => { if (spawner) clearInterval(spawner); };
   }, [selectedGender]);
@@ -92,21 +105,24 @@ export const AuthSceneWrapper: React.FC = () => {
   useEffect(() => {
     if (!fireflies.length) return;
     const timeout = setTimeout(() => {
-      setFireflies(fireflies => fireflies.filter(fly => Date.now() - (fly.createdAt || 0) < fly.lifeTime));
+      setFireflies((fireflies) => fireflies.filter((fly) => Date.now() - (fly.createdAt || 0) < fly.lifeTime));
     }, 1000);
     return () => clearTimeout(timeout);
   }, [fireflies]);
 
   useEffect(() => {
-    setFireflies(fireflies => fireflies.map(f => f.createdAt ? f : { ...f, createdAt: Date.now() }));
+    setFireflies((fireflies) => fireflies.map((f) => f.createdAt ? f : { ...f,
+      createdAt: Date.now() }));
   }, [fireflies.length]);
 
   const handleGenderSelect = (gender: "boy" | "girl") => {
     setPlayerGender(gender);
-    if (gender === 'boy') {
-      spawnFireflyBurst({ ...boyZone, setState: setFireflies });
-    } else if (gender === 'girl') {
-      spawnFireflyBurst({ ...girlZone, setState: setFireflies });
+    if (gender === "boy") {
+      spawnFireflyBurst({ ...boyZone,
+        setState: setFireflies });
+    } else if (gender === "girl") {
+      spawnFireflyBurst({ ...girlZone,
+        setState: setFireflies });
     }
   };
 
@@ -136,7 +152,7 @@ export const AuthSceneWrapper: React.FC = () => {
             Выбери персонажа
           </div>
         )}
-        <div className={styles.inputButtonContainer + (showInput ? ' ' + styles.fadeIn : ' ' + styles.fadeOut)}>
+        <div className={styles.inputButtonContainer + (showInput ? " " + styles.fadeIn : " " + styles.fadeOut)}>
           <div className={styles.inputLabel}>Введите ваше имя</div>
           <input
             ref={inputRef}
@@ -145,9 +161,9 @@ export const AuthSceneWrapper: React.FC = () => {
             placeholder="Ваше имя"
             value={playerName}
             maxLength={32}
-            onChange={e => setPlayerName(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !isStartButtonDisabled) handleStartGame();
+            onChange={(e) => setPlayerName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !isStartButtonDisabled) handleStartGame();
             }}
             autoFocus
           />
@@ -180,7 +196,7 @@ export const AuthSceneWrapper: React.FC = () => {
         </div>
         {selectedGender &&
           <div className={styles.fireflies}>
-            {fireflies.map(fly => (
+            {fireflies.map((fly) => (
               <div
                 key={fly.id}
                 className={styles.firefly}
@@ -189,9 +205,9 @@ export const AuthSceneWrapper: React.FC = () => {
                   top: `${fly.y}%`,
                   background: fly.color,
                   animation: `${styles.fireflyAnim} ${fly.lifeTime}ms linear`,
-                  '--dx': `${fly.dx}px`,
-                  '--dy': `${fly.dy}px`,
-                  '--angle': fly.angle,
+                  "--dx": `${fly.dx}px`,
+                  "--dy": `${fly.dy}px`,
+                  "--angle": fly.angle,
                 } as React.CSSProperties}
               />
             ))}

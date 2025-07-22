@@ -1,8 +1,9 @@
 // === src/features/game-map/game-map-phaser-scene.ts ===
 import { Scene } from "phaser";
 import { getAssetsPath } from "@utils/get-assets-path";
-import { GameScene, useSceneStore } from "@core/state";
+import { GameScene } from "@core/types/common-types";
 import { logActivity } from "$/api/log-activity";
+import { useSceneStore } from "../../core/state";
 
 const CITY_RADIUS = 100;
 const TAP_THRESHOLD = 10;

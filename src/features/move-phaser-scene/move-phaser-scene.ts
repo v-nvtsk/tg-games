@@ -1,6 +1,6 @@
 import { Scene } from "phaser";
 import { createTiledBackground, getAssetsPath, getAssetsPathByType } from "$/utils";
-import type { MoveSceneData } from "@core/state";
+import type { MoveSceneData } from "@core/types/common-types";
 import { ThoughtBubble } from "../../components/thought-bubble/thought-bubble";
 
 const GROUND_HEIGHT = 50;

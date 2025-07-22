@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { gameConfig } from "@core/game-engine/config";
-import { GameScene, useSceneStore, type GameFoodLevelData, type MoveSceneData } from "@core/state";
+import { useSceneStore } from "@core/state";
 
 import { AuthPhaserScene } from "$features/auth-phaser-scene";
 import { GameFoodPhaserScene } from "$features/game-food";
@@ -9,6 +9,7 @@ import { Game2048PhaserScene } from "$features/game-2048";
 import { MovePhaserScene } from "@features/move-phaser-scene";
 import { IntroPhaserScene } from "@features/intro-phaser-scene";
 import { FlyingGameScene } from "@features/flying-game/flying-game-scene";
+import { type MoveSceneData, type GameFoodLevelData, GameScene } from "@core/types/common-types";
 
 class GameFlowManager {
   private game: Phaser.Game | null = null;

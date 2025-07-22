@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
 import { getAssetsPath } from "@utils/get-assets-path";
 import { setBackground } from "@utils/set-background";
-import type { GameFoodLevelData } from "@core/state";
+import type { GameFoodLevelData } from "@core/types/common-types";
 
 export default class GameFoodPhaserScene extends Phaser.Scene {
   private levelData!: GameFoodLevelData;

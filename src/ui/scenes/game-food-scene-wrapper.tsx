@@ -1,7 +1,7 @@
 import React from "react";
 import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
 import { useSceneStore } from "@core/state/scene-store";
-import type { GameFoodLevelData } from "@core/state";
+import type { GameFoodLevelData } from "@core/types/common-types";
 
 export const GameFoodSceneWrapper: React.FC = () => {
   const sceneData = useSceneStore((state) => state.sceneData);

@@ -57,3 +57,14 @@ export const GameScene = {
 } as const;
 
 export type GameScene = typeof GameScene[keyof typeof GameScene];
+
+export const Gender = {
+  Male: "Male",
+  Female: "Female",
+} as const;
+
+export type Gender = typeof Gender[keyof typeof Gender];
+
+export function isGender(value: string): value is Gender {
+  return Object.values(Gender).includes(value as Gender);
+}

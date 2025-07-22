@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useSceneStore } from "../../core/state/scene-store";
-import { GameScene } from "../../core/state";
+import { GameScene } from "@core/types/common-types";
 
 export const FlyingGameSceneWrapper: React.FC = () => {
   useEffect(() => {

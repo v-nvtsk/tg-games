@@ -1,11 +1,12 @@
 // === src/ui/scenes/game-map-scene-wrapper.tsx ===
 import React, { useEffect } from "react";
 import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
-import { useSceneStore, usePlayerState, type GameMapSceneData } from "@core/state";
+import { useSceneStore, usePlayerState } from "@core/state";
 import { GoButton } from "@ui/components/go-button";
 import { logActivity } from "$/api/log-activity"; // Импортируем logActivity
 
 import styles from "./game-map-scene-wrapper.module.css";
+import type { GameMapSceneData } from "../../core/types/common-types";
 
 export const GameMapSceneWrapper: React.FC = () => {
   const playerName = usePlayerState((state) => state.playerName);
