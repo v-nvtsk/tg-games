@@ -11,7 +11,8 @@
     "lint": "eslint --ext .tsx,.ts .",
     "lint:fix": "eslint --ext .tsx,.ts . --fix",
     "type-check": "tsc --noEmit -p tsconfig.app.json",
-    "split-map": "bash ./scripts/split_map_imagemagick.sh"
+    "split-map": "bash ./scripts/split_map_imagemagick.sh",
+    "svg-optimize": "svgo *.svg --config=svgo.config.js -o optimized/ --"
   },
   "keywords": [],
   "author": "",
@@ -48,6 +49,8 @@
     "stylelint": "^16.21.1",
     "stylelint-config-css-modules": "^4.5.1",
     "stylelint-config-standard": "^38.0.0",
+    "svg-sprite": "^2.0.4",
+    "svgo": "^4.0.0",
     "terser": "^5.43.1",
     "ts-jest": "^29.4.0",
     "typescript": "^5.8.3",

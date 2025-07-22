@@ -1,0 +1,35 @@
+export default {
+  plugins: [
+    'cleanupAttrs',
+    'removeDoctype',
+    'removeXMLProcInst',
+    'removeComments',
+    'removeMetadata',
+    'removeTitle',
+    'removeDesc',
+    'removeUselessDefs',
+    'removeEditorsNSData',
+    'removeEmptyAttrs',
+    'removeHiddenElems',
+    'removeEmptyText',
+    'cleanupEnableBackground',
+    'convertStyleToAttrs',
+    'convertColors',
+    'convertPathData',
+    'convertTransform',
+    'removeUnknownsAndDefaults',
+    'removeNonInheritableGroupAttrs',
+    'removeUselessStrokeAndFill',
+    'removeUnusedNS',
+    'cleanupNumericValues',
+    'moveElemsAttrsToGroup',
+    'moveGroupAttrsToElems',
+    'collapseGroups',
+    'mergePaths',
+    'removeRasterImages', // если не нужны встроенные PNG
+    'convertShapeToPath',
+    'sortAttrs',
+    'removeDimensions', // только если размеры заданы где-то ещё
+    { name: 'removeViewBox', active: false }, // оставить viewBox!
+  ],
+};
