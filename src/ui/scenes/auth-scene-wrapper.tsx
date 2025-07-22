@@ -12,7 +12,7 @@ interface Firefly {
   color: string;
   angle: string;
   lifeTime: number;
-  createdAt?: number;
+  createdAt: number;
 }
 
 interface FireflyZone {
@@ -37,6 +37,7 @@ function createFireflySpawner({ color, minX, maxX, minY, maxY, setState }: Firef
         color,
         angle: `${Math.round(Math.random() * 60 - 30)}deg`,
         lifeTime: 1300 + Math.random() * 800,
+        createdAt: Date.now(),
       },
     ]);
   }, 220);
@@ -92,6 +93,7 @@ export const AuthSceneWrapper: React.FC = () => {
 
   useEffect(() => {
     let spawner: number | null = null;
+
     if (selectedGender === "boy") {
       spawner = createFireflySpawner({ ...boyZone,
         setState: setFireflies });
@@ -103,19 +105,20 @@ export const AuthSceneWrapper: React.FC = () => {
   }, [selectedGender]);
 
   useEffect(() => {
-    if (!fireflies.length) return;
-    const timeout = setTimeout(() => {
-      setFireflies((fireflies) => fireflies.filter((fly) => Date.now() - (fly.createdAt || 0) < fly.lifeTime));
+    const cleanupInterval = setInterval(() => {
+      const now = Date.now();
+      setFireflies((currentFireflies) =>
+        currentFireflies.filter((fly) => now - fly.createdAt < fly.lifeTime),
+      );
     }, 1000);
-    return () => clearTimeout(timeout);
-  }, [fireflies]);
 
-  useEffect(() => {
-    setFireflies((fireflies) => fireflies.map((f) => f.createdAt ? f : { ...f,
-      createdAt: Date.now() }));
-  }, [fireflies.length]);
+    return () => clearInterval(cleanupInterval);
+  }, []);
 
   const handleGenderSelect = (gender: "boy" | "girl") => {
+    if (selectedGender === gender) return;
+    setFireflies([]);
+
     setPlayerGender(gender);
     if (gender === "boy") {
       spawnFireflyBurst({ ...boyZone,
@@ -137,6 +140,7 @@ export const AuthSceneWrapper: React.FC = () => {
   return (
     <div className={styles.sceneWrapper}>
       <div className={styles.gameContainer}>
+        {}
         <div className={styles.contentWrapper}>
           <div className={styles.gameTitle}>
             <h1 className={styles.mainTitle}>Ветви и корни</h1>
@@ -194,7 +198,7 @@ export const AuthSceneWrapper: React.FC = () => {
             </span>
           </button>
         </div>
-        {selectedGender &&
+        {selectedGender && fireflies.length > 0 &&
           <div className={styles.fireflies}>
             {fireflies.map((fly) => (
               <div
