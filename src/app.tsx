@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import "./global.css";
-import { gameFlowManager, GameScene } from "./processes/game-flow/game-flow-manager";
+import { gameFlowManager } from "./processes/game-flow/game-flow-manager";
 import { useSceneStore } from "./core/state/scene-store";
 import { IntroSceneWrapper, AuthSceneWrapper, GameMapSceneWrapper, GameFoodSceneWrapper, Game2048SceneWrapper, MoveSceneWrapper } from "./ui/scenes";
 import { useAuth, useTelegram } from "./core/hooks";
+import { FlyingGameSceneWrapper } from "./ui/scenes/flying-game-scene-wrapper";
+import { GameScene } from "./core/state";
 
 export const App: React.FC = () => {
   const { webApp } = useTelegram();
@@ -55,6 +57,8 @@ export const App: React.FC = () => {
       return <Game2048SceneWrapper />;
     case GameScene.Move:
       return <MoveSceneWrapper />;
+    case GameScene.FlyingGame:
+      return <FlyingGameSceneWrapper />;
     default:
       return null;
     }

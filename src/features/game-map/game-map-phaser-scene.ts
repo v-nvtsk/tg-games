@@ -1,8 +1,7 @@
 // === src/features/game-map/game-map-phaser-scene.ts ===
 import { Scene } from "phaser";
 import { getAssetsPath } from "@utils/get-assets-path";
-import { GameScene } from "@processes/game-flow/game-flow-manager";
-import { useSceneStore } from "@core/state";
+import { GameScene, useSceneStore } from "@core/state";
 import { logActivity } from "$/api/log-activity";
 
 const CITY_RADIUS = 100;

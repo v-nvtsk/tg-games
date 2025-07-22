@@ -101,7 +101,7 @@ export class MovePhaserScene extends Scene {
     this.anims.create({
       key: "walk",
       frames: walkFrames,
-      frameRate: 24,
+      frameRate: 16,
       repeat: -1,
     });
 
@@ -158,6 +158,9 @@ export class MovePhaserScene extends Scene {
           .setDepth(20);
 
         this.time.delayedCall(3000, () => {
+
+          this.startFlyingGame();
+
           resultText.destroy();
         });
 
@@ -300,5 +303,12 @@ export class MovePhaserScene extends Scene {
       console.warn(`Question with ID "${questionId}" not found or thoughtBubble not initialized. Ending conversation.`);
       this.thoughtBubble?.hide();
     }
+  }
+
+  private startFlyingGame(): void {
+    console.log("Запускаем FlyingGameScene...");
+    // Останавливаем текущую сцену (MoveScene) и запускаем FlyingGameScene
+    // Это гарантирует, что управление из MoveScene не будет конфликтовать с FlyingGameScene
+    this.scene.start("FlyingGameScene");
   }
 }

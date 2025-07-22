@@ -1,1 +1,1 @@
-export { default as AuthPhaserScene } from "./auth-phaser-scene";
+export * from "./auth-phaser-scene";

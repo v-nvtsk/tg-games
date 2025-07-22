@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { gameConfig } from "@core/game-engine/config";
-import { useSceneStore, type GameFoodLevelData, type MoveSceneData } from "@core/state";
+import { GameScene, useSceneStore, type GameFoodLevelData, type MoveSceneData } from "@core/state";
 
 import { AuthPhaserScene } from "$features/auth-phaser-scene";
 import { GameFoodPhaserScene } from "$features/game-food";
@@ -8,17 +8,7 @@ import { GameMapPhaserScene } from "@features/game-map";
 import { Game2048PhaserScene } from "$features/game-2048";
 import { MovePhaserScene } from "@features/move-phaser-scene";
 import { IntroPhaserScene } from "@features/intro-phaser-scene";
-
-export const GameScene = {
-  Auth: "Auth",
-  Intro: "Intro",
-  GameMap: "GameMap",
-  GameFood: "GameFood",
-  Game2048: "Game2048",
-  Move: "MoveScene",
-} as const;
-
-export type GameScene = typeof GameScene[keyof typeof GameScene];
+import { FlyingGameScene } from "@features/flying-game/flying-game-scene";
 
 class GameFlowManager {
   private game: Phaser.Game | null = null;
@@ -35,6 +25,7 @@ class GameFlowManager {
           MovePhaserScene,
           GameFoodPhaserScene,
           Game2048PhaserScene,
+          FlyingGameScene,
         ],
       });
       console.log("Phaser Game Initialized", this.game);
@@ -116,6 +107,12 @@ class GameFlowManager {
       useSceneStore.setState({ currentScene: GameScene.Game2048,
         sceneData: null });
       console.log("Starting 2048 Game Scene");
+    }
+  }
+
+  public showFlyingGame() {
+    if (this.game) {
+      this.game.scene.start(GameScene.FlyingGame);
     }
   }
 }
