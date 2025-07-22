@@ -1,5 +1,5 @@
 import { Scene } from "phaser";
-import { createTiledBackground, getAssetsPath } from "$/utils";
+import { createTiledBackground, getAssetsPath, getAssetsPathByType } from "$/utils";
 import type { MoveSceneData } from "@core/state";
 import { ThoughtBubble } from "../../components/thought-bubble/thought-bubble";
 
@@ -43,10 +43,19 @@ export class MovePhaserScene extends Scene {
   }
 
   preload(): void {
-    this.load.spritesheet("player_main_sprite", getAssetsPath("images/hero.png"), {
-      frameWidth: 174,
-      frameHeight: 300,
-    });
+    for (let i = 1; i <= 20; i++) {
+      const assetKey = `player_frame_${i}`;
+      const filename = `hero/${i}.svg`;
+
+      this.load.svg(assetKey, getAssetsPathByType({
+        type: "images",
+        filename: filename,
+      }),
+      { width: 241,
+        height: 414 },
+      );
+    }
+
     this.load.image("move/background", getAssetsPath("images/background-variant.png"));
     this.load.image("ground", getAssetsPath("images/platform.png"));
 
@@ -73,27 +82,36 @@ export class MovePhaserScene extends Scene {
     this.player = this.physics.add.sprite(
       this.targetX || width / 2,
       height,
-      "player_main_sprite",
+      "player_frame_1",
     );
     this.player
       .setOrigin(0.5, 1)
       .setCollideWorldBounds(true)
       .setBounce(0.2)
       .setGravityY(500);
-    this.player.body?.setSize(50, 150);
+
+    this.player.body?.setSize(241, 414);
     this.player.setDepth(2000);
+
+    const walkFrames = [];
+    for (let i = 1; i <= 20; i++) {
+      walkFrames.push({ key: `player_frame_${i}` });
+    }
 
     this.anims.create({
       key: "walk",
-      frames: this.anims.generateFrameNumbers("player_main_sprite", { start: 0,
-        end: 5 }),
-      frameRate: 6,
+      frames: walkFrames,
+      frameRate: 40,
       repeat: -1,
     });
+
+    const idleFrames = [
+      { key: "player_frame_1" },
+    ];
+
     this.anims.create({
       key: "idle",
-      frames: this.anims.generateFrameNumbers("player_main_sprite", { start: 0,
-        end: 0 }),
+      frames: idleFrames,
       frameRate: 1,
       repeat: -1,
     });
