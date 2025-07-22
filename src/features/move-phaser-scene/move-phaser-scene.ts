@@ -101,7 +101,7 @@ export class MovePhaserScene extends Scene {
     this.anims.create({
       key: "walk",
       frames: walkFrames,
-      frameRate: 40,
+      frameRate: 24,
       repeat: -1,
     });
 
