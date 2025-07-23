@@ -1,0 +1,46 @@
+.notificationContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.notification {
+  background-color: #00bcd4;
+  color: white;
+  padding: 1rem 2rem;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
+  pointer-events: auto;
+  margin: 1rem;
+  border-radius: 0.5rem;
+  opacity: 0.95;
+}
+
+.closeButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.closeIcon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-weight: bold;
+}

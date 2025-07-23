@@ -1,0 +1,44 @@
+/* default-scene-wrapper.module.css */
+
+.sceneWrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background-color: rgb(0 0 0 / 70%);
+}
+
+.infoBox {
+  position: relative;
+  pointer-events: auto;
+  background-color: rgb(0 0 0 / 80%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  max-width: 90%;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 30%);
+}
+
+.closeButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+}
+
+.title {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.description {
+  font-size: 1rem;
+  color: #ccc;
+}

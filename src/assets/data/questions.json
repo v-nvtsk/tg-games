@@ -1,0 +1,104 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "text": "Куда мне пойти?",
+      "options": [
+        {
+          "text": "Идти вперед",
+          "value": "forward"
+        },
+        {
+          "text": "Повернуть налево",
+          "value": "left"
+        },
+        {
+          "text": "Повернуть направо",
+          "value": "right"
+        }
+      ],
+      "nextQuestionId": {
+        "forward": "q2",
+        "left": "q_no_action_left",
+        "right": "q_no_action_right"
+      }
+    },
+    {
+      "id": "q2",
+      "text": "Впереди тупик. Что делать?",
+      "options": [
+        {
+          "text": "Искать обход",
+          "value": "detour"
+        },
+        {
+          "text": "Вернуться назад",
+          "value": "back"
+        }
+      ],
+      "nextQuestionId": {
+        "detour": "q_found_path",
+        "back": "q_returned"
+      }
+    },
+    {
+      "id": "q_no_action_left",
+      "text": "Вы решили пойти налево. Ничего не произошло. Что дальше?",
+      "options": [
+        {
+          "text": "Продолжить",
+          "value": "continue"
+        }
+      ],
+      "nextQuestionId": {
+        "continue": "q1"
+      }
+    },
+    {
+      "id": "q_no_action_right",
+      "text": "Вы решили пойти направо. Ничего не произошло. Что дальше?",
+      "options": [
+        {
+          "text": "Продолжить",
+          "value": "continue"
+        }
+      ],
+      "nextQuestionId": {
+        "continue": "q1"
+      }
+    },
+    {
+      "id": "q_found_path",
+      "text": "Вы нашли потайную тропу! Куда она ведет?",
+      "options": [
+        {
+          "text": "Вглубь леса",
+          "value": "deep_forest"
+        },
+        {
+          "text": "К реке",
+          "value": "river"
+        }
+      ],
+      "nextQuestionId": null
+    },
+    {
+      "id": "q_returned",
+      "text": "Вы вернулись. Что дальше?",
+      "options": [
+        {
+          "text": "Повторить попытку",
+          "value": "retry"
+        },
+        {
+          "text": "Пойти другим путем",
+          "value": "another_way"
+        }
+      ],
+      "nextQuestionId": {
+        "retry": "q2",
+        "another_way": "q1"
+      }
+    }
+  ]
+}
