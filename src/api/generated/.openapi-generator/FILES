@@ -9,6 +9,14 @@ docs/ActivityLogsApi.md
 docs/AuthApi.md
 docs/AuthResponseDto.md
 docs/CreateActivityLogDto.md
+docs/CreateGameProgressDto.md
+docs/CreatePlayerStateDto.md
+docs/GameProgressResponseDto.md
+docs/GameStateApi.md
+docs/PlayerStateResponseDto.md
+docs/UpdateGameProgressDto.md
+docs/UpdatePlayerStateDto.md
 docs/UserInfoDto.md
+docs/UserResponseDto.md
 git_push.sh
 index.ts

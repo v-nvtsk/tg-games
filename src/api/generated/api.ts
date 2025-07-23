@@ -125,6 +125,192 @@ export interface CreateActivityLogDto {
 /**
  * 
  * @export
+ * @interface CreateGameProgressDto
+ */
+export interface CreateGameProgressDto {
+    /**
+     * Текущий счет игры
+     * @type {number}
+     * @memberof CreateGameProgressDto
+     */
+    'score': number;
+    /**
+     * Текущая сцена
+     * @type {string}
+     * @memberof CreateGameProgressDto
+     */
+    'currentScene': string;
+    /**
+     * Дата последнего обновления прогресса
+     * @type {string}
+     * @memberof CreateGameProgressDto
+     */
+    'lastPlayed': string;
+    /**
+     * Дополнительные данные прогресса игры (JSONB)
+     * @type {object}
+     * @memberof CreateGameProgressDto
+     */
+    'data': object;
+}
+/**
+ * 
+ * @export
+ * @interface CreatePlayerStateDto
+ */
+export interface CreatePlayerStateDto {
+    /**
+     * Текущее здоровье игрока
+     * @type {number}
+     * @memberof CreatePlayerStateDto
+     */
+    'hunger': number;
+    /**
+     * Текущая энергия игрока
+     * @type {number}
+     * @memberof CreatePlayerStateDto
+     */
+    'energy': number;
+    /**
+     * Инвентарь игрока (JSONB)
+     * @type {Array<object>}
+     * @memberof CreatePlayerStateDto
+     */
+    'inventory': Array<object>;
+    /**
+     * Дополнительные данные состояния игрока (JSONB)
+     * @type {object}
+     * @memberof CreatePlayerStateDto
+     */
+    'data': object;
+}
+/**
+ * 
+ * @export
+ * @interface GameProgressResponseDto
+ */
+export interface GameProgressResponseDto {
+    /**
+     * ID прогресса игры
+     * @type {number}
+     * @memberof GameProgressResponseDto
+     */
+    'id': number;
+    /**
+     * Дата и время последнего обновления записи
+     * @type {string}
+     * @memberof GameProgressResponseDto
+     */
+    'updatedAt': string;
+    /**
+     * Информация о пользователе
+     * @type {UserResponseDto}
+     * @memberof GameProgressResponseDto
+     */
+    'user': UserResponseDto;
+}
+/**
+ * 
+ * @export
+ * @interface PlayerStateResponseDto
+ */
+export interface PlayerStateResponseDto {
+    /**
+     * ID состояния игрока
+     * @type {number}
+     * @memberof PlayerStateResponseDto
+     */
+    'id': number;
+    /**
+     * Голод игрока
+     * @type {number}
+     * @memberof PlayerStateResponseDto
+     */
+    'hunger': number;
+    /**
+     * Энергия игрока
+     * @type {number}
+     * @memberof PlayerStateResponseDto
+     */
+    'energy': number;
+    /**
+     * Дата и время последнего обновления
+     * @type {string}
+     * @memberof PlayerStateResponseDto
+     */
+    'updatedAt': string;
+    /**
+     * Информация о пользователе
+     * @type {UserResponseDto}
+     * @memberof PlayerStateResponseDto
+     */
+    'user': UserResponseDto;
+}
+/**
+ * 
+ * @export
+ * @interface UpdateGameProgressDto
+ */
+export interface UpdateGameProgressDto {
+    /**
+     * Текущий счет игры
+     * @type {number}
+     * @memberof UpdateGameProgressDto
+     */
+    'score'?: number;
+    /**
+     * Текущая сцена
+     * @type {string}
+     * @memberof UpdateGameProgressDto
+     */
+    'currentScene'?: string;
+    /**
+     * Дата последнего обновления прогресса
+     * @type {string}
+     * @memberof UpdateGameProgressDto
+     */
+    'lastPlayed'?: string;
+    /**
+     * Дополнительные данные прогресса игры (JSONB)
+     * @type {object}
+     * @memberof UpdateGameProgressDto
+     */
+    'data'?: object;
+}
+/**
+ * 
+ * @export
+ * @interface UpdatePlayerStateDto
+ */
+export interface UpdatePlayerStateDto {
+    /**
+     * Текущее здоровье игрока
+     * @type {number}
+     * @memberof UpdatePlayerStateDto
+     */
+    'hunger'?: number;
+    /**
+     * Текущая энергия игрока
+     * @type {number}
+     * @memberof UpdatePlayerStateDto
+     */
+    'energy'?: number;
+    /**
+     * Инвентарь игрока (JSONB)
+     * @type {Array<object>}
+     * @memberof UpdatePlayerStateDto
+     */
+    'inventory'?: Array<object>;
+    /**
+     * Дополнительные данные состояния игрока (JSONB)
+     * @type {object}
+     * @memberof UpdatePlayerStateDto
+     */
+    'data'?: object;
+}
+/**
+ * 
+ * @export
  * @interface UserInfoDto
  */
 export interface UserInfoDto {
@@ -172,6 +358,69 @@ export const UserInfoDtoRoleEnum = {
 } as const;
 
 export type UserInfoDtoRoleEnum = typeof UserInfoDtoRoleEnum[keyof typeof UserInfoDtoRoleEnum];
+
+/**
+ * 
+ * @export
+ * @interface UserResponseDto
+ */
+export interface UserResponseDto {
+    /**
+     * 
+     * @type {number}
+     * @memberof UserResponseDto
+     */
+    'id': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserResponseDto
+     */
+    'telegramId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserResponseDto
+     */
+    'firstName': string;
+    /**
+     * 
+     * @type {object}
+     * @memberof UserResponseDto
+     */
+    'lastName': object;
+    /**
+     * 
+     * @type {object}
+     * @memberof UserResponseDto
+     */
+    'username': object;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserResponseDto
+     */
+    'gameusername': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserResponseDto
+     */
+    'gender': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UserResponseDto
+     */
+    'role': UserResponseDtoRoleEnum;
+}
+
+export const UserResponseDtoRoleEnum = {
+    User: 'user',
+    Admin: 'admin'
+} as const;
+
+export type UserResponseDtoRoleEnum = typeof UserResponseDtoRoleEnum[keyof typeof UserResponseDtoRoleEnum];
 
 
 /**
@@ -619,6 +868,609 @@ export class AuthApi extends BaseAPI {
      */
     public authControllerLogin(body: object, options?: RawAxiosRequestConfig) {
         return AuthApiFp(this.configuration).authControllerLogin(body, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * GameStateApi - axios parameter creator
+ * @export
+ */
+export const GameStateApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary Создать или обновить прогресс игры
+         * @param {CreateGameProgressDto} createGameProgressDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerCreateOrUpdateGameProgress: async (createGameProgressDto: CreateGameProgressDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createGameProgressDto' is not null or undefined
+            assertParamExists('gameStateControllerCreateOrUpdateGameProgress', 'createGameProgressDto', createGameProgressDto)
+            const localVarPath = `/game-state/game-progress`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createGameProgressDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Создать или обновить состояние игрока
+         * @param {CreatePlayerStateDto} createPlayerStateDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerCreateOrUpdatePlayerState: async (createPlayerStateDto: CreatePlayerStateDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createPlayerStateDto' is not null or undefined
+            assertParamExists('gameStateControllerCreateOrUpdatePlayerState', 'createPlayerStateDto', createPlayerStateDto)
+            const localVarPath = `/game-state/player-state`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createPlayerStateDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Удалить прогресс игры
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerDeleteGameProgress: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/game-state/game-progress`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Удалить состояние игрока
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerDeletePlayerState: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/game-state/player-state`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Получить прогресс игры
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerGetGameProgress: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/game-state/game-progress`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Получить состояние игрока
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerGetPlayerState: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/game-state/player-state`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Обновить прогресс игры
+         * @param {UpdateGameProgressDto} updateGameProgressDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerUpdateGameProgress: async (updateGameProgressDto: UpdateGameProgressDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'updateGameProgressDto' is not null or undefined
+            assertParamExists('gameStateControllerUpdateGameProgress', 'updateGameProgressDto', updateGameProgressDto)
+            const localVarPath = `/game-state/game-progress`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateGameProgressDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Обновить состояние игрока
+         * @param {UpdatePlayerStateDto} updatePlayerStateDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerUpdatePlayerState: async (updatePlayerStateDto: UpdatePlayerStateDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'updatePlayerStateDto' is not null or undefined
+            assertParamExists('gameStateControllerUpdatePlayerState', 'updatePlayerStateDto', updatePlayerStateDto)
+            const localVarPath = `/game-state/player-state`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updatePlayerStateDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * GameStateApi - functional programming interface
+ * @export
+ */
+export const GameStateApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = GameStateApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Создать или обновить прогресс игры
+         * @param {CreateGameProgressDto} createGameProgressDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async gameStateControllerCreateOrUpdateGameProgress(createGameProgressDto: CreateGameProgressDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameProgressResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.gameStateControllerCreateOrUpdateGameProgress(createGameProgressDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GameStateApi.gameStateControllerCreateOrUpdateGameProgress']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Создать или обновить состояние игрока
+         * @param {CreatePlayerStateDto} createPlayerStateDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async gameStateControllerCreateOrUpdatePlayerState(createPlayerStateDto: CreatePlayerStateDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PlayerStateResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.gameStateControllerCreateOrUpdatePlayerState(createPlayerStateDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GameStateApi.gameStateControllerCreateOrUpdatePlayerState']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Удалить прогресс игры
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async gameStateControllerDeleteGameProgress(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.gameStateControllerDeleteGameProgress(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GameStateApi.gameStateControllerDeleteGameProgress']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Удалить состояние игрока
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async gameStateControllerDeletePlayerState(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.gameStateControllerDeletePlayerState(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GameStateApi.gameStateControllerDeletePlayerState']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Получить прогресс игры
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async gameStateControllerGetGameProgress(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameProgressResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.gameStateControllerGetGameProgress(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GameStateApi.gameStateControllerGetGameProgress']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Получить состояние игрока
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async gameStateControllerGetPlayerState(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PlayerStateResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.gameStateControllerGetPlayerState(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GameStateApi.gameStateControllerGetPlayerState']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Обновить прогресс игры
+         * @param {UpdateGameProgressDto} updateGameProgressDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async gameStateControllerUpdateGameProgress(updateGameProgressDto: UpdateGameProgressDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GameProgressResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.gameStateControllerUpdateGameProgress(updateGameProgressDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GameStateApi.gameStateControllerUpdateGameProgress']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Обновить состояние игрока
+         * @param {UpdatePlayerStateDto} updatePlayerStateDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async gameStateControllerUpdatePlayerState(updatePlayerStateDto: UpdatePlayerStateDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PlayerStateResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.gameStateControllerUpdatePlayerState(updatePlayerStateDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GameStateApi.gameStateControllerUpdatePlayerState']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * GameStateApi - factory interface
+ * @export
+ */
+export const GameStateApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = GameStateApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Создать или обновить прогресс игры
+         * @param {CreateGameProgressDto} createGameProgressDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerCreateOrUpdateGameProgress(createGameProgressDto: CreateGameProgressDto, options?: RawAxiosRequestConfig): AxiosPromise<GameProgressResponseDto> {
+            return localVarFp.gameStateControllerCreateOrUpdateGameProgress(createGameProgressDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Создать или обновить состояние игрока
+         * @param {CreatePlayerStateDto} createPlayerStateDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerCreateOrUpdatePlayerState(createPlayerStateDto: CreatePlayerStateDto, options?: RawAxiosRequestConfig): AxiosPromise<PlayerStateResponseDto> {
+            return localVarFp.gameStateControllerCreateOrUpdatePlayerState(createPlayerStateDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Удалить прогресс игры
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerDeleteGameProgress(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.gameStateControllerDeleteGameProgress(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Удалить состояние игрока
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerDeletePlayerState(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.gameStateControllerDeletePlayerState(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Получить прогресс игры
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerGetGameProgress(options?: RawAxiosRequestConfig): AxiosPromise<GameProgressResponseDto> {
+            return localVarFp.gameStateControllerGetGameProgress(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Получить состояние игрока
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerGetPlayerState(options?: RawAxiosRequestConfig): AxiosPromise<PlayerStateResponseDto> {
+            return localVarFp.gameStateControllerGetPlayerState(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Обновить прогресс игры
+         * @param {UpdateGameProgressDto} updateGameProgressDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerUpdateGameProgress(updateGameProgressDto: UpdateGameProgressDto, options?: RawAxiosRequestConfig): AxiosPromise<GameProgressResponseDto> {
+            return localVarFp.gameStateControllerUpdateGameProgress(updateGameProgressDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Обновить состояние игрока
+         * @param {UpdatePlayerStateDto} updatePlayerStateDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        gameStateControllerUpdatePlayerState(updatePlayerStateDto: UpdatePlayerStateDto, options?: RawAxiosRequestConfig): AxiosPromise<PlayerStateResponseDto> {
+            return localVarFp.gameStateControllerUpdatePlayerState(updatePlayerStateDto, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * GameStateApi - object-oriented interface
+ * @export
+ * @class GameStateApi
+ * @extends {BaseAPI}
+ */
+export class GameStateApi extends BaseAPI {
+    /**
+     * 
+     * @summary Создать или обновить прогресс игры
+     * @param {CreateGameProgressDto} createGameProgressDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GameStateApi
+     */
+    public gameStateControllerCreateOrUpdateGameProgress(createGameProgressDto: CreateGameProgressDto, options?: RawAxiosRequestConfig) {
+        return GameStateApiFp(this.configuration).gameStateControllerCreateOrUpdateGameProgress(createGameProgressDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Создать или обновить состояние игрока
+     * @param {CreatePlayerStateDto} createPlayerStateDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GameStateApi
+     */
+    public gameStateControllerCreateOrUpdatePlayerState(createPlayerStateDto: CreatePlayerStateDto, options?: RawAxiosRequestConfig) {
+        return GameStateApiFp(this.configuration).gameStateControllerCreateOrUpdatePlayerState(createPlayerStateDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Удалить прогресс игры
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GameStateApi
+     */
+    public gameStateControllerDeleteGameProgress(options?: RawAxiosRequestConfig) {
+        return GameStateApiFp(this.configuration).gameStateControllerDeleteGameProgress(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Удалить состояние игрока
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GameStateApi
+     */
+    public gameStateControllerDeletePlayerState(options?: RawAxiosRequestConfig) {
+        return GameStateApiFp(this.configuration).gameStateControllerDeletePlayerState(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Получить прогресс игры
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GameStateApi
+     */
+    public gameStateControllerGetGameProgress(options?: RawAxiosRequestConfig) {
+        return GameStateApiFp(this.configuration).gameStateControllerGetGameProgress(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Получить состояние игрока
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GameStateApi
+     */
+    public gameStateControllerGetPlayerState(options?: RawAxiosRequestConfig) {
+        return GameStateApiFp(this.configuration).gameStateControllerGetPlayerState(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Обновить прогресс игры
+     * @param {UpdateGameProgressDto} updateGameProgressDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GameStateApi
+     */
+    public gameStateControllerUpdateGameProgress(updateGameProgressDto: UpdateGameProgressDto, options?: RawAxiosRequestConfig) {
+        return GameStateApiFp(this.configuration).gameStateControllerUpdateGameProgress(updateGameProgressDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Обновить состояние игрока
+     * @param {UpdatePlayerStateDto} updatePlayerStateDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof GameStateApi
+     */
+    public gameStateControllerUpdatePlayerState(updatePlayerStateDto: UpdatePlayerStateDto, options?: RawAxiosRequestConfig) {
+        return GameStateApiFp(this.configuration).gameStateControllerUpdatePlayerState(updatePlayerStateDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
