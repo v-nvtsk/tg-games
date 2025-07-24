@@ -5,7 +5,7 @@ import { gameFlowManager } from "$/processes";
 export interface Slide {
   key: string;
   path: string;
-  message: string;
+  message: string | null;
 }
 
 // TODO: исправить
@@ -58,31 +58,43 @@ export class IntroPhaserScene extends Phaser.Scene {
   constructor() {
     super("Intro");
     this.slides = [
-      { key: "slide1",
-        path: getAssetsPathByType({ type: "images",
-          scene: "intro",
-          filename: "slide1.png" }),
-        message: "Добро пожаловать в мир приключений!" },
-      { key: "slide2",
-        path: getAssetsPathByType({ type: "images",
-          scene: "intro",
-          filename: "slide2.png" }),
-        message: "Исследуйте неизведанные земли и города." },
-      { key: "slide3",
-        path: getAssetsPathByType({ type: "images",
-          scene: "intro",
-          filename: "slide3.png" }),
-        message: "Встречайте новых друзей." },
-      { key: "slide4",
-        path: getAssetsPathByType({ type: "images",
-          scene: "intro",
-          filename: "slide4.png" }),
-        message: "Развивайте свои навыки и становитесь сильнее." },
-      { key: "slide5",
-        path: getAssetsPathByType({ type: "images",
-          scene: "intro",
-          filename: "slide5.png" }),
-        message: "Ваше путешествие начинается прямо сейчас!" },
+      // { key: "slide1",
+      //   path: getAssetsPathByType({ type: "images",
+      //     scene: "intro",
+      //     filename: "slide1.jpg" }),
+      //   message: "Добро пожаловать в мир приключений!" },
+      // { key: "slide2",
+      //   path: getAssetsPathByType({ type: "images",
+      //     scene: "intro",
+      //     filename: "slide2.jpg" }),
+      //   message: "Исследуйте неизведанные земли и города." },
+      // { key: "slide3",
+      //   path: getAssetsPathByType({ type: "images",
+      //     scene: "intro",
+      //     filename: "slide3.jpg" }),
+      //   message: "Встречайте новых друзей." },
+      // { key: "slide4",
+      //   path: getAssetsPathByType({ type: "images",
+      //     scene: "intro",
+      //     filename: "slide4.jpg" }),
+      //   message: "Развивайте свои навыки и становитесь сильнее." },
+      // { key: "slide5",
+      //   path: getAssetsPathByType({ type: "images",
+      //     scene: "intro",
+      //     filename: "slide5.jpg" }),
+      //   message: "Ваше путешествие начинается прямо сейчас!" },
+      ...Array.from({ length: 16 }, (_, i) => {
+        const slideNumber = i + 1;
+        const slideName = `slide-${slideNumber.toString().padStart(2, "0")}`;
+
+        return {
+          key: slideName,
+          path: getAssetsPathByType({ type: "images",
+            scene: "intro",
+            filename: `${slideName}.jpg` }),
+          message: null,
+        };
+      }),
     ];
   }
 
@@ -150,7 +162,8 @@ export class IntroPhaserScene extends Phaser.Scene {
     this.background.setPosition(this.scale.width / 2, this.scale.height / 2);
 
     this.thoughtBubbleContainer = this.createThoughtBubble(message);
-    this.thoughtBubbleContainer.setAlpha(0);
+
+    this.thoughtBubbleContainer.setAlpha(message === null ? 0 : 1);
     this.thoughtBubbleContainer.setPosition(this.scale.width / 2, this.scale.height * UI_CONSTANTS.MESSAGE_INITIAL_Y_FACTOR);
 
     this.nextButton = this.add.image(
@@ -188,7 +201,7 @@ export class IntroPhaserScene extends Phaser.Scene {
       onComplete: () => {
         this.tweens.add({
           targets: this.thoughtBubbleContainer,
-          alpha: 1,
+          alpha: message === null ? 0 : 1,
           y: this.scale.height * UI_CONSTANTS.MESSAGE_APPEAR_Y_FACTOR,
           duration: UI_CONSTANTS.THOUGHT_BUBBLE_APPEAR_DURATION,
           ease: "Power2",
@@ -240,13 +253,13 @@ export class IntroPhaserScene extends Phaser.Scene {
     });
   }
 
-  private createThoughtBubble(message: string): Phaser.GameObjects.Container {
+  private createThoughtBubble(message: string | null): Phaser.GameObjects.Container {
     const bubblePadding = UI_CONSTANTS.BUBBLE_PADDING;
     const pointerWidth = UI_CONSTANTS.POINTER_WIDTH;
     const pointerHeight = UI_CONSTANTS.POINTER_HEIGHT;
     const borderRadius = UI_CONSTANTS.BORDER_RADIUS;
 
-    const text = this.add.text(0, 0, message, {
+    const text = this.add.text(0, 0, message || "", {
       fontFamily: "Arial",
       fontSize: UI_CONSTANTS.MESSAGE_FONT_SIZE,
       color: colors.messageText.toString(),
