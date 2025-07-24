@@ -91,7 +91,7 @@ export class IntroPhaserScene extends Phaser.Scene {
           key: slideName,
           path: getAssetsPathByType({ type: "images",
             scene: "intro",
-            filename: `${slideName}.jpg` }),
+            filename: `${slideName}_small.jpg` }),
           message: null,
         };
       }),
