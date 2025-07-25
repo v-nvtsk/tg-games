@@ -3,8 +3,24 @@ import { createTiledBackground, getAssetsPath, getAssetsPathByType } from "$/uti
 import type { MoveSceneData } from "@core/types/common-types";
 import { ThoughtBubble } from "../../components/thought-bubble/thought-bubble";
 
+// --- Константы для лучшей читаемости и управления ---
 const GROUND_HEIGHT = 50;
+const PLAYER_GRAVITY = 500;
+const PLAYER_BOUNCE = 0.2;
+const PLAYER_SPEED = 200;
+const PLAYER_FRAME_RATE = 16;
+const PLAYER_WIDTH = 241;
+const PLAYER_HEIGHT = 414;
+const NUM_PLAYER_FRAMES = 20;
 
+const PARALLAX_FACTORS = {
+  background: 0.1,
+  preBackground: 0.3,
+  light: 0.6,
+  front: 1.0,
+};
+
+// --- Типы данных (в идеале, вынести в отдельный файл, например, src/core/types/game-types.ts) ---
 interface Question {
   id: string;
   text: string;
@@ -22,7 +38,11 @@ export class MovePhaserScene extends Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private moveLeft = false;
   private moveRight = false;
-  private _background!: Phaser.GameObjects.TileSprite;
+  private parallaxBackground!: Phaser.GameObjects.TileSprite;
+  private parallaxPreBackground!: Phaser.GameObjects.TileSprite;
+  private parallaxLight!: Phaser.GameObjects.TileSprite;
+  private parallaxFront!: Phaser.GameObjects.TileSprite;
+
   private targetX: number | null = null;
   private targetY: number | null = null;
   private platforms!: Phaser.Physics.Arcade.StaticGroup;
@@ -37,26 +57,52 @@ export class MovePhaserScene extends Scene {
   }
 
   init(data: MoveSceneData): void {
-    this.targetX = data.targetX;
-    this.targetY = data.targetY;
-    console.log(`MoveScene initialized with target: X=${this.targetX}, Y=${this.targetY}`);
+    this.targetX = data?.targetX ?? 0;
+    this.targetY = data?.targetY ?? 0;
+    // console.log(`MoveScene initialized with target: X=${this.targetX}, Y=${this.targetY}`);
   }
 
   preload(): void {
-    for (let i = 1; i <= 20; i++) {
+    for (let i = 1; i <= NUM_PLAYER_FRAMES; i++) {
       const assetKey = `player_frame_${i}`;
       const filename = `hero/${i}.svg`;
 
       this.load.svg(assetKey, getAssetsPathByType({
         type: "images",
         filename: filename,
-      }),
-      { width: 241,
-        height: 414 },
-      );
+      }), {
+        width: PLAYER_WIDTH,
+        height: PLAYER_HEIGHT,
+      });
     }
 
-    this.load.image("move/background", getAssetsPath("images/background-variant.png"));
+    // Загрузка ресурсов в порядке их отрисовки (от заднего плана к переднему)
+    this.load.image("parallax/background", getAssetsPathByType({ // Самый дальний фон
+      type: "images",
+      scene: "move",
+      filename: "background.svg",
+    }));
+
+    this.load.image("parallax/pre-background", getAssetsPathByType({ // Фон перед самым дальним
+      type: "images",
+      scene: "move",
+      filename: "pre-background.svg",
+    }));
+
+    this.load.image("parallax/light", getAssetsPathByType({ // Слой света
+      type: "images",
+      scene: "move",
+      filename: "light.svg",
+    }));
+
+    // player должен отрисовываться здесь (его загрузка выше)
+
+    this.load.image("parallax/front", getAssetsPathByType({ // Передний план, самый близкий к игроку
+      type: "images",
+      scene: "move",
+      filename: "front.svg",
+    }));
+
     this.load.image("ground", getAssetsPath("images/platform.png"));
 
     this.load.json("questionsData", getAssetsPath("data/questions.json"));
@@ -65,123 +111,22 @@ export class MovePhaserScene extends Scene {
   create(): void {
     const { width, height } = this.sys.game.canvas;
 
-    this._background = createTiledBackground(this, "move/background");
-    const scaleY = height / this._background.height;
-    this._background.setScale(scaleY);
+    this.createParallaxLayers(width, height);
+    this.createPlatforms();
+    this.createPlayer();
+    this.createAnimations();
+    this.setupInputHandling();
+    this.setupCamera();
+    this.loadQuestions();
+    this.setupThoughtBubble();
 
-    this.platforms = this.physics.add.staticGroup();
-    const platform = this.platforms.create(0, height, "ground") as Phaser.Physics.Arcade.Sprite;
-    platform.setOrigin(0.5, 0.5);
-    platform.displayWidth = width * 2;
-    platform.displayHeight = GROUND_HEIGHT * 1.5;
-    platform.setDepth(1000);
-    platform.setBounce(0);
-    platform.setImmovable(true);
-    platform.refreshBody();
-
-    this.player = this.physics.add.sprite(
-      this.targetX || width / 2,
-      height,
-      "player_frame_1",
-    );
-    this.player
-      .setOrigin(0.5, 1)
-      .setCollideWorldBounds(true)
-      .setBounce(0.2)
-      .setGravityY(500);
-
-    this.player.body?.setSize(241, 414);
-    this.player.setDepth(2000);
-
-    const walkFrames = [];
-    for (let i = 1; i <= 20; i++) {
-      walkFrames.push({ key: `player_frame_${i}` });
-    }
-
-    this.anims.create({
-      key: "walk",
-      frames: walkFrames,
-      frameRate: 16,
-      repeat: -1,
-    });
-
-    const idleFrames = [
-      { key: "player_frame_1" },
-    ];
-
-    this.anims.create({
-      key: "idle",
-      frames: idleFrames,
-      frameRate: 1,
-      repeat: -1,
-    });
-
-    if (this.input.keyboard) {
-      this.cursors = this.input.keyboard.createCursorKeys();
-    }
-    this.input.addPointer(1);
-
-    this.cameras.main.setOrigin(0.5, 1);
-    this.cameras.main.startFollow(this.player, true, 0.5, 1, 0, height / 2);
-    this.cameras.main.setDeadzone(width * 0.1, 0);
-
+    // Коллизии
     this.physics.add.collider(this.player, this.platforms);
 
+    // Обработка изменения размера
     this.scale.on("resize", this.resizeGame.bind(this));
 
-    const questionsJson: QuestionsJson = this.cache.json.get("questionsData") as QuestionsJson;
-    if (questionsJson && questionsJson.questions) {
-      questionsJson.questions.forEach((q: Question) => this.questionsMap.set(q.id, q));
-    } else {
-      console.error("Failed to load questions data or questions array is missing. Using default.");
-      this.questionsMap.set("default", {
-        id: "default",
-        text: "Извините, вопросы не загрузились.",
-        options: [{ text: "Хорошо",
-          value: "ok" }],
-        nextQuestionId: null,
-      });
-    }
-
-    this.thoughtBubble = new ThoughtBubble(this, this.player.x, this.player.y - (this.player.height * this.player.scaleY) * 0.7, "", []);
-
-    if (this.thoughtBubble) {
-      this.thoughtBubble.onOptionSelected.on("selected", (selectedValue: string) => {
-        console.log(`Игрок выбрал: ${selectedValue}`);
-        const resultText = this.add.text(
-          this.player.x,
-          this.player.y - (this.player.height * this.player.scaleY) - 250,
-          `Вы выбрали: ${selectedValue}`,
-          { fontSize: "18px",
-            color: "#ffff00" },
-        ).setOrigin(0.5)
-          .setDepth(20);
-
-        this.time.delayedCall(3000, () => {
-
-          this.startFlyingGame();
-
-          resultText.destroy();
-        });
-
-        if (this.currentQuestionId) {
-          const currentQuestion = this.questionsMap.get(this.currentQuestionId);
-          if (currentQuestion && currentQuestion.nextQuestionId) {
-            const nextId = currentQuestion.nextQuestionId[selectedValue];
-            if (nextId) {
-              this.time.delayedCall(1500, () => this.presentQuestion(nextId), [], this);
-            } else {
-              console.log("Нет следующего вопроса для этого варианта. Разговор завершен.");
-              this.thoughtBubble?.hide();
-            }
-          } else {
-            console.log("Определение следующего вопроса отсутствует. Разговор завершен.");
-            this.thoughtBubble?.hide();
-          }
-        }
-      });
-    }
-
+    // Запускаем первый вопрос через 5 секунд
     this.time.addEvent({
       delay: 5000,
       callback: () => {
@@ -190,41 +135,169 @@ export class MovePhaserScene extends Scene {
       callbackScope: this,
       loop: false,
     });
+  }
 
-    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
-      const { width } = this.sys.game.canvas;
-      if (pointer.x < width / 2) {
+  private createParallaxLayers(width: number, height: number): void {
+    this.parallaxBackground = createTiledBackground(this, "parallax/background").setOrigin(0, 0)
+      .setDepth(0);
+    this.parallaxPreBackground = createTiledBackground(this, "parallax/pre-background").setOrigin(0, 0)
+      .setDepth(1);
+    this.parallaxLight = createTiledBackground(this, "parallax/light").setOrigin(0, 0)
+      .setDepth(2);
+    this.parallaxFront = createTiledBackground(this, "parallax/front").setOrigin(0, 0)
+      .setDepth(3);
+
+    this.resizeParallaxLayers(width, height);
+  }
+
+  private createPlatforms(): void {
+    const { width, height } = this.sys.game.canvas;
+    this.platforms = this.physics.add.staticGroup();
+    const platform = this.platforms.create(0, height, "ground") as Phaser.Physics.Arcade.Sprite;
+    platform
+      .setOrigin(0.5, 0.5)
+      .setDepth(-1000)
+      .setBounce(0)
+      .setImmovable(true)
+      .setAlpha(0);
+
+    this.resizePlatform(platform, width, height);
+    platform.refreshBody();
+  }
+
+  private createPlayer(): void {
+    const { width, height } = this.sys.game.canvas;
+    this.player = this.physics.add.sprite(this.targetX || width / 2, height, "player_frame_1");
+    this.player
+      .setOrigin(0.5, 1)
+      .setCollideWorldBounds(true)
+      .setBounce(PLAYER_BOUNCE)
+      .setGravityY(PLAYER_GRAVITY)
+      .setDepth(2); // Игрок выше большинства слоев, но ниже самого переднего плана
+
+    this.player.body?.setSize(PLAYER_WIDTH, PLAYER_HEIGHT);
+  }
+
+  private createAnimations(): void {
+    const walkFrames = Array.from({ length: NUM_PLAYER_FRAMES }, (_, i) => ({ key: `player_frame_${i + 1}` }));
+
+    this.anims.create({
+      key: "walk",
+      frames: walkFrames,
+      frameRate: PLAYER_FRAME_RATE,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: "idle",
+      frames: [{ key: "player_frame_1" }],
+      frameRate: 1,
+      repeat: -1,
+    });
+  }
+
+  private setupInputHandling(): void {
+    if (this.input.keyboard) {
+      this.cursors = this.input.keyboard.createCursorKeys();
+    }
+
+    this.input.on(Phaser.Input.Events.POINTER_DOWN, (pointer: Phaser.Input.Pointer) => {
+      if (pointer.x < this.sys.game.canvas.width / 2) {
         this.moveLeft = true;
         this.moveRight = false;
-      } else if (pointer.x > width / 2) {
+      } else {
         this.moveRight = true;
         this.moveLeft = false;
       }
     });
 
-    this.input.on("pointerup", () => {
+    this.input.on(Phaser.Input.Events.POINTER_UP, () => {
       this.moveLeft = false;
       this.moveRight = false;
     });
   }
 
+  private setupCamera(): void {
+    const { width, height } = this.sys.game.canvas;
+    this.cameras.main.setOrigin(0.5, 1);
+    this.cameras.main.startFollow(this.player, true, 0.5, 1, 0, height / 2);
+    this.cameras.main.setDeadzone(width * 0.1, 0);
+  }
+
+  private loadQuestions(): void {
+    const questionsJson: QuestionsJson = this.cache.json.get("questionsData") as QuestionsJson;
+    if (questionsJson?.questions) {
+      questionsJson.questions.forEach((q: Question) => this.questionsMap.set(q.id, q));
+    } else {
+      console.error("Failed to load questions data or questions array is missing.");
+      this.questionsMap.set("default", {
+        id: "default",
+        text: "Извините, вопросы не загрузились.",
+        options: [{ text: "Хорошо",
+          value: "ok" }],
+        nextQuestionId: null,
+      });
+    }
+  }
+
+  private setupThoughtBubble(): void {
+    this.thoughtBubble = new ThoughtBubble(this, this.player.x, this.player.y - (this.player.height * this.player.scaleY) * 0.7, "", []);
+    this.thoughtBubble.onOptionSelected.on("selected", this.handleQuestionOptionSelected.bind(this), this);
+  }
+
+  private handleQuestionOptionSelected(selectedValue: string): void {
+    console.log(`Игрок выбрал: ${selectedValue}`);
+
+    // Логика для отображения временного текста и перехода к следующей сцене
+    this.time.delayedCall(1000, this.startFlyingGame.bind(this), [], this);
+
+    if (this.currentQuestionId) {
+      const currentQuestion = this.questionsMap.get(this.currentQuestionId);
+      const nextId = currentQuestion?.nextQuestionId?.[selectedValue];
+
+      if (nextId) {
+        this.time.delayedCall(1500, () => this.presentQuestion(nextId), [], this);
+      } else {
+        console.log("Разговор завершен.");
+        this.thoughtBubble?.hide();
+      }
+    }
+  }
+
+  // Метод для обработки изменения размеров параллакс-слоев
+  private resizeParallaxLayers(width: number, height: number): void {
+    const layers = [
+      this.parallaxBackground,
+      this.parallaxPreBackground,
+      this.parallaxLight,
+      this.parallaxFront,
+    ];
+
+    layers.forEach((layer) => {
+      if (layer) {
+        layer.displayWidth = width;
+        layer.displayHeight = height; // Растягиваем на всю высоту
+      }
+    });
+  }
+
+  private resizePlatform(platform: Phaser.Physics.Arcade.Sprite, width: number, height: number): void {
+    platform.setX(width / 2);
+    platform.setY(height);
+    platform.setOrigin(0.5, 0.5);
+    platform.displayWidth = width * 2;
+    platform.displayHeight = GROUND_HEIGHT * 1.5;
+  }
+
   resizeGame(gameSize: { width: number;
     height: number }) {
     const { width, height } = gameSize;
-    console.log("gamesize width, height: ", width, height);
 
-    if (this._background) {
-      this._background.displayWidth = width;
-      this._background.displayHeight = height;
-    }
+    this.resizeParallaxLayers(width, height);
 
     if (this.platforms && this.platforms.getChildren().length > 0) {
       const platform = this.platforms.getChildren()[0] as Phaser.Physics.Arcade.Sprite;
-      platform.setX(width / 2);
-      platform.setY(height);
-      platform.setOrigin(0.5, 1);
-      platform.displayWidth = width;
-      platform.displayHeight = GROUND_HEIGHT;
+      this.resizePlatform(platform, width, height);
       platform.refreshBody();
     }
 
@@ -233,6 +306,7 @@ export class MovePhaserScene extends Scene {
       this.player.setY(height - GROUND_HEIGHT);
     }
 
+    this.cameras.main.setSize(width, height);
     this.cameras.main.setDeadzone(0, 0);
   }
 
@@ -246,13 +320,13 @@ export class MovePhaserScene extends Scene {
 
     if (this.cursors) {
       if (this.moveLeft || this.cursors.left.isDown) {
-        this.player.setVelocityX(-200);
+        this.player.setVelocityX(-PLAYER_SPEED);
         if (this.player.anims.currentAnim?.key !== "walk") {
           this.player.play("walk", true);
         }
         this.player.setFlipX(true);
       } else if (this.moveRight || this.cursors.right.isDown) {
-        this.player.setVelocityX(200);
+        this.player.setVelocityX(PLAYER_SPEED);
         if (this.player.anims.currentAnim?.key !== "walk") {
           this.player.play("walk", true);
         }
@@ -266,26 +340,20 @@ export class MovePhaserScene extends Scene {
       this.platforms.setX(this.player.x);
     }
 
-    if (this.input.pointer1.isDown) {
-      const { width } = this.sys.game.canvas;
-      if (this.input.pointer1.x < width / 2) {
-        this.moveLeft = true;
-        this.moveRight = false;
-      } else if (this.input.pointer1.x > width / 2) {
-        this.moveLeft = false;
-        this.moveRight = true;
-      }
-    }
-
-    if (!this.input.pointer1.isDown) {
-      this.moveLeft = false;
-      this.moveRight = false;
-    }
-
     if (this.player.body.velocity.x !== 0) {
-      const speedFactor = 0.5;
-
-      this._background.tilePositionX += this.player.body.velocity.x * speedFactor * this.game.loop.delta / 1000;
+      const baseSpeedFactor = this.player.body.velocity.x * this.game.loop.delta / 1000;
+      if (this.parallaxBackground) {
+        this.parallaxBackground.tilePositionX += baseSpeedFactor * PARALLAX_FACTORS.background;
+      }
+      if (this.parallaxPreBackground) {
+        this.parallaxPreBackground.tilePositionX += baseSpeedFactor * PARALLAX_FACTORS.preBackground;
+      }
+      if (this.parallaxLight) {
+        this.parallaxLight.tilePositionX += baseSpeedFactor * PARALLAX_FACTORS.light;
+      }
+      if (this.parallaxFront) {
+        this.parallaxFront.tilePositionX += baseSpeedFactor * PARALLAX_FACTORS.front;
+      }
     }
 
     if (this.player && this.thoughtBubble) {
@@ -307,8 +375,6 @@ export class MovePhaserScene extends Scene {
 
   private startFlyingGame(): void {
     console.log("Запускаем FlyingGameScene...");
-    // Останавливаем текущую сцену (MoveScene) и запускаем FlyingGameScene
-    // Это гарантирует, что управление из MoveScene не будет конфликтовать с FlyingGameScene
     this.scene.start("FlyingGameScene");
   }
 }
