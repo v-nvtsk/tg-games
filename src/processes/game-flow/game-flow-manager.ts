@@ -7,7 +7,6 @@ import { GameFoodPhaserScene } from "$features/game-food";
 import { GameMapPhaserScene } from "@features/game-map";
 import { Game2048PhaserScene } from "$features/game-2048";
 import { MovePhaserScene } from "@features/move-phaser-scene";
-import { IntroPhaserScene } from "@features/intro-phaser-scene";
 import { FlyingGameScene } from "@features/flying-game/flying-game-scene";
 import { type MoveSceneData, type GameFoodLevelData, GameScene } from "@core/types/common-types";
 
@@ -21,7 +20,6 @@ class GameFlowManager {
         parent: parent,
         scene: [
           AuthPhaserScene,
-          IntroPhaserScene,
           GameMapPhaserScene,
           MovePhaserScene,
           GameFoodPhaserScene,
@@ -43,7 +41,6 @@ class GameFlowManager {
       this.game.scene.stop(GameScene.Move);
       this.game.scene.stop(GameScene.GameFood);
       this.game.scene.stop(GameScene.Game2048);
-      this.game.scene.stop(GameScene.Intro);
       this.game.scene.start(GameScene.Auth);
       useSceneStore.setState({ currentScene: GameScene.Auth,
         sceneData: null });
@@ -58,7 +55,6 @@ class GameFlowManager {
       this.game.scene.stop(GameScene.GameFood);
       this.game.scene.stop(GameScene.Game2048);
       this.game.scene.stop(GameScene.Auth);
-      this.game.scene.start(GameScene.Intro);
       useSceneStore.setState({ currentScene: GameScene.Intro,
         sceneData: null });
       console.log("Showing Intro Scene");
@@ -67,11 +63,9 @@ class GameFlowManager {
 
   startGameMap() {
     if (this.game) {
-      this.game.scene.stop(GameScene.Intro);
       this.game.scene.stop(GameScene.Move);
       this.game.scene.stop(GameScene.GameFood);
       this.game.scene.stop(GameScene.Game2048);
-      this.game.scene.stop(GameScene.Intro);
       this.game.scene.start(GameScene.GameMap);
       useSceneStore.setState({ currentScene: GameScene.GameMap,
         sceneData: null });

@@ -8,8 +8,6 @@ export * from "./game-food";
 
 export * from "./game-map";
 
-export * from "./intro-phaser-scene";
-
 export * from "./move-phaser-scene";
 
 export * from "./auth-phaser-scene";

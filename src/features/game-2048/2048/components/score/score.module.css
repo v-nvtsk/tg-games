@@ -1,0 +1,46 @@
+.scoreContainer {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+@media (width <=350px) {
+
+  .score {
+    font-size: 16px;
+  }
+}
+
+@media (width >=351px) {
+
+  .score {
+    font-size: 20px;
+  }
+}
+
+@media (width >=450px) {
+
+  .score {
+    font-size: 30px;
+  }
+}
+
+@media (width >=600px) {
+
+  .score {
+    font-size: 40px;
+  }
+}
+
+.score {
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0 5px;
+}
+
+.score:nth-child(2n) {
+  text-align: right;
+}

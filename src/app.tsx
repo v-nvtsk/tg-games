@@ -1,40 +1,17 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import "./global.css";
 import { gameFlowManager } from "./processes/game-flow/game-flow-manager";
 import { useSceneStore } from "./core/state/scene-store";
 import { IntroSceneWrapper, AuthSceneWrapper, GameMapSceneWrapper, GameFoodSceneWrapper, Game2048SceneWrapper, MoveSceneWrapper } from "./ui/scenes";
-import { useAuth, useTelegram } from "./core/hooks";
+import { useAuth } from "./core/hooks";
 import { FlyingGameSceneWrapper } from "./ui/scenes/flying-game-scene-wrapper";
 import { GameScene } from "@core/types/common-types";
 
 export const App: React.FC = () => {
-  const { webApp } = useTelegram();
+  useAuth();
 
   const phaserCanvasRef = useRef<HTMLDivElement>(null);
   const currentScene = useSceneStore((state) => state.currentScene);
-  const token = useAuth();
-
-  useLayoutEffect(() => {
-    const initAuth = () => {
-      try {
-        console.log("Authentication successful, token:", token);
-      } catch (error) {
-        console.error("Authentication failed:", error);
-        if (error instanceof Error) {
-          webApp.showAlert("Ошибка авторизации. Пожалуйста, попробуйте снова." + error.message);
-        }
-        else {
-          webApp.showAlert("Ошибка авторизации. Пожалуйста, попробуйте снова.");
-        }
-      }
-    };
-
-    if (webApp.initData) {
-      void initAuth();
-    } else {
-      console.warn("Telegram initData not available");
-    }
-  }, [token, webApp]);
 
   useEffect(() => {
     if (phaserCanvasRef.current) {
