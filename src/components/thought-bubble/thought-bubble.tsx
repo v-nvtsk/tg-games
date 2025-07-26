@@ -20,7 +20,7 @@ interface ThoughtBubbleProps {
 export const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({
   message,
   onClose,
-  options = [],
+  options,
   onOptionSelected,
   className, // Этот className будет использоваться для позиционирования контейнера пузыря
 }) => {
@@ -73,7 +73,7 @@ export const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({
         <div className={styles.mainBubble}>
           <p className={styles.messageText}>{message}</p>
 
-          {options.length > 0 && (
+          {options && options.length > 0 && (
             <div className={styles.optionsContainer}>
               {options.map((option) => (
                 <button

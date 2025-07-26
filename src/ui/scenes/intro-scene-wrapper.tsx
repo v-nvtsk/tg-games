@@ -1,20 +1,19 @@
 import { useMemo, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getIntroSlides } from "@features/intro-slides/getIntroSlides";
+import { getIntroSlides } from "$features/intro-slides/";
 import styles from "./intro-scene-wrapper.module.css";
 import { gameFlowManager } from "$/processes";
 
-const SLIDE_TIMEOUT = 100; // мс
+const SLIDE_TIMEOUT = 100;
 
 export const IntroSceneWrapper = () => {
   const slides = useMemo(getIntroSlides, []);
   const [index, setIndex] = useState(0);
-  const [canSkip, setCanSkip] = useState(false); // разрешён ли ручной переход
+  const [canSkip, setCanSkip] = useState(false);
 
-  /** Переход к следующему слайду (или завершение интро). */
   const goNext = useCallback(() => {
-    if (!canSkip) return; // блокируем ранний тап
-    setCanSkip(false); // сразу блокируем для нового слайда
+    if (!canSkip) return;
+    setCanSkip(false);
 
     setIndex((i) => {
       if (i < slides.length - 1) return i + 1;
@@ -24,8 +23,8 @@ export const IntroSceneWrapper = () => {
   }, [canSkip, slides.length]);
 
   const slide = slides[index];
-  const translateX = -slide.origin.x * 100;
-  const translateY = -slide.origin.y * 100;
+  const translateX = -slide.originX * 100;
+  const translateY = -slide.originY * 100;
 
   return (
     <div className={styles.wrapper} onPointerDown={goNext}>
@@ -42,15 +41,15 @@ export const IntroSceneWrapper = () => {
             src={slide.src}
             className={styles.image}
             style={{
-              objectPosition: `${slide.origin.x * 100}% ${slide.origin.y * 100}%`,
-              left: `${slide.position.x * 100}%`,
-              top: `${slide.position.y * 100}%`,
+              objectPosition: `${slide.originX * 100}% ${slide.originY * 100}%`,
+              left: `${slide.positionX * 100}%`,
+              top: `${slide.positionY * 100}%`,
               transform: `translate(${translateX}%, ${translateY}%)`,
             }}
             draggable={false}
           />
 
-          {/* Кнопка NEXT — появится, когда canSkip=true */}
+          {}
           {canSkip && (
             <motion.button
               className={styles.nextBtn}
@@ -71,7 +70,7 @@ export const IntroSceneWrapper = () => {
             </motion.button>
           )}
 
-          {/* Прогресс-бар; по завершении разрешаем переход */}
+          {}
           <motion.div
             className={styles.progress}
             initial={{ scaleX: 0 }}

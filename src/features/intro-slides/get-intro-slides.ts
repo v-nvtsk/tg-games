@@ -4,11 +4,11 @@ export interface IntroSlideMeta {
   key: string;
   src: string;
   /** 0‒1 — точка привязки внутри изображения (как object-position). */
-  origin: { x: number;
-    y: number };
+  originX: number;
+  originY: number ;
   /** 0‒1 — позиция центра изображения в окне. */
-  position: { x: number;
-    y: number };
+  positionX: number;
+  positionY: number ;
 }
 
 /*
@@ -31,57 +31,27 @@ export function getIntroSlides(): IntroSlideMeta[] {
         scene: "intro",
         filename: `${key}_small.jpg`,
       }),
-      origin: { x: 0.5,
-        y: 0.5 },
-      position: { x: 0.5,
-        y: 0.5 },
+      originX: 0.5,
+      originY: 0.5,
+      positionX: 0.5,
+      positionY: 0.5,
     };
   });
 
-  slides[1].origin = {
-    x: 0,
-    y: 0.5,
-  };
-  slides[1].position = {
-    x: 0,
-    y: 0.5,
-  };
+  slides[1].originX = 0;
+  slides[1].positionX = 0;
 
-  slides[2].origin = {
-    x: 0.6,
-    y: 0.5,
-  };
-  slides[2].position = {
-    x: 0.6,
-    y: 0.5,
-  };
+  slides[2].originX = 0.6;
+  slides[2].positionX = 0.6;
 
-  slides[3].origin = {
-    x: 0.3,
-    y: 0.5,
-  };
-  slides[3].position = {
-    x: 0.3,
-    y: 0.5,
-  };
+  slides[3].originX = 0.3;
+  slides[3].positionX = 0.3;
 
-  slides[10].origin = {
-    x: 0.3,
-    y: 0.5,
-  };
-  slides[10].position = {
-    x: 0.3,
-    y: 0.5,
-  };
+  slides[10].originX = 0.3;
+  slides[10].positionX = 0.3;
 
-  slides[11].origin = {
-    x: 0.3,
-    y: 0.5,
-  };
-  slides[11].position = {
-    x: 0.3,
-    y: 0.5,
-  };
+  slides[11].originX = 0.3;
+  slides[11].positionX = 0.3;
 
   return slides;
 }
