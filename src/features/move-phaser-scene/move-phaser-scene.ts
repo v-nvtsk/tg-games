@@ -8,11 +8,10 @@ import { gameFlowManager } from "$/processes"; // Для перехода на F
 const GROUND_HEIGHT = 50;
 const PLAYER_GRAVITY = 500;
 const PLAYER_BOUNCE = 0.2;
-const PLAYER_SPEED = 200;
+const PLAYER_SPEED = 150;
 const PLAYER_FRAME_RATE = 16;
-const PLAYER_WIDTH = 241;
-const PLAYER_HEIGHT = 414;
-const NUM_PLAYER_FRAMES = 20;
+const NUM_PLAYER_FRAMES = 15;
+const NUM_START_FRAMES = 7; // Количество кадров для фазы начала движения
 
 const PARALLAX_FACTORS = {
   background: 0.1,
@@ -25,8 +24,10 @@ const PARALLAX_FACTORS = {
 export interface Question { // Экспортируем, так как будет использоваться в React
   id: string;
   text: string;
-  options: { text: string;
-    value: string }[];
+  options: {
+    text: string;
+    value: string
+  }[];
   nextQuestionId: Record<string, string | null> | null;
 }
 
@@ -39,6 +40,7 @@ export class MovePhaserScene extends Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private moveLeft = false;
   private moveRight = false;
+  private isMoving = false;
   private parallaxBackground!: Phaser.GameObjects.TileSprite;
   private parallaxPreBackground!: Phaser.GameObjects.TileSprite;
   private parallaxLight!: Phaser.GameObjects.TileSprite;
@@ -59,17 +61,26 @@ export class MovePhaserScene extends Scene {
   }
 
   preload(): void {
-    for (let i = 1; i <= NUM_PLAYER_FRAMES; i++) {
-      const assetKey = `player_frame_${i}`;
-      const filename = `hero/${i}.svg`;
+    // Загружаем кадры для фазы начала движения (start_1 - start_9)
+    for (let i = 1; i <= NUM_START_FRAMES; i++) {
+      const assetKey = `player_start_${i}`;
+      const filename = `alex/start_${i}.png`;
 
-      this.load.svg(assetKey, getAssetsPathByType({
+      this.load.image(assetKey, getAssetsPathByType({
         type: "images",
         filename: filename,
-      }), {
-        width: PLAYER_WIDTH,
-        height: PLAYER_HEIGHT,
-      });
+      }));
+    }
+
+    // Загружаем кадры для фазы движения (cycle_1 - cycle_15)
+    for (let i = 1; i <= NUM_PLAYER_FRAMES; i++) {
+      const assetKey = `player_cycle_${i}`;
+      const filename = `alex/cycle_${i}.png`;
+
+      this.load.image(assetKey, getAssetsPathByType({
+        type: "images",
+        filename: filename,
+      }));
     }
 
     // Загрузка ресурсов в порядке их отрисовки (от заднего плана к переднему)
@@ -193,31 +204,45 @@ export class MovePhaserScene extends Scene {
 
   private createPlayer(): void {
     const { width, height } = this.sys.game.canvas;
-    this.player = this.physics.add.sprite(this.targetX || width / 2, height, "player_frame_1");
+    this.player = this.physics.add.sprite(this.targetX || width / 2, height, "player_start_1");
     this.player
       .setOrigin(0.5, 1)
       .setCollideWorldBounds(true)
       .setBounce(PLAYER_BOUNCE)
       .setGravityY(PLAYER_GRAVITY)
-      .setDepth(2); // Игрок выше большинства слоев, но ниже самого переднего плана
-
-    this.player.body?.setSize(PLAYER_WIDTH, PLAYER_HEIGHT);
+      .setDepth(2) // Игрок выше большинства слоев, но ниже самого переднего плана
+      .setFrame("player_start_1");
   }
 
   private createAnimations(): void {
-    const walkFrames = Array.from({ length: NUM_PLAYER_FRAMES }, (_, i) => ({ key: `player_frame_${i + 1}` }));
+    this.anims.create({
+      key: "idle",
+      frames: [{ key: "player_start_1" }],
+      frameRate: PLAYER_FRAME_RATE,
+      repeat: 0,
+    });
+
+    // Анимация начала движения (start_2 - start_7)
+    const startFrames = Array.from({ length: NUM_START_FRAMES }, (_, i) => ({
+      key: `player_start_${i + 1}`,
+    }));
+
+    this.anims.create({
+      key: "start_walking",
+      frames: startFrames,
+      frameRate: PLAYER_FRAME_RATE,
+      repeat: 0, // Не повторяем, так как это переходная анимация
+    });
+
+    // Анимация движения (cycle_1 - cycle_15)
+    const walkFrames = Array.from({ length: NUM_PLAYER_FRAMES }, (_, i) => ({
+      key: `player_cycle_${i + 1}`,
+    }));
 
     this.anims.create({
       key: "walk",
       frames: walkFrames,
       frameRate: PLAYER_FRAME_RATE,
-      repeat: -1,
-    });
-
-    this.anims.create({
-      key: "idle",
-      frames: [{ key: "player_frame_1" }],
-      frameRate: 1,
       repeat: -1,
     });
   }
@@ -259,8 +284,10 @@ export class MovePhaserScene extends Scene {
       this.questionsMap.set("default", {
         id: "default",
         text: "Извините, вопросы не загрузились.",
-        options: [{ text: "Хорошо",
-          value: "ok" }],
+        options: [{
+          text: "Хорошо",
+          value: "ok",
+        }],
         nextQuestionId: null,
       });
     }
@@ -310,8 +337,10 @@ export class MovePhaserScene extends Scene {
     platform.displayHeight = GROUND_HEIGHT * 1.5;
   }
 
-  resizeGame(gameSize: { width: number;
-    height: number }) {
+  resizeGame(gameSize: {
+    width: number;
+    height: number
+  }) {
     const { width, height } = gameSize;
 
     this.resizeParallaxLayers(width, height);
@@ -335,28 +364,22 @@ export class MovePhaserScene extends Scene {
     if (!this.player || !this.player.body) return;
 
     const onGround = this.player.body.touching.down;
-    if (onGround){
+    if (onGround) {
       this.player.setVelocityY(0);
     }
 
     if (this.cursors) {
       if (this.moveLeft || this.cursors.left.isDown) {
+        this.handleMovementState(true);
         this.player.setVelocityX(-PLAYER_SPEED);
-        if (this.player.anims.currentAnim?.key !== "walk") {
-          this.player.play("walk", true);
-        }
         this.player.setFlipX(true);
       } else if (this.moveRight || this.cursors.right.isDown) {
+        this.handleMovementState(true);
         this.player.setVelocityX(PLAYER_SPEED);
-        if (this.player.anims.currentAnim?.key !== "walk") {
-          this.player.play("walk", true);
-        }
         this.player.setFlipX(false);
       } else {
+        this.handleMovementState(false);
         this.player.setVelocityX(0);
-        if (this.player.anims.currentAnim?.key !== "idle") {
-          this.player.play("idle", true);
-        }
       }
       this.platforms.setX(this.player.x);
     }
@@ -382,6 +405,28 @@ export class MovePhaserScene extends Scene {
       x: this.player.x,
       y: this.player.y - (this.player.height * this.player.scaleY) * 1.2,
     });
+  }
+
+  private handleMovementState(isMoving: boolean): void {
+    // Если персонаж начал двигаться
+    if (isMoving && !this.isMoving) {
+      this.isMoving = true;
+
+      // Начинаем с анимации начала движения
+      this.player.play("start_walking", true);
+
+      // После завершения анимации начала движения переходим к цикличному движению
+      this.player.once("animationcomplete", () => {
+        if (this.isMoving) {
+          this.player.play("walk", true);
+        }
+      }, this);
+    }
+    // Если персонаж остановился
+    else if (!isMoving && this.isMoving) {
+      this.isMoving = false;
+      this.player.play("idle", true);
+    }
   }
 
   private presentQuestion(questionId: string): void {
