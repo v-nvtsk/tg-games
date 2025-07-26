@@ -1,7 +1,8 @@
 import { Scene } from "phaser";
 import { createTiledBackground, getAssetsPath, getAssetsPathByType } from "$/utils";
 import type { MoveSceneData } from "@core/types/common-types";
-import { ThoughtBubble } from "../../components/thought-bubble/thought-bubble";
+import { useMoveSceneStore } from "$/core/state/move-scene-store"; // Новый стор для MoveSceneWrapper
+import { gameFlowManager } from "$/processes"; // Для перехода на FlyingGameScene
 
 // --- Константы для лучшей читаемости и управления ---
 const GROUND_HEIGHT = 50;
@@ -21,7 +22,7 @@ const PARALLAX_FACTORS = {
 };
 
 // --- Типы данных (в идеале, вынести в отдельный файл, например, src/core/types/game-types.ts) ---
-interface Question {
+export interface Question { // Экспортируем, так как будет использоваться в React
   id: string;
   text: string;
   options: { text: string;
@@ -44,10 +45,7 @@ export class MovePhaserScene extends Scene {
   private parallaxFront!: Phaser.GameObjects.TileSprite;
 
   private targetX: number | null = null;
-  private targetY: number | null = null;
   private platforms!: Phaser.Physics.Arcade.StaticGroup;
-
-  private thoughtBubble: ThoughtBubble | null = null;
 
   private questionsMap = new Map<string, Question>();
   private currentQuestionId: string | null = null;
@@ -58,8 +56,6 @@ export class MovePhaserScene extends Scene {
 
   init(data: MoveSceneData): void {
     this.targetX = data?.targetX ?? 0;
-    this.targetY = data?.targetY ?? 0;
-    // console.log(`MoveScene initialized with target: X=${this.targetX}, Y=${this.targetY}`);
   }
 
   preload(): void {
@@ -95,8 +91,6 @@ export class MovePhaserScene extends Scene {
       filename: "light.svg",
     }));
 
-    // player должен отрисовываться здесь (его загрузка выше)
-
     this.load.image("parallax/front", getAssetsPathByType({ // Передний план, самый близкий к игроку
       type: "images",
       scene: "move",
@@ -118,13 +112,13 @@ export class MovePhaserScene extends Scene {
     this.setupInputHandling();
     this.setupCamera();
     this.loadQuestions();
-    this.setupThoughtBubble();
 
     // Коллизии
     this.physics.add.collider(this.player, this.platforms);
 
     // Обработка изменения размера
-    this.scale.on("resize", this.resizeGame.bind(this));
+    // Используем стрелочную функцию для handleResize, чтобы избежать проблем с привязкой this
+    this.scale.on("resize", this.handleResize, this);
 
     // Запускаем первый вопрос через 5 секунд
     this.time.addEvent({
@@ -135,7 +129,39 @@ export class MovePhaserScene extends Scene {
       callbackScope: this,
       loop: false,
     });
+
+    // Подписываемся на события выбора опции из React ThoughtBubble
+    // Используем стрелочную функцию для handleQuestionOptionSelected, чтобы избежать проблем с привязкой this
+    useMoveSceneStore.getState().onOptionSelected.addListener("optionSelected", this.handleQuestionOptionSelected, this);
   }
+
+  // Очистка слушателя при остановке сцены
+  destroy(): void {
+    // Используем стрелочную функцию для handleQuestionOptionSelected, чтобы избежать проблем с привязкой this
+    useMoveSceneStore.getState().onOptionSelected.removeListener("optionSelected", this.handleQuestionOptionSelected, this);
+  }
+
+  // Метод для обработки изменения размеров сцены
+  // Преобразован в стрелочную функцию для автоматической привязки this
+  private handleResize = (gameSize: Phaser.Structs.Size): void => {
+    const { width, height } = gameSize;
+
+    this.resizeParallaxLayers(width, height);
+
+    if (this.platforms && this.platforms.getChildren().length > 0) {
+      const platform = this.platforms.getChildren()[0] as Phaser.Physics.Arcade.Sprite;
+      this.resizePlatform(platform, width, height);
+      platform.refreshBody();
+    }
+
+    if (this.player) {
+      this.player.setX(this.targetX || width / 2);
+      this.player.setY(height - GROUND_HEIGHT);
+    }
+
+    this.cameras.main.setSize(width, height);
+    this.cameras.main.setDeadzone(0, 0);
+  };
 
   private createParallaxLayers(width: number, height: number): void {
     this.parallaxBackground = createTiledBackground(this, "parallax/background").setOrigin(0, 0)
@@ -240,16 +266,10 @@ export class MovePhaserScene extends Scene {
     }
   }
 
-  private setupThoughtBubble(): void {
-    this.thoughtBubble = new ThoughtBubble(this, this.player.x, this.player.y - (this.player.height * this.player.scaleY) * 0.7, "", []);
-    this.thoughtBubble.onOptionSelected.on("selected", this.handleQuestionOptionSelected.bind(this), this);
-  }
-
-  private handleQuestionOptionSelected(selectedValue: string): void {
+  // Метод для обработки выбора опции вопроса
+  // Преобразован в стрелочную функцию для автоматической привязки this
+  private handleQuestionOptionSelected = (selectedValue: string): void => {
     console.log(`Игрок выбрал: ${selectedValue}`);
-
-    // Логика для отображения временного текста и перехода к следующей сцене
-    this.time.delayedCall(1000, this.startFlyingGame.bind(this), [], this);
 
     if (this.currentQuestionId) {
       const currentQuestion = this.questionsMap.get(this.currentQuestionId);
@@ -258,11 +278,12 @@ export class MovePhaserScene extends Scene {
       if (nextId) {
         this.time.delayedCall(1500, () => this.presentQuestion(nextId), [], this);
       } else {
-        console.log("Разговор завершен.");
-        this.thoughtBubble?.hide();
+        console.log("Разговор завершен. Запускаем FlyingGameScene...");
+        useMoveSceneStore.getState().hideThoughtBubble(); // Скрываем пузырь перед переходом
+        gameFlowManager.showFlyingGame(); // Переход к FlyingGameScene
       }
     }
-  }
+  };
 
   // Метод для обработки изменения размеров параллакс-слоев
   private resizeParallaxLayers(width: number, height: number): void {
@@ -356,25 +377,21 @@ export class MovePhaserScene extends Scene {
       }
     }
 
-    if (this.player && this.thoughtBubble) {
-      this.thoughtBubble.setPosition(this.player.x, this.player.y - (this.player.height * this.player.scaleY) * 1.2);
-    }
+    // Обновляем позицию ThoughtBubble через стор
+    useMoveSceneStore.getState().setThoughtBubblePosition({
+      x: this.player.x,
+      y: this.player.y - (this.player.height * this.player.scaleY) * 1.2,
+    });
   }
 
   private presentQuestion(questionId: string): void {
     const question = this.questionsMap.get(questionId);
-    if (question && this.thoughtBubble) {
+    if (question) {
       this.currentQuestionId = questionId;
-      this.thoughtBubble.updateContent(question.text, question.options);
-      this.thoughtBubble.show();
+      useMoveSceneStore.getState().showThoughtBubble(question.text, question.options);
     } else {
-      console.warn(`Question with ID "${questionId}" not found or thoughtBubble not initialized. Ending conversation.`);
-      this.thoughtBubble?.hide();
+      console.warn(`Question with ID "${questionId}" not found. Ending conversation.`);
+      useMoveSceneStore.getState().hideThoughtBubble();
     }
-  }
-
-  private startFlyingGame(): void {
-    console.log("Запускаем FlyingGameScene...");
-    this.scene.start("FlyingGameScene");
   }
 }
