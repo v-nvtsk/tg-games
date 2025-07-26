@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="_Слой_1" data-name="Слой 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 9220 3643.37">
+<svg id="_Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 8192 3643.4">
+  <!-- Generator: Adobe Illustrator 29.5.0, SVG Export Plug-In . SVG Version: 2.1.0 Build 137)  -->
   <defs>
     <style>
-      .cls-1 {
+      .st0 {
         fill: none;
       }
 
-      .cls-2 {
-        fill: url(#_Безымянный_градиент_18);
-        opacity: .44;
+      .st1 {
+        fill: url(#_Безымянный_градиент);
+        isolation: isolate;
+        opacity: .4;
       }
 
-      .cls-3 {
+      .st2 {
         clip-path: url(#clippath);
       }
     </style>
     <clipPath id="clippath">
-      <rect class="cls-1" x="0" y="0" width="9220" height="3643.37"/>
+      <rect class="st0" x="-576.5" width="8768.5" height="3237.1"/>
     </clipPath>
-    <linearGradient id="_Безымянный_градиент_18" data-name="Безымянный градиент 18" x1="5284.7" y1="-375.48" x2="5143.29" y2="2565.87" gradientUnits="userSpaceOnUse">
+    <linearGradient id="_Безымянный_градиент" data-name="Безымянный градиент" x1="4207.6" y1="4428.5" x2="4066.1" y2="1487.2" gradientTransform="translate(380.5 3601.2) scale(.9 -.9)" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#fff292"/>
       <stop offset="1" stop-color="#fff188" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <g class="cls-3">
-    <path class="cls-2" d="M5831.76-298.14C3981.85,614.57,2334.68,1533.5,484.76,2446.21l2043.28-926.94L7616.29-272.55l-1261.82,472.14c-1679.69,748.87-3359.38,1497.75-5039.07,2246.62l1384.59,50.42L8335.62-166.17,4048.37,1736.46c1048.95-436.86,2097.9-873.73,3146.85-1310.59-1333.64,723.61-2667.27,1447.21-4000.91,2170.82h1478.48L9380.93-326.85l-4192.67,2975.69h1330.65c1092.77-1046.2,2342.79-2092.39,3435.57-3138.59-1254.25,65.94-2868.47,125.66-4122.72,191.6Z"/>
+  <g class="st2">
+    <path class="st1" d="M4605-264.9C2961.4,546,1497.9,1362.5-145.8,2173.5l1815.5-823.6L6190.6-242.2l-1121.1,419.5C3577,842.7,2084.6,1508.1,592.2,2173.5l1230.2,44.8L6829.7-147.6l-3809.2,1690.5c932-388.2,1864-776.3,2796-1164.5-1184.9,642.9-2369.9,1285.9-3554.8,1928.8h1313.6L7758.5-290.4l-3725.2,2643.9h1182.3c970.9-929.6,2081.6-1859.1,3052.5-2788.6-1114.4,58.6-2548.6,111.6-3663.1,170.2h0Z"/>
   </g>
 </svg>
