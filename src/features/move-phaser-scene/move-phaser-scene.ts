@@ -111,6 +111,7 @@ export class MovePhaserScene extends Scene {
     this.load.image("ground", getAssetsPath("images/platform.png"));
 
     this.load.json("questionsData", getAssetsPath("data/questions.json"));
+    console.log("MoveScene: preload() - Загрузка questions.json началась.");
   }
 
   create(): void {
@@ -122,19 +123,25 @@ export class MovePhaserScene extends Scene {
     this.createAnimations();
     this.setupInputHandling();
     this.setupCamera();
-    this.loadQuestions();
+    this.loadQuestions(); // Вызываем здесь, чтобы заполнить questionsMap
+
+    console.log("MoveScene: create() - Карта вопросов загружена. Размер:", this.questionsMap.size);
+    if (this.questionsMap.size === 0) {
+      console.error("MoveScene: questionsMap пуста! Проверьте questions.json и метод loadQuestions.");
+    }
 
     // Коллизии
     this.physics.add.collider(this.player, this.platforms);
 
     // Обработка изменения размера
-    // Используем стрелочную функцию для handleResize, чтобы избежать проблем с привязкой this
     this.scale.on("resize", this.handleResize, this);
 
     // Запускаем первый вопрос через 5 секунд
+    console.log("MoveScene: create() - Устанавливаем таймер для q1.");
     this.time.addEvent({
       delay: 5000,
       callback: () => {
+        console.log("MoveScene: Таймер сработал, пытаемся представить q1.");
         this.presentQuestion("q1");
       },
       callbackScope: this,
@@ -142,7 +149,6 @@ export class MovePhaserScene extends Scene {
     });
 
     // Подписываемся на события выбора опции из React ThoughtBubble
-    // Используем стрелочную функцию для handleQuestionOptionSelected, чтобы избежать проблем с привязкой this
     useMoveSceneStore.getState().onOptionSelected.addListener("optionSelected", this.handleQuestionOptionSelected, this);
   }
 
@@ -276,11 +282,13 @@ export class MovePhaserScene extends Scene {
   }
 
   private loadQuestions(): void {
+    console.log("MoveScene: loadQuestions() - Пытаемся получить вопросы из кэша.");
     const questionsJson: QuestionsJson = this.cache.json.get("questionsData") as QuestionsJson;
     if (questionsJson?.questions) {
       questionsJson.questions.forEach((q: Question) => this.questionsMap.set(q.id, q));
+      console.log("MoveScene: loadQuestions() - Вопросы успешно загружены в questionsMap.");
     } else {
-      console.error("Failed to load questions data or questions array is missing.");
+      console.error("MoveScene: loadQuestions() - ОШИБКА: Не удалось загрузить данные вопросов или массив 'questions' отсутствует.", questionsJson);
       this.questionsMap.set("default", {
         id: "default",
         text: "Извините, вопросы не загрузились.",
@@ -296,7 +304,7 @@ export class MovePhaserScene extends Scene {
   // Метод для обработки выбора опции вопроса
   // Преобразован в стрелочную функцию для автоматической привязки this
   private handleQuestionOptionSelected = (selectedValue: string): void => {
-    console.log(`Игрок выбрал: ${selectedValue}`);
+    // ... (существующая логика выбора вопроса)
 
     if (this.currentQuestionId) {
       const currentQuestion = this.questionsMap.get(this.currentQuestionId);
@@ -306,8 +314,31 @@ export class MovePhaserScene extends Scene {
         this.time.delayedCall(1500, () => this.presentQuestion(nextId), [], this);
       } else {
         console.log("Разговор завершен. Запускаем FlyingGameScene...");
-        useMoveSceneStore.getState().hideThoughtBubble(); // Скрываем пузырь перед переходом
-        gameFlowManager.showFlyingGame(); // Переход к FlyingGameScene
+        useMoveSceneStore.getState().hideThoughtBubble(); // Скрываем пузырь
+
+        // --- ДОБАВЛЕННЫЕ УЛУЧШЕНИЯ ДЛЯ ПЕРЕХОДА ---
+        // 1. Добавить эффект затемнения/затухания
+        const blackOverlay = this.add.rectangle(
+          this.scale.width / 2,
+          this.scale.height / 2,
+          this.scale.width,
+          this.scale.height,
+          0x000000,
+        ).setAlpha(0)
+          .setDepth(1000); // Глубина, чтобы быть поверх всего
+
+        this.tweens.add({
+          targets: blackOverlay,
+          alpha: 1, // Полностью затемнить
+          duration: 500, // За 0.5 секунды
+          onComplete: () => {
+            // Только после затемнения вызываем переход
+            gameFlowManager.showFlyingGame();
+            // Опционально: можно добавить текст "Загрузка..." перед затемнением
+            // this.add.text(this.scale.width / 2, this.scale.height / 2, 'Загрузка...', { fontSize: '48px', color: '#fff' }).setOrigin(0.5).setDepth(1001);
+          },
+        });
+        // --- КОНЕЦ ДОБАВЛЕННЫХ УЛУЧШЕНИЙ ---
       }
     }
   };
@@ -430,12 +461,14 @@ export class MovePhaserScene extends Scene {
   }
 
   private presentQuestion(questionId: string): void {
+    console.log("MoveScene: presentQuestion() - Вызван для ID:", questionId);
     const question = this.questionsMap.get(questionId);
     if (question) {
       this.currentQuestionId = questionId;
+      console.log("MoveScene: presentQuestion() - Отображаем пузырь с сообщением:", question.text);
       useMoveSceneStore.getState().showThoughtBubble(question.text, question.options);
     } else {
-      console.warn(`Question with ID "${questionId}" not found. Ending conversation.`);
+      console.warn(`MoveScene: presentQuestion() - Вопрос с ID "${questionId}" не найден. Завершаем разговор.`);
       useMoveSceneStore.getState().hideThoughtBubble();
     }
   }

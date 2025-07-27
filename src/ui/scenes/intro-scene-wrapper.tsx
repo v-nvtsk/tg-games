@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getIntroSlides } from "$features/intro-slides/";
 import styles from "./intro-scene-wrapper.module.css";
 import { gameFlowManager } from "$/processes";
+import { ThoughtBubble } from "../../components";
+import { Button } from "../components/button";
+import { Messagebox } from "../components/messagebox";
 
 const SLIDE_TIMEOUT = 100;
 
@@ -49,7 +52,6 @@ export const IntroSceneWrapper = () => {
             draggable={false}
           />
 
-          {}
           {canSkip && (
             <motion.button
               className={styles.nextBtn}
@@ -70,17 +72,41 @@ export const IntroSceneWrapper = () => {
             </motion.button>
           )}
 
-          {}
-          <motion.div
+          {/* <motion.div
             className={styles.progress}
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
-            transition={{ duration: SLIDE_TIMEOUT / 1000,
+            transition={{ duration: SLIDE_TIMEOUT / 1000 + 2,
               ease: "linear" }}
             onAnimationComplete={() => setCanSkip(true)}
-          />
+          /> */}
+
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: SLIDE_TIMEOUT / 1000 + 2,
+            ease: "linear" }}
+          onAnimationComplete={() => setCanSkip(true)}
+        >
+          {/* Messagebox внутри того же AnimatePresence */}
+          {slide?.message && (
+            <div className={styles.messageContainer}>
+              <Messagebox text={slide.message} />
+            </div>
+          )}
+
+          {slide.thoughtBubbleMessage && <ThoughtBubble
+            message={slide.thoughtBubbleMessage.text}
+            position={slide.thoughtBubbleMessage.position}
+            onClose={() => {console.log("exit");}}
+          />}
         </motion.div>
       </AnimatePresence>
+
+      {index === slides.length - 1 && (
+        <Button className={styles.button} text="К вокзалу" onClick={goNext} />
+      )}
     </div>
   );
 };

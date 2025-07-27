@@ -1,0 +1,66 @@
+.button {
+  border: 5px solid #877254;
+  background-color: #CABF9E;
+  width: 100%;
+  max-width: 80%;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #877254;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  text-align: center;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+/* Hover эффекты только для устройств с мышью */
+@media (hover: hover) and (pointer: fine) {
+
+  .button:hover {
+    background-color: #877254;
+    color: #CABF9E;
+    transform: translateX(-50%) scale(1.05);
+  }
+}
+
+/* Эффекты для активного состояния */
+
+.button:active {
+  transform: translateX(-50%) scale(0.95);
+}
+
+/* Адаптация для мобильных устройств */
+@media screen and (width <=768px) {
+
+  .button {
+    font-size: 20px;
+    padding: 15px 20px;
+    bottom: 15px;
+  }
+}
+
+/* Для очень маленьких экранов */
+@media screen and (width <=480px) {
+
+  .button {
+    font-size: 18px;
+    padding: 12px 15px;
+    bottom: 10px;
+    max-width: 90%;
+  }
+}
+
+/* Для сенсорных устройств - увеличиваем область нажатия */
+@media (pointer: coarse) {
+
+  .button {
+    min-height: 44px;
+    padding: 12px 20px;
+  }
+}

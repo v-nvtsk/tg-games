@@ -1,33 +1,55 @@
 import React, { useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import clsx from "clsx"; // Для удобного управления классами CSS
-import styles from "./style.module.css"; // Импортируем новый CSS-модуль
+import { motion, AnimatePresence } from "framer-motion";
+import clsx from "clsx";
+import styles from "./style.module.css";
+import { type Easing } from "framer-motion";
+
+export type ThoughtBubblePosition =
+  | "topLeft"
+  | "topCenter"
+  | "topRight"
+  | "bottomLeft"
+  | "bottomCenter"
+  | "bottomRight";
 
 interface ThoughtBubbleProps {
   message: string;
   onClose?: () => void;
   options?: { text: string;
-    value: string }[]; // Добавлено для поддержки опций
-  onOptionSelected?: (value: string) => void; // Callback для выбора опции
-  className?: string; // Для дополнительных стилей, передаваемых извне (например, позиционирование)
+    value: string }[];
+  onOptionSelected?: (value: string) => void;
+  className?: string;
+  position?: ThoughtBubblePosition; // Добавлен параметр position
 }
 
-/**
- * React-компонент "облако мыслей" в стиле комиксов.
- * Состоит из нескольких овалов и отображает текстовое сообщение.
- * Может также содержать кнопки с опциями.
- */
+const ovalVariants = {
+  initial: { opacity: 0,
+    scale: 0 },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.3,
+      ease: "easeOut" as Easing }, // Явное указание типа Easing
+  },
+  exit: {
+    opacity: 0,
+    scale: 0,
+    transition: { duration: 0.2,
+      ease: "easeIn" as Easing }, // Явное указание типа Easing
+  },
+};
+
 export const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({
   message,
   onClose,
   options,
   onOptionSelected,
-  className, // Этот className будет использоваться для позиционирования контейнера пузыря
+  className,
+  position = "topCenter", // Значение по умолчанию
 }) => {
   const bubbleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Фокус на первом элементе, если есть опции или кнопка закрытия
     if (bubbleRef.current) {
       const firstFocusable = bubbleRef.current.querySelector(
         "button, a, input, select, textarea",
@@ -38,38 +60,55 @@ export const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({
     }
   }, [options]);
 
+  const isBottom = position.startsWith("bottom"); // Проверяем, находится ли облачко внизу
+
   return (
     <AnimatePresence>
       <motion.div
         ref={bubbleRef}
-        // Оставляем 'absolute' и горизонтальное центрирование.
-        // 'bottom-full' удален, так как он предназначен для позиционирования над элементом.
-        // Вертикальное позиционирование теперь полностью контролируется через 'className'.
         className={clsx(
-          "absolute left-1/2 -translate-x-1/2", // Базовое позиционирование Tailwind
-          styles.bubbleContainer, // Класс из CSS-модуля для общей компоновки контейнера пузыря
-          className, // Классы, переданные извне (например, для смещения или другого позиционирования)
+          styles.bubbleContainer,
+          className,
+          styles[position],
+          { [styles.bottom]: isBottom },
         )}
         initial={{ opacity: 0,
-          y: 20,
           scale: 0.8 }}
         animate={{ opacity: 1,
-          y: 0,
           scale: 1 }}
         exit={{ opacity: 0,
-          y: 20,
           scale: 0.8 }}
         transition={{ duration: 0.3,
-          ease: "easeOut" }}
+          ease: "easeOut" as Easing }}
       >
-        {/* Маленькие овалы, имитирующие "мысль" */}
-        <div className={styles.smallOvals}>
-          <div className={clsx(styles.oval, styles.ovalSmall)}></div>
-          <div className={clsx(styles.oval, styles.ovalMedium)}></div>
-          <div className={clsx(styles.oval, styles.ovalLarge)}></div>
-        </div>
+        {/* <div className={clsx(
+          { [styles.bottom]: isBottom })}> */}
+        <motion.div
+          className={clsx(styles.oval, styles.ovalSmall)}
+          variants={ovalVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={{ delay: 0.2,
+            ease: "easeOut" as Easing }}
+        />
+        <motion.div
+          className={clsx(styles.oval, styles.ovalMedium)}
+          variants={ovalVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={{ delay: 0.1,
+            ease: "easeOut" as Easing }}
+        />
+        <motion.div
+          className={clsx(styles.oval, styles.ovalLarge)}
+          variants={ovalVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+        />
 
-        {/* Основной овал для текста */}
         <div className={styles.mainBubble}>
           <p className={styles.messageText}>{message}</p>
 
@@ -97,6 +136,7 @@ export const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({
             </button>
           )}
         </div>
+        {/* </div> */}
       </motion.div>
     </AnimatePresence>
   );
