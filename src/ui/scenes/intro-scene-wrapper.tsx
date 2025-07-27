@@ -7,7 +7,7 @@ import { ThoughtBubble } from "../../components";
 import { Button } from "../components/button";
 import { Messagebox } from "../components/messagebox";
 
-const SLIDE_TIMEOUT = 100;
+const SLIDE_TIMEOUT = 0;
 
 export const IntroSceneWrapper = () => {
   const slides = useMemo(getIntroSlides, []);
@@ -85,7 +85,7 @@ export const IntroSceneWrapper = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: SLIDE_TIMEOUT / 1000 + 2,
+          transition={{ duration: SLIDE_TIMEOUT,
             ease: "linear" }}
           onAnimationComplete={() => setCanSkip(true)}
         >

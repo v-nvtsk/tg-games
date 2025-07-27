@@ -47,6 +47,14 @@
   /* fallback пока картинки грузятся */
 }
 
+.messageContainer {
+  position: absolute;
+  top: 50%;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+}
+
 .nextBtn {
   position: absolute;
   right: 4rem;
