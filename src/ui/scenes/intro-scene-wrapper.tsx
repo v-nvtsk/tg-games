@@ -98,8 +98,7 @@ export const IntroSceneWrapper = () => {
 
           {slide.thoughtBubbleMessage && <ThoughtBubble
             message={slide.thoughtBubbleMessage.text}
-            position={slide.thoughtBubbleMessage.position}
-            onClose={() => {console.log("exit");}}
+            bubbleType="thought"
           />}
         </motion.div>
       </AnimatePresence>

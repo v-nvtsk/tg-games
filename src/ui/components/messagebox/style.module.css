@@ -28,8 +28,12 @@
 }
 
 .content {
-  position: relative;
-  padding: 40px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 0 1.5rem;
   min-width: 200px;
   text-align: center;
   z-index: 1;

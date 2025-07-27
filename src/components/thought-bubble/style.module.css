@@ -1,108 +1,85 @@
 .bubbleContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
-  flex-direction: column;
-
-  /* Изначальное направление - сверху вниз */
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
   pointer-events: auto;
-  position: absolute;
-  transform: translate(-50%, -100%);
-
-  /* Центрируем по X, поднимаем над точкой */
 }
 
-.bottom {
-  /* Модификатор для нижней позиции */
-  flex-direction: column-reverse;
-
-  /* Меняем порядок на обратный */
-}
-
-
-/* Стили для разных позиций */
-
-.topLeft {
-  transform: translate(-10%, -110%);
-  align-items: flex-start;
-}
-
-.topCenter {
-  transform: translate(-50%, -110%);
-  align-items: center;
-}
-
-.topRight {
-  transform: translate(-90%, -110%);
-  align-items: flex-end;
-}
-
-.bottomLeft {
-  transform: translate(-10%, 10%);
-  align-items: flex-start;
-}
-
-.bottomCenter {
-  transform: translate(-50%, 10%);
-  align-items: center;
-}
-
-.bottomRight {
-  transform: translate(-90%, 10%);
-  align-items: flex-end;
-}
-
-
-.smallOvals {
-  display: flex;
-  flex-direction: column;
-  margin-top: 0.25rem;
-  align-items: center;
-}
-
-.oval {
-  background-color: #fff;
-
-  /* Добавляем белый цвет овалам */
-  border-radius: 50%;
-}
-
-
-.ovalSmall {
-  width: 0.5rem;
-  height: 0.5rem;
-  transform: translateY(-0.25rem);
-}
-
-.ovalMedium {
-  width: 0.75rem;
-  height: 0.75rem;
-  transform: translateY(-0.375rem);
-}
-
-.ovalLarge {
-  width: 1rem;
-  height: 1rem;
-  transform: translateY(-0.5rem);
-}
-
-.mainBubble {
+.bubbleWrapper {
   position: relative;
-  background-color: white;
-  color: #374151;
-  padding: 1rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -4px rgb(0 0 0 / 10%);
-  border: 2px solid #4b5563;
-  max-width: 20rem;
+  width: 95%;
+  min-height: 180px;
+  display: inline-block;
+}
+
+.svgBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.content {
+  padding: 0.5rem 1.5rem;
+  min-width: 200px;
   text-align: center;
+  z-index: 1;
+  margin-top: 20%;
+}
+
+.nameTag {
+  position: absolute;
+  top: 20%;
+  right: 10%;
+  z-index: 2;
+  width: 100px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nameTagSvg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.characterName {
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
 }
 
 .messageText {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  color: #374151;
+  line-height: 1.4;
+  max-width: 100%;
 }
 
-.optionsContainer {
+.thoughtText {
+  font-style: italic;
+}
+
+/* .optionsContainer {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -123,20 +100,4 @@
 
 .optionButton:hover {
   background-color: #2563eb;
-}
-
-.closeButton {
-  position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
-  background: transparent;
-  border: none;
-  color: #6b7280;
-  font-size: 1.5rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.closeButton:hover {
-  color: #374151;
-}
+} */
