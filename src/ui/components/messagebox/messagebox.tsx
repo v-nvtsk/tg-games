@@ -13,9 +13,9 @@ export const Messagebox = ({ className, text, onClick }: Props) => {
   const messages = typeof text === "string" ? <Message text={text}/> : text.map(((text) => <Message key={text} text={text}/>));
   return (
     <div className={clsx(styles.messageboxContainer, className)} onClick={onClick}>
-      <svg 
-        className={styles.svgBackground} 
-        viewBox="0 0 2539 751" 
+      <svg
+        className={styles.svgBackground}
+        viewBox="0 0 2539 751"
         preserveAspectRatio="none"
         xmlns="http://www.w3.org/2000/svg"
       >

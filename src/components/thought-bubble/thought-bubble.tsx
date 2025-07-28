@@ -4,14 +4,6 @@ import clsx from "clsx";
 import styles from "./style.module.css";
 import { type Easing } from "framer-motion";
 
-export type ThoughtBubblePosition =
-  | "topLeft"
-  | "topCenter"
-  | "topRight"
-  | "bottomLeft"
-  | "bottomCenter"
-  | "bottomRight";
-
 export type BubbleType = "speech" | "thought";
 
 interface ThoughtBubbleProps {
@@ -21,7 +13,6 @@ interface ThoughtBubbleProps {
     value: string }[];
   onOptionSelected?: (value: string) => void;
   className?: string;
-  position?: ThoughtBubblePosition;
   characterName?: string;
   bubbleType?: BubbleType;
 }
@@ -76,9 +67,9 @@ export const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({
         exit="exit"
       >
         <div className={styles.bubbleWrapper}>
-          <svg 
-            className={styles.svgBackground} 
-            viewBox="0 0 2539 1084" 
+          <svg
+            className={styles.svgBackground}
+            viewBox="0 0 2539 1084"
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -101,18 +92,18 @@ export const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({
               </linearGradient>
             </defs>
           </svg>
-          
+
           <div className={styles.content}>
             <p className={clsx(styles.messageText, {
-              [styles.thoughtText]: bubbleType === "thought"
+              [styles.thoughtText]: bubbleType === "thought",
             })}>{message}</p>
           </div>
 
           {characterName && (
             <div className={styles.nameTag}>
-              <svg 
-                className={styles.nameTagSvg} 
-                viewBox="0 0 821 243" 
+              <svg
+                className={styles.nameTagSvg}
+                viewBox="0 0 821 243"
                 preserveAspectRatio="none"
                 xmlns="http://www.w3.org/2000/svg"
               >

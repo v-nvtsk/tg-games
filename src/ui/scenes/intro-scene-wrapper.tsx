@@ -1,39 +1,103 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getIntroSlides } from "$features/intro-slides/";
+import { getIntroSlides, type Action } from "$features/slides";
 import styles from "./intro-scene-wrapper.module.css";
 import { gameFlowManager } from "$/processes";
 import { ThoughtBubble } from "../../components";
 import { Button } from "../components/button";
 import { Messagebox } from "../components/messagebox";
 
-const SLIDE_TIMEOUT = 0;
+const SLIDE_TIMEOUT = 100;
 
 export const IntroSceneWrapper = () => {
   const slides = useMemo(getIntroSlides, []);
-  const [index, setIndex] = useState(0);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const [actionIndex, setActionIndex] = useState(-1); // -1 означает, что изображение еще не показано
+  const [imageLoaded, setImageLoaded] = useState(false);
   const [canSkip, setCanSkip] = useState(false);
 
+  const currentSlide = slides[slideIndex];
+  const currentActions = currentSlide?.actions || [];
+  const currentAction = actionIndex >= 0 && actionIndex < currentActions.length
+    ? currentActions[actionIndex]
+    : null;
+
+  const translateX = -currentSlide.originX * 100;
+  const translateY = -currentSlide.originY * 100;
+  const showSkipButton = currentAction?.type !== "button" && currentAction?.type !== "choice";
+
+  // Обработчик загрузки изображения
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true);
+  }, []);
+
+  const processUpdate = useCallback(() => {
+    if (currentActions.length > 0 && actionIndex < currentActions.length - 1) {
+      setActionIndex(actionIndex + 1);
+    } else {
+      // Переходим к следующему slide
+      if (slideIndex < slides.length - 1) {
+        setSlideIndex((prev) => prev + 1);
+        setActionIndex(-1); // Сбрасываем action index для нового slide
+        setImageLoaded(false);
+      } else {
+        // Конец всех slides
+        gameFlowManager.startGameMap();
+      }
+    }
+  }, [actionIndex, currentActions.length, slideIndex]);
+
+  // Переход к следующему action или slide
   const goNext = useCallback(() => {
-    if (!canSkip) return;
+    if (!canSkip) return; // Не позволяем переходить, пока не истек таймаут
     setCanSkip(false);
 
-    setIndex((i) => {
-      if (i < slides.length - 1) return i + 1;
-      gameFlowManager.startGameMap();
-      return i;
-    });
-  }, [canSkip, slides.length]);
+    processUpdate();
+  }, [processUpdate, canSkip]);
 
-  const slide = slides[index];
-  const translateX = -slide.originX * 100;
-  const translateY = -slide.originY * 100;
+  // Обработчик клика по кнопке в action
+  const handleActionButtonClick = useCallback((action: Action) => {
+    if (action?.button?.action) {
+      action.button.action();
+    }
+    processUpdate();
+  }, [processUpdate]);
+
+  // Обработчик выбора в choice action
+  const handleChoiceSelect = useCallback((option: string) => {
+    currentActions.splice(actionIndex + 1, 0, {
+      type: "thoughts",
+      text: option,
+    });
+    processUpdate();
+  }, [processUpdate]);
+
+  // Обработка загрузки изображения
+  useEffect(() => {
+    if (imageLoaded && actionIndex === -1) {
+      // Изображение загружено, но action еще не показан
+      if (currentActions.length === 0) {
+        // Если нет actions, сразу показываем кнопку "Далее"
+        setCanSkip(true);
+      }
+    }
+  }, [imageLoaded, actionIndex]);
+
+  // Обработка показа кнопки "Далее" для actions
+  useEffect(() => {
+    if (showSkipButton) {
+      const timer = setTimeout(() => {
+        setCanSkip(true);
+      }, SLIDE_TIMEOUT);
+      return () => clearTimeout(timer);
+    }
+  }, [imageLoaded, actionIndex]);
 
   return (
     <div className={styles.wrapper} onPointerDown={goNext}>
       <AnimatePresence mode="wait">
         <motion.div
-          key={slide.key}
+          key={currentSlide.key}
           className={styles.slideLayer}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -41,18 +105,20 @@ export const IntroSceneWrapper = () => {
           transition={{ duration: 0.5 }}
         >
           <img
-            src={slide.src}
+            src={currentSlide.src}
             className={styles.image}
             style={{
-              objectPosition: `${slide.originX * 100}% ${slide.originY * 100}%`,
-              left: `${slide.positionX * 100}%`,
-              top: `${slide.positionY * 100}%`,
+              objectPosition: `${currentSlide.originX * 100}% ${currentSlide.originY * 100}%`,
+              left: `${currentSlide.positionX * 100}%`,
+              top: `${currentSlide.positionY * 100}%`,
               transform: `translate(${translateX}%, ${translateY}%)`,
             }}
             draggable={false}
+            onLoad={handleImageLoad}
           />
 
-          {canSkip && (
+          {/* Кнопка "Далее" показывается по истечении таймаута */}
+          {canSkip && showSkipButton && (
             <motion.button
               className={styles.nextBtn}
               initial={{ scale: 0,
@@ -71,41 +137,82 @@ export const IntroSceneWrapper = () => {
               </svg>
             </motion.button>
           )}
-
-          {/* <motion.div
-            className={styles.progress}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: SLIDE_TIMEOUT / 1000 + 2,
-              ease: "linear" }}
-            onAnimationComplete={() => setCanSkip(true)}
-          /> */}
-
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: SLIDE_TIMEOUT,
-            ease: "linear" }}
-          onAnimationComplete={() => setCanSkip(true)}
-        >
-          {/* Messagebox внутри того же AnimatePresence */}
-          {slide?.message && (
-            <div className={styles.messageContainer}>
-              <Messagebox text={slide.message} />
-            </div>
-          )}
-
-          {slide.thoughtBubbleMessage && <ThoughtBubble
-            message={slide.thoughtBubbleMessage.text}
-            bubbleType="thought"
-          />}
         </motion.div>
       </AnimatePresence>
 
-      {index === slides.length - 1 && (
-        <Button className={styles.button} text="К вокзалу" onClick={goNext} />
-      )}
+      {/* Отображение actions */}
+      <AnimatePresence mode="wait">
+        {currentAction && (
+          <motion.div
+            key={`${slideIndex}-${actionIndex}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Message action */}
+            {currentAction.type === "message" && currentAction.text && (
+              <div className={styles.messageContainer}>
+                <Messagebox text={currentAction.text} />
+              </div>
+            )}
+
+            {/* Thoughts action */}
+            {currentAction.type === "thoughts" && currentAction.text && (
+              <ThoughtBubble
+                message={currentAction.text}
+                bubbleType="thought"
+                characterName={currentAction.characterName}
+              />
+            )}
+
+            {/* Speech action */}
+            {currentAction.type === "speech" && currentAction.text && (
+              <ThoughtBubble
+                message={currentAction.text}
+                bubbleType="speech"
+                characterName={currentAction.characterName}
+              />
+            )}
+
+            {/* Choice action */}
+            {currentAction.type === "choice" && currentAction.options && (
+              <>
+                <div className={styles.choiceContainer}>
+                  <div className={styles.choiceMessage}>
+                    <Messagebox text={
+                      currentAction.characterName && currentAction.text
+                        ? `${currentAction.characterName}: ${currentAction.text}`
+                        : currentAction.text || "Выберите вариант:"
+                    } />
+                  </div>
+                  <div className={styles.choiceOptions}>
+                    {currentAction.options.map((option, index) => (
+                      <Button
+                        key={`options-${index}`}
+                        text={option}
+                        onClick={() => handleChoiceSelect(option)}
+                        className={styles.choiceButton}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Button action */}
+            {currentAction.type === "button" && currentAction.button && (
+              <div className={styles.actionButtonContainer}>
+                <Button
+                  text={currentAction.button.text}
+                  onClick={() => handleActionButtonClick(currentAction)}
+                  className={styles.actionButton}
+                />
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -86,7 +86,6 @@ export const MoveSceneWrapper: React.FC = () => {
           <ThoughtBubble
             message={thoughtBubbleMessage}
             options={thoughtBubbleOptions}
-            position="bottomLeft"
             onOptionSelected={handleThoughtBubbleOptionSelected}
             onClose={hideThoughtBubble}
           />
