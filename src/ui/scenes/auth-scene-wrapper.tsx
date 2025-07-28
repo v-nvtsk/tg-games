@@ -86,6 +86,7 @@ export const AuthSceneWrapper: React.FC = () => {
   useEffect(() => {
     if (selectedGender) {
       setShowInput(true);
+      inputRef.current?.focus();
     } else {
       setShowInput(false);
     }

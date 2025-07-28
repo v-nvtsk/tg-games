@@ -94,3 +94,17 @@
     font-size: 0.9rem;
   }
 }
+
+.thoughtBubbleContainer {
+  position: absolute;
+  left: 50%;
+  top: 0;
+
+  /* transform: translate(-50%, -100%); */
+
+  /* Делаем этот контейнер абсолютно позиционированным */
+
+  /* x и y будут управлять top/left через motion.div */
+
+  /* transform: translate(-50%, -100%) будет применяться к дочернему ThoughtBubble для центрирования */
+}

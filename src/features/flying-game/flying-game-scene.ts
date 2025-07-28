@@ -1,77 +1,83 @@
-// src/features/flying-game/flying-game-scene.ts
-
 import { Scene } from "phaser";
-import { setBackground as _setBackground } from "../../utils/set-background";
+import { setBackground } from "../../utils/set-background";
+import { getAssetsPathByType } from "../../utils/get-assets-path";
 
-// Определения цветов
-const PLAYER_COLOR = 0x0000ff; // Синий (используем числовой формат для Phaser)
-const OBSTACLE_COLOR = 0x808080; // Серый (используем числовой формат для Phaser)
-
-// Константы игры
+// --- Константы для игры ---
 const PLAYER_SIZE = 60;
 const PLAYER_SPEED = 300;
-const OBSTACLE_HEIGHT = 150;
-// так как препятствия состоят из двух динамически изменяемых частей.
-// Оставлена для справки, если вы захотите ее использовать иначе.
-const OBSTACLE_SPEED = 200;
-const OBSTACLE_SPACING = 800; // Расстояние между появлениями препятствий по вертикали (оставлено без изменений)
-const MIN_OPENING_WIDTH = PLAYER_SIZE * 2.5; // Минимальная ширина прохода - теперь это фиксированная ширина прохода!
-const OBSTACLE_POOL_SIZE = 10; // Размер пула препятствий (достаточно для 5 пар препятствий)
+const OBJECT_SPEED = 200;
+const OBSTACLE_HEIGHT = 32; // <--- ИЗМЕНЕНО: Соответствует размеру rock.png
+const COIN_SIZE = 40;
+const LEVEL_ELEMENT_SPACING = 1500;
+
 const SCORE_TEXT_STYLE = { fontSize: "32px",
   color: "#ffffff" };
 
-// Ключи текстур для сгенерированных изображений
-const PLAYER_TEXTURE_KEY = "player_texture";
-const OBSTACLE_TEXTURE_KEY = "obstacle_texture";
+// <--- ИЗМЕНЕНО: Увеличиваем минимальный проход для безопасности
+const MIN_PASSAGE_WIDTH = PLAYER_SIZE * 3;
+const HORIZONTAL_BUFFER = 50; // Отступ от краев экрана для препятствий
 
-// Интерфейс для расширения объектов препятствий в пуле
-interface PooledObstacle extends Phaser.Physics.Arcade.Sprite {
+const COIN_SPAWN_CHANCE = 0.7;
+
+// --- Ключи текстур ---
+const PLAYER_TEXTURE_KEY = "player_texture";
+const ROCK_TEXTURE_KEY = "rock";
+const COIN_TEXTURE_KEY = "coin";
+
+interface PooledObject extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;
 }
 
+// Универсальный тип для объектов, которые Phaser передает в колбэки физики
+type PhysicsCallbackObject =
+  | Phaser.GameObjects.GameObject
+  | Phaser.Physics.Arcade.Body
+  | Phaser.Physics.Arcade.StaticBody
+  | Phaser.Tilemaps.Tile;
+
 export class FlyingGameScene extends Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
-  private obstacles!: Phaser.Physics.Arcade.Group;
+  private rocks!: Phaser.Physics.Arcade.Group;
+  private coins!: Phaser.Physics.Arcade.Group;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private score = 0;
   private scoreText!: Phaser.GameObjects.Text;
   private gameOver = false;
 
-  // Новые переменные для управления перетаскиванием
   private isDraggingPlayer = false;
-  private dragStartX = 0; // Начальная X-координата указателя при начале перетаскивания
-  private dragPlayerStartX = 0; // Начальная X-координата игрока при начале перетаскивания
+  private dragStartX = 0;
+  private dragPlayerStartX = 0;
 
   constructor() {
     super("FlyingGameScene");
   }
 
   preload() {
-    // Если у вас есть фоновое изображение, загрузите его здесь
-    // this.load.image('background', 'assets/images/background.png');
+    // this.load.image("background", "assets/images/background.png");
 
-    // Генерируем изображение игрока (квадрат)
     this.textures.createCanvas(PLAYER_TEXTURE_KEY, PLAYER_SIZE, PLAYER_SIZE);
     const playerGraphics = this.add.graphics();
-    playerGraphics.fillStyle(PLAYER_COLOR, 1);
+    playerGraphics.fillStyle(0x0000ff, 1);
     playerGraphics.fillRect(0, 0, PLAYER_SIZE, PLAYER_SIZE);
     playerGraphics.generateTexture(PLAYER_TEXTURE_KEY, PLAYER_SIZE, PLAYER_SIZE);
-    playerGraphics.destroy(); // Удаляем графический объект, он больше не нужен
+    playerGraphics.destroy();
 
-    // Генерируем изображение препятствия (прямоугольник максимальной ширины)
-    this.textures.createCanvas(OBSTACLE_TEXTURE_KEY, this.scale.width, OBSTACLE_HEIGHT);
-    const obstacleGraphics = this.add.graphics();
-    obstacleGraphics.fillStyle(OBSTACLE_COLOR, 1);
-    obstacleGraphics.fillRect(0, 0, this.scale.width, OBSTACLE_HEIGHT); // Рисуем прямоугольник на всю ширину холста
-    obstacleGraphics.generateTexture(OBSTACLE_TEXTURE_KEY, this.scale.width, OBSTACLE_HEIGHT);
-    obstacleGraphics.destroy(); // Удаляем графический объект
+    this.load.image(ROCK_TEXTURE_KEY, getAssetsPathByType({
+      type: "images",
+      scene: "flying",
+      filename: "rock6_3.png",
+    }));
+
+    this.load.image(COIN_TEXTURE_KEY, getAssetsPathByType({
+      type: "images",
+      scene: "flying",
+      filename: "coin.png",
+    }));
   }
 
   create() {
-    // Установка фона, если есть. Раскомментируйте, если вы хотите использовать изображение.
-    // _setBackground(this, 'background', true);
+    setBackground(this, "background", true);
 
-    // Добавляем простой фон, если нет изображения
     this.add.rectangle(
       this.scale.width / 2,
       this.scale.height / 2,
@@ -80,63 +86,78 @@ export class FlyingGameScene extends Scene {
       0x444444,
     );
 
-    // Игрок
     this.player = this.physics.add.sprite(
       this.scale.width / 2,
       this.scale.height - PLAYER_SIZE * 2,
-      PLAYER_TEXTURE_KEY, // Используем сгенерированную текстуру
+      PLAYER_TEXTURE_KEY,
     );
     (this.player.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(true);
-    (this.player.body as Phaser.Physics.Arcade.Body).setSize(PLAYER_SIZE, PLAYER_SIZE, true); // Установка размера тела
+    (this.player.body as Phaser.Physics.Arcade.Body).setSize(PLAYER_SIZE, PLAYER_SIZE, true);
 
-    // Делаем игрока интерактивным, чтобы можно было определить, был ли клик по нему
     this.player.setInteractive();
 
-    // Группа для препятствий (используем пулы для производительности)
-    this.obstacles = this.physics.add.group({
+    this.rocks = this.physics.add.group({
       classType: Phaser.Physics.Arcade.Sprite,
       runChildUpdate: true,
     });
 
-    // Создаем пул препятствий (невидимые и неактивные)
-    for (let i = 0; i < OBSTACLE_POOL_SIZE; i++) {
-      const obstacle = this.obstacles.create(
-        0, 0, OBSTACLE_TEXTURE_KEY,
-      ) as PooledObstacle;
-      obstacle.setOrigin(0, 0);
-      obstacle.setActive(false).setVisible(false);
-      if (obstacle.body) {
-        obstacle.body.setAllowGravity(false);
-        obstacle.body.enable = false;
+    this.coins = this.physics.add.group({
+      classType: Phaser.Physics.Arcade.Sprite,
+      runChildUpdate: true,
+    });
+
+    for (let i = 0; i < 50; i++) {
+      const rock = this.rocks.create(0, 0, ROCK_TEXTURE_KEY) as PooledObject;
+      rock.setOrigin(0, 0); // Origin для камня
+      rock.setActive(false).setVisible(false)
+        .setSize(OBSTACLE_HEIGHT, OBSTACLE_HEIGHT);
+      if (rock.body) {
+        rock.body.setAllowGravity(false);
+        rock.body.enable = false;
       }
     }
 
-    // Текст счета
+    for (let i = 0; i < 50; i++) {
+      const coin = this.coins.create(0, 0, COIN_TEXTURE_KEY) as PooledObject;
+      coin.setOrigin(0.5, 0.5); // Origin для монетки
+      coin.setActive(false).setVisible(false);
+      if (coin.body) {
+        coin.body.setAllowGravity(false);
+        coin.body.enable = false;
+        coin.body.setCircle(COIN_SIZE / 2);
+      }
+    }
+
+    this.score = 0;
     this.scoreText = this.add
-      .text(16, 16, "Счет: 0", SCORE_TEXT_STYLE)
+      .text(16, 16, "Очки: 0", SCORE_TEXT_STYLE)
       .setDepth(1);
 
-    // Ввод с клавиатуры
     this.cursors = this.input.keyboard ? this.input.keyboard.createCursorKeys() : {} as Phaser.Types.Input.Keyboard.CursorKeys;
 
-    // ОБРАБОТЧИКИ УПРАВЛЕНИЯ КАСАНИЕМ/МЫШЬЮ
-    this.input.on("pointerdown", this.onScenePointerDown.bind(this));
-    this.input.on("pointermove", this.onScenePointerMove.bind(this));
-    this.input.on("pointerup", this.onScenePointerUp.bind(this));
+    this.input.on("pointerdown", this.onScenePointerDown.bind(this), this);
+    this.input.on("pointermove", this.onScenePointerMove.bind(this), this);
+    this.input.on("pointerup", this.onScenePointerUp.bind(this), this);
 
-    // Генерация препятствий с интервалом
     this.time.addEvent({
-      delay: OBSTACLE_SPACING,
-      callback: this.spawnObstacle.bind(this),
+      delay: LEVEL_ELEMENT_SPACING,
+      callback: this.spawnLevelElements.bind(this),
       callbackScope: this,
       loop: true,
     });
 
-    // Обработка столкновений
     this.physics.add.collider(
       this.player,
-      this.obstacles,
+      this.rocks,
       this.hitObstacle.bind(this),
+      undefined,
+      this,
+    );
+
+    this.physics.add.overlap(
+      this.player,
+      this.coins,
+      this.collectCoin.bind(this),
       undefined,
       this,
     );
@@ -149,7 +170,6 @@ export class FlyingGameScene extends Scene {
 
     const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
 
-    // Управление игроком с клавиатуры (активно только если нет активного касания/перетаскивания)
     if (playerBody && !this.input.activePointer.isDown) {
       playerBody.setVelocityX(0);
 
@@ -160,61 +180,53 @@ export class FlyingGameScene extends Scene {
       }
     }
 
-    // Перемещение препятствий и переработка
-    this.obstacles.children.each((obstacleObject: Phaser.GameObjects.GameObject) => {
-      const obstacle = obstacleObject as PooledObstacle;
-      if (obstacle.active && obstacle.body) {
-        obstacle.body.setVelocityY(OBSTACLE_SPEED);
+    this.rocks.children.each((gameObject: Phaser.GameObjects.GameObject) => {
+      const rock = gameObject as PooledObject;
+      if (rock.active && rock.body) {
+        rock.body.setVelocityY(OBJECT_SPEED);
 
-        // Если препятствие выходит за нижнюю границу экрана
-        if (obstacle.y > this.scale.height) {
-          // Увеличиваем счет, но только один раз за пару препятствий.
-          // Чтобы избежать двойного начисления очков за одну пару,
-          // можно ввести флаг на одном из препятствий или считать очки
-          // при создании новой пары, когда предыдущая полностью вышла за экран.
-          // Пока что оставлю так, как было, но имейте в виду этот нюанс.
-          this.score += 1;
-          this.scoreText.setText(`Счет: ${this.score}`);
-          obstacle.setActive(false).setVisible(false);
-          obstacle.body.enable = false;
+        if (rock.y > this.scale.height) {
+          rock.setActive(false).setVisible(false);
+          rock.body.enable = false;
+        }
+      }
+      return true;
+    });
+
+    this.coins.children.each((gameObject: Phaser.GameObjects.GameObject) => {
+      const coin = gameObject as PooledObject;
+      if (coin.active && coin.body) {
+        coin.body.setVelocityY(OBJECT_SPEED);
+
+        if (coin.y > this.scale.height) {
+          coin.setActive(false).setVisible(false);
+          coin.body.enable = false;
         }
       }
       return true;
     });
   }
 
-  // ОБРАБОТЧИКИ НОВОГО УПРАВЛЕНИЯ
   private onScenePointerDown(pointer: Phaser.Input.Pointer): void {
     if (this.gameOver) {
       return;
     }
 
-    // Проверяем, было ли касание/клик по игроку
-    const gameObjectsUnderPointer = this.input.manager.pointers.filter((p) =>
-      Phaser.Geom.Rectangle.Contains(this.player.getBounds(), p.x, p.y),
-    );
-
-    if (gameObjectsUnderPointer) {
-      // Клик/касание НА игроке: начинаем режим перетаскивания
+    if (Phaser.Geom.Rectangle.Contains(this.player.getBounds(), pointer.x, pointer.y)) {
       this.isDraggingPlayer = true;
       this.dragStartX = pointer.x;
       this.dragPlayerStartX = this.player.x;
-      // Останавливаем любую текущую скорость игрока, чтобы начать чистое перетаскивание
       (this.player.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
     } else {
-      // Клик/касание В СТОРОНЕ от игрока: применяем направленный рывок
-      this.isDraggingPlayer = false; // Убеждаемся, что режим перетаскивания неактивен
+      this.isDraggingPlayer = false;
       const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
       if (playerBody) {
-        if (pointer.x < this.player.x) { // Тап слева от игрока
-          playerBody.setVelocityX(-PLAYER_SPEED * 1.5); // Рывок влево
-        } else { // Тап справа от игрока
-          playerBody.setVelocityX(PLAYER_SPEED * 1.5); // Рывок вправо
+        if (pointer.x < this.player.x) {
+          playerBody.setVelocityX(-PLAYER_SPEED * 1.5);
+        } else {
+          playerBody.setVelocityX(PLAYER_SPEED * 1.5);
         }
-        // Останавливаем рывок через короткое время, если пользователь не начал перетаскивание
         this.time.delayedCall(100, () => {
-          // Проверяем, что указатель не зажат (чтобы не конфликтовать с возможным перетаскиванием)
-          // и что мы не в режиме перетаскивания игрока
           if (!pointer.isDown && !this.isDraggingPlayer) {
             playerBody.setVelocityX(0);
           }
@@ -228,13 +240,12 @@ export class FlyingGameScene extends Scene {
       return;
     }
 
-    if (this.isDraggingPlayer && pointer.isDown) { // Перемещаем игрока только если активно перетаскивание и указатель зажат
+    if (this.isDraggingPlayer && pointer.isDown) {
       const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
       if (playerBody) {
-        // Перемещаем игрока относительно начальной позиции перетаскивания
         const newPlayerX = this.dragPlayerStartX + (pointer.x - this.dragStartX);
         this.player.x = Phaser.Math.Clamp(newPlayerX, PLAYER_SIZE / 2, this.scale.width - PLAYER_SIZE / 2);
-        playerBody.setVelocityX(0); // Обнуляем скорость при перетаскивании
+        playerBody.setVelocityX(0);
       }
     }
   }
@@ -243,86 +254,158 @@ export class FlyingGameScene extends Scene {
     if (this.gameOver) {
       return;
     }
-    // Сбрасываем флаг перетаскивания при отпускании указателя
     this.isDraggingPlayer = false;
-    // Останавливаем движение игрока, если оно было (например, после рывка)
     const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
     if (playerBody) {
       playerBody.setVelocityX(0);
     }
   }
 
-  private getPooledObstacle(): PooledObstacle | null {
-    const obstacle = this.obstacles.getFirstDead(false) as PooledObstacle | null;
-    if (obstacle && obstacle.body) {
-      obstacle.setActive(true).setVisible(true);
-      obstacle.body.enable = true;
-      return obstacle;
+  private getPooledRock(): PooledObject | null {
+    const rock = this.rocks.getFirstDead(false) as PooledObject | null;
+    if (rock && rock.body) {
+      rock.setActive(true).setVisible(true);
+      rock.body.enable = true;
+      return rock;
     }
     return null;
   }
 
-  // НОВАЯ ЛОГИКА ГЕНЕРАЦИИ ПРЕПЯТСТВИЙ (две части с проходом)
-  private spawnObstacle(): void {
-    if (this.gameOver) {
-      return;
+  private getPooledCoin(): PooledObject | null {
+    const coin = this.coins.getFirstDead(false) as PooledObject | null;
+    if (coin && coin.body) {
+      coin.setActive(true).setVisible(true);
+      coin.body.enable = true;
+      return coin;
+    }
+    return null;
+  }
+
+  private spawnLevelElements(): void {
+    if (this.gameOver) return;
+
+    const screenWidth = this.scale.width;
+    const spawnY = -OBSTACLE_HEIGHT; // Появляются сверху, на высоте одного камня
+
+    // 1. Определяем ширину прохода.
+    const minPassage = MIN_PASSAGE_WIDTH;
+    const maxPassage = screenWidth - (2 * HORIZONTAL_BUFFER);
+
+    const actualPassageWidth = Phaser.Math.Between(minPassage, Math.max(minPassage, maxPassage));
+
+    // 2. Определяем X-координату начала прохода.
+    const passageStartXMin = HORIZONTAL_BUFFER;
+    const passageStartXMax = screenWidth - actualPassageWidth - HORIZONTAL_BUFFER;
+
+    const passageStartX = Phaser.Math.Between(passageStartXMin, Math.max(passageStartXMin, passageStartXMax));
+    const passageEndX = passageStartX + actualPassageWidth;
+
+    // 3. Спавним индивидуальные камни (32x32)
+    // Левая часть препятствия
+    for (let x = 0; x < passageStartX; x += OBSTACLE_HEIGHT) { // Шаг равен ширине камня
+      const rock = this.getPooledRock();
+      if (rock) {
+        rock.x = x;
+        rock.y = spawnY;
+        rock.displayWidth = OBSTACLE_HEIGHT; // Задаем размер спрайта 32x32
+        rock.displayHeight = OBSTACLE_HEIGHT;
+        rock.body.setSize(OBSTACLE_HEIGHT, OBSTACLE_HEIGHT); // Размер физического тела 32x32
+        rock.body.setOffset(0, 0);
+        rock.body.setVelocityY(OBJECT_SPEED);
+        rock.setActive(true).setVisible(true);
+      }
     }
 
-    // Получаем два препятствия из пула (для левой и правой части)
-    const leftObstacle = this.getPooledObstacle();
-    const rightObstacle = this.getPooledObstacle();
+    // Правая часть препятствия
+    for (let x = passageEndX; x < screenWidth; x += OBSTACLE_HEIGHT) { // Начинаем от конца прохода
+      const rock = this.getPooledRock();
+      if (rock) {
+        rock.x = x;
+        rock.y = spawnY;
+        rock.displayWidth = OBSTACLE_HEIGHT;
+        rock.displayHeight = OBSTACLE_HEIGHT;
+        rock.body.setSize(OBSTACLE_HEIGHT, OBSTACLE_HEIGHT);
+        rock.body.setOffset(0, 0);
+        rock.body.setVelocityY(OBJECT_SPEED);
+        rock.setActive(true).setVisible(true);
+      }
+    }
 
-    // Убедимся, что оба препятствия доступны из пула
-    if (leftObstacle && rightObstacle && leftObstacle.body && rightObstacle.body) {
-      // Вычисляем случайную X-позицию для начала ПРОХОДА (дырки)
-      // Проход может начаться от X=0 до (ширина экрана - ширина самого прохода)
-      const gapX = Phaser.Math.Between(0, this.scale.width - MIN_OPENING_WIDTH);
+    // Шанс спавна монетки в проходе
+    if (Math.random() < COIN_SPAWN_CHANCE) {
+      const coin = this.getPooledCoin();
+      if (coin) {
+        const coinX = passageStartX + actualPassageWidth / 2;
+        // Позиционируем монетку вертикально по центру линии препятствий
+        const coinY = spawnY + OBSTACLE_HEIGHT / 2;
 
-      // 1. Левая часть препятствия
-      const leftWidth = gapX; // Ширина левой части равна X-координате начала прохода
-      leftObstacle.x = 0; // Начинается от левого края экрана
-      leftObstacle.y = -OBSTACLE_HEIGHT; // Появляется над экраном
-      leftObstacle.displayWidth = leftWidth;
-      leftObstacle.displayHeight = OBSTACLE_HEIGHT;
-      leftObstacle.body.setSize(leftObstacle.displayWidth, leftObstacle.displayHeight); // Устанавливаем размер физического тела
-      leftObstacle.body.setOffset(0, 0); // Сброс смещения тела
-      leftObstacle.body.setAllowGravity(false);
-      leftObstacle.body.setVelocityY(OBSTACLE_SPEED);
-
-      // 2. Правая часть препятствия
-      // X-позиция правой части = начало прохода + ширина прохода
-      const rightX = gapX + MIN_OPENING_WIDTH;
-      // Ширина правой части = (ширина экрана) - (начало правой части)
-      const rightWidth = this.scale.width - rightX;
-      rightObstacle.x = rightX; // Начинается после прохода
-      rightObstacle.y = -OBSTACLE_HEIGHT; // Появляется над экраном
-      rightObstacle.displayWidth = rightWidth;
-      rightObstacle.displayHeight = OBSTACLE_HEIGHT;
-      rightObstacle.body.setSize(rightObstacle.displayWidth, rightObstacle.displayHeight); // Устанавливаем размер физического тела
-      rightObstacle.body.setOffset(0, 0); // Сброс смещения тела
-      rightObstacle.body.setAllowGravity(false);
-      rightObstacle.body.setVelocityY(OBSTACLE_SPEED);
+        coin.x = coinX;
+        coin.y = coinY;
+        coin.displayWidth = COIN_SIZE;
+        coin.displayHeight = COIN_SIZE;
+        coin.body.setCircle(COIN_SIZE / 2);
+        coin.body.setVelocityY(OBJECT_SPEED);
+        coin.setActive(true).setVisible(true);
+      }
     }
   }
 
-  private hitObstacle(): void {
+  // Обработчик столкновения с препятствием
+  private hitObstacle(_playerObj: PhysicsCallbackObject, _rockObj: PhysicsCallbackObject): void {
     this.gameOver = true;
     this.physics.pause();
-    this.player.setTint(0xff0000); // Покрасить игрока в красный
+    this.player.setTint(0xff0000);
+
     this.add.text(
       this.scale.width / 2,
       this.scale.height / 2,
-      `Игра окончена!\nСчет: ${this.score}\nНажмите для перезапуска`,
+      `Игра окончена!\nОчки: ${this.score}\nНажмите или SPACE для перезапуска`,
       { fontSize: "48px",
         color: "#ff0000",
         align: "center" },
     ).setOrigin(0.5);
 
     this.input.once("pointerdown", () => {
-      this.scene.restart();
+      this.restart();
     });
     this.input.keyboard?.once("keydown-SPACE", () => {
-      this.scene.restart();
+      this.restart();
     });
+  }
+
+  // Обработчик сбора монетки
+  private collectCoin(_playerObj: PhysicsCallbackObject, coinObject: PhysicsCallbackObject): void {
+    // Безопасно проверяем, является ли объект спрайтом, прежде чем пытаться им манипулировать
+    if (coinObject instanceof Phaser.GameObjects.Sprite) {
+      const coin = coinObject as PooledObject;
+      coin.disableBody(true, true); // Деактивируем и скрываем монетку
+
+      this.score += 10; // Начисляем очки за монетку
+      this.scoreText.setText(`Очки: ${this.score}`);
+    } else {
+      console.warn("Attempted to collect a non-sprite object as a coin.", coinObject);
+    }
+  }
+
+  private restart(): void {
+    this.gameOver = false;
+    this.score = 0;
+    this.player.clearTint();
+    this.physics.resume();
+
+    this.rocks.children.each((gameObject: Phaser.GameObjects.GameObject) => {
+      const pooledObject = gameObject as PooledObject;
+      pooledObject.setActive(false).setVisible(false);
+      if (pooledObject.body) pooledObject.body.enable = false;
+      return true;
+    });
+    this.coins.children.each((gameObject: Phaser.GameObjects.GameObject) => {
+      const pooledObject = gameObject as PooledObject;
+      pooledObject.setActive(false).setVisible(false);
+      if (pooledObject.body) pooledObject.body.enable = false;
+      return true;
+    });
+
+    this.scene.restart();
   }
 }

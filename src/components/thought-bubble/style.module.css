@@ -1,0 +1,103 @@
+.bubbleContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.bubbleWrapper {
+  position: relative;
+  width: 95%;
+  min-height: 180px;
+  display: inline-block;
+}
+
+.svgBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.content {
+  padding: 0.5rem 1.5rem;
+  min-width: 200px;
+  text-align: center;
+  z-index: 1;
+  margin-top: 20%;
+}
+
+.nameTag {
+  position: absolute;
+  top: 20%;
+  right: 10%;
+  z-index: 2;
+  width: 100px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nameTagSvg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.characterName {
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+}
+
+.messageText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.4;
+  max-width: 100%;
+}
+
+.thoughtText {
+  font-style: italic;
+}
+
+/* .optionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.optionButton {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  transition-property: background-color;
+  transition-duration: 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.optionButton:hover {
+  background-color: #2563eb;
+} */
