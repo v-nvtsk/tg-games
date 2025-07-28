@@ -1,0 +1,63 @@
+.bubbleWrapper {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 80%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: var(--bubble-align, flex-start);
+  pointer-events: none;
+}
+
+.wrapperTop {
+  top: 10px;
+  bottom: auto;
+}
+
+.wrapperBottom {
+  bottom: 10px;
+  top: auto;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  background: transparent;
+  width: 100%;
+  max-width: 80%;
+  min-width: 120px;
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.content::before {
+  content: attr(data-character);
+  position: absolute;
+  inset: var(--nameplate-top, auto) var(--nameplate-right, auto) var(--nameplate-bottom, auto) var(--nameplate-left, auto);
+  z-index: 3;
+  background: #665B3C;
+  border: 2px solid #AE966C;
+  border-radius: 5px;
+  padding: 2px 5px;
+  font-size: 10px;
+  color: #fff;
+  transform: translate(var(--nameplate-translate-x, -50%),
+      var(--nameplate-translate-y, -50%));
+}
+
+.bubble {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}

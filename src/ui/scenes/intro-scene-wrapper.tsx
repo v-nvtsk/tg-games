@@ -1,11 +1,11 @@
-import { useMemo, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useMemo, useState, useCallback, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { getIntroSlides } from "$features/intro-slides/";
 import styles from "./intro-scene-wrapper.module.css";
 import { gameFlowManager } from "$/processes";
-import { ThoughtBubble } from "../../components";
-import { Button } from "../components/button";
+import { BubbleDialog } from "../../components/bubble-dialog/bubble-dialog";
 import { Messagebox } from "../components/messagebox";
+import { Button } from "../components/button";
 
 const SLIDE_TIMEOUT = 100;
 
@@ -13,17 +13,32 @@ export const IntroSceneWrapper = () => {
   const slides = useMemo(getIntroSlides, []);
   const [index, setIndex] = useState(0);
   const [canSkip, setCanSkip] = useState(false);
+  const [nextLoaded, setNextLoaded] = useState(false);
+
+  // Предзагрузка следующего изображения
+  useEffect(() => {
+    if (index < slides.length - 1) {
+      const img = new Image();
+      img.src = slides[index + 1].src;
+      img.onload = () => setNextLoaded(true);
+    }
+  }, [index, slides]);
 
   const goNext = useCallback(() => {
     if (!canSkip) return;
+
+    // если это не последний слайд, ждём пока предзагрузка завершена
+    if (index < slides.length - 1 && !nextLoaded) return;
+
     setCanSkip(false);
+    setNextLoaded(false);
 
     setIndex((i) => {
       if (i < slides.length - 1) return i + 1;
       gameFlowManager.startGameMap();
       return i;
     });
-  }, [canSkip, slides.length]);
+  }, [canSkip, nextLoaded, slides.length]);
 
   const slide = slides[index];
   const translateX = -slide.originX * 100;
@@ -31,7 +46,7 @@ export const IntroSceneWrapper = () => {
 
   return (
     <div className={styles.wrapper} onPointerDown={goNext}>
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         <motion.div
           key={slide.key}
           className={styles.slideLayer}
@@ -52,6 +67,17 @@ export const IntroSceneWrapper = () => {
             draggable={false}
           />
 
+          {/* Прогрессбар */}
+          <motion.div
+            className={styles.progress}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: SLIDE_TIMEOUT / 1000 + 2,
+              ease: "linear" }}
+            onAnimationComplete={() => setCanSkip(true)}
+          />
+
+          {/* ✅ возвращаем кнопку с исходным стилем */}
           {canSkip && (
             <motion.button
               className={styles.nextBtn}
@@ -71,41 +97,23 @@ export const IntroSceneWrapper = () => {
               </svg>
             </motion.button>
           )}
-
-          {/* <motion.div
-            className={styles.progress}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: SLIDE_TIMEOUT / 1000 + 2,
-              ease: "linear" }}
-            onAnimationComplete={() => setCanSkip(true)}
-          /> */}
-
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: SLIDE_TIMEOUT / 1000 + 2,
-            ease: "linear" }}
-          onAnimationComplete={() => setCanSkip(true)}
-        >
-          {/* Messagebox внутри того же AnimatePresence */}
-          {slide?.message && (
-            <div className={styles.messageContainer}>
-              <Messagebox text={slide.message} />
-            </div>
-          )}
-
-          {slide.thoughtBubbleMessage && <ThoughtBubble
-            message={slide.thoughtBubbleMessage.text}
-            position={slide.thoughtBubbleMessage.position}
-            onClose={() => {console.log("exit");}}
-          />}
         </motion.div>
       </AnimatePresence>
 
+      {slide?.message && (
+        <div className={styles.messageContainer}>
+          <Messagebox text={slide.message} />
+        </div>
+      )}
+
+      {slide.thoughtBubbleMessage && (
+        <BubbleDialog direction="bottomLeft" tailPosition={40} character="Алексей" tailLength={150} screenPosition="top">
+          {slide.thoughtBubbleMessage.text}
+        </BubbleDialog>
+      )}
+
       {index === slides.length - 1 && (
-        <Button className={styles.button} text="К вокзалу" onClick={goNext} />
+        <Button className={styles.nextBtn} text="К вокзалу" onClick={goNext} />
       )}
     </div>
   );
