@@ -107,7 +107,7 @@ export const IntroSceneWrapper = () => {
       )}
 
       {slide.thoughtBubbleMessage && (
-        <BubbleDialog direction="bottomLeft" tailPosition={40} character="Алексей" tailLength={150} screenPosition="top">
+        <BubbleDialog direction="bottomRight" tailPosition={50} character="Алексей" tailLength={40} screenPosition="top">
           {slide.thoughtBubbleMessage.text}
         </BubbleDialog>
       )}

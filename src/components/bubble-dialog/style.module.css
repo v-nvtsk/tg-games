@@ -2,7 +2,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  max-width: 80%;
+  max-width: 90%;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -48,8 +48,8 @@
   padding: 2px 5px;
   font-size: 10px;
   color: #fff;
-  transform: translate(var(--nameplate-translate-x, -50%),
-      var(--nameplate-translate-y, -50%));
+  transform: translate(var(--nameplate-translate-x, 0),
+      var(--nameplate-translate-y, 0));
 }
 
 .bubble {
