@@ -10,4 +10,4 @@ export * from "./game-map";
 
 export * from "./move-phaser-scene";
 
-export * from "./auth-phaser-scene";
+export * from "./detective-game";

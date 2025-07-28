@@ -25,11 +25,15 @@ export interface GameFoodLevelData {
 }
 
 export interface IntroSceneData {
-  targetX: number;
-  targetY: number;
+  episodeNumber: number;
 }
 
 export interface FlyingGame{
+  targetX?: number;
+  targetY?: number;
+}
+
+export interface DetectiveGameData {
   targetX?: number;
   targetY?: number;
 }
@@ -43,6 +47,7 @@ export interface SceneDataMap {
   Game2048: null;
   FlyingGameScene: FlyingGame;
   MoscowMoveScene: MoveSceneData | null;
+  DetectiveGame: DetectiveGameData;
 }
 
 export type SceneName = keyof SceneDataMap;
@@ -58,6 +63,7 @@ export const GameScene = {
   Move: "MoveScene",
   FlyingGame: "FlyingGameScene",
   MoscowMove: "MoveScene",
+  DetectiveGame: "DetectiveGame",
 } as const;
 
 export type GameScene = typeof GameScene[keyof typeof GameScene];

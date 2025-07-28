@@ -1,17 +1,22 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getIntroSlides, type Action } from "$features/slides";
-import styles from "./intro-scene-wrapper.module.css";
-import { gameFlowManager } from "$/processes";
+import { Episode, type Action } from "$features/slides";
+import styles from "./slides-wrapper.module.css";
 import { ThoughtBubble } from "../../components";
 import { Button } from "../components/button";
 import { Messagebox } from "../components/messagebox";
 
 const SLIDE_TIMEOUT = 100;
 
-export const IntroSceneWrapper = () => {
-  const slides = useMemo(getIntroSlides, []);
-  const [slideIndex, setSlideIndex] = useState(0);
+interface SlidesWrapperProps {
+  createSlides: () => Episode[];
+  onComplete: () => void;
+  episodeNumber: number;
+}
+
+export const SlidesWrapper = ({ createSlides, onComplete, episodeNumber }: SlidesWrapperProps) => {
+  const slides = useMemo(createSlides, []);
+  const [slideIndex, setSlideIndex] = useState(episodeNumber);
   const [actionIndex, setActionIndex] = useState(-1);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [canSkip, setCanSkip] = useState(false);
@@ -39,7 +44,7 @@ export const IntroSceneWrapper = () => {
         setActionIndex(-1);
         setImageLoaded(false);
       } else {
-        gameFlowManager.showMoscowMoveScene();
+        onComplete();
       }
     }
   }, [actionIndex, currentActions.length, slideIndex, slides]);

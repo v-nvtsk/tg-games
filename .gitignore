@@ -5,3 +5,4 @@ dist
 *.local
 .vite
 /*.code.txt
+.DS_Store

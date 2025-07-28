@@ -86,7 +86,6 @@ export const AuthSceneWrapper: React.FC = () => {
   useEffect(() => {
     if (selectedGender) {
       setShowInput(true);
-      inputRef.current?.focus();
     } else {
       setShowInput(false);
     }
@@ -170,7 +169,6 @@ export const AuthSceneWrapper: React.FC = () => {
             onKeyDown={(e) => {
               if (e.key === "Enter" && !isStartButtonDisabled) handleStartGame();
             }}
-            autoFocus
           />
           <button
             className={styles.playButton}

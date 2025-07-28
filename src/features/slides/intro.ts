@@ -1,3 +1,4 @@
+import { gameFlowManager } from "$processes/game-flow/game-flow-manager";
 import { Episode, type EpisodeConfig } from "./common";
 
 const introConfig: EpisodeConfig[] = [
@@ -43,11 +44,11 @@ const introConfig: EpisodeConfig[] = [
     }],
   },
   {
-    slideIndex: 5,
+    slideIndex: 6,
     filename: "frame-31.jpg",
   },
   {
-    slideIndex: 6,
+    slideIndex: 7,
     filename: "frame-30.jpg",
     actions: [{
       type: "thoughts",
@@ -58,7 +59,7 @@ const introConfig: EpisodeConfig[] = [
       type: "button",
       characterName: "Алексей",
       button: {
-        text: "▶ «Включить кассету»",
+        text: "▶ Включить кассету",
         action: () => {
           console.log("Включить кассету");
         },
@@ -67,7 +68,7 @@ const introConfig: EpisodeConfig[] = [
     ],
   },
   {
-    slideIndex: 7,
+    slideIndex: 8,
     filename: "frame-25.jpg",
     originX: 0.3,
     positionX: 0.3,
@@ -100,16 +101,16 @@ const introConfig: EpisodeConfig[] = [
     ],
   },
   {
-    slideIndex: 8,
+    slideIndex: 9,
     filename: "frame-31.jpg",
     actions: [{
       type: "thoughts",
       characterName: "Алексей",
       text: "Дед, ну ты даёшь. Это что, твоя старая шутка или реальная головоломка?",
-    }]
+    }],
   },
   {
-    slideIndex: 9,
+    slideIndex: 10,
     filename: "frame-25.jpg",
     originX: 0.3,
     positionX: 0.3,
@@ -127,13 +128,13 @@ const introConfig: EpisodeConfig[] = [
     ],
   },
   {
-    slideIndex: 10,
+    slideIndex: 11,
     filename: "frame-34.jpg",
     actions: [
       {
         type: "message",
         characterName: "Алексей",
-        text: "«Ты ищешь не клад, Алексей. Ты ищешь меня. Я оставил подсказки на улицах Солнечных по всей стране. Ищи людей. Они подскажут путь. Там, где тепло и светло, там и правда.»",
+        text: "Ты ищешь не клад, Алексей. Ты ищешь меня. Я оставил подсказки на улицах Солнечных по всей стране. Ищи людей. Они подскажут путь. Там, где тепло и светло, там и правда.",
       },
       {
         type: "choice",
@@ -148,7 +149,7 @@ const introConfig: EpisodeConfig[] = [
     ],
   },
   {
-    slideIndex: 11,
+    slideIndex: 12,
     filename: "frame-35.jpg",
     actions: [
       {
@@ -160,9 +161,9 @@ const introConfig: EpisodeConfig[] = [
         type: "button",
         characterName: "Алексей",
         button: {
-          text: "▶ «Начать путь»",
+          text: "▶ Начать путь",
           action: () => {
-            console.log("Начать путь");
+            gameFlowManager.showDetectiveGame();
           },
         },
       },
@@ -172,19 +173,13 @@ const introConfig: EpisodeConfig[] = [
   {
     slideIndex: 13,
     filename: "Frame 12.jpg",
-    actions: [
-      {
-        type: "message",
-        text: "Процесс сбора вещей",
-      },
-    ],
   },
   {
-    slideIndex: 15,
+    slideIndex: 14,
     filename: "Frame 122.jpg",
   },
   {
-    slideIndex: 16,
+    slideIndex: 15,
     filename: "Frame 13.jpg",
     actions: [
       {
@@ -194,9 +189,9 @@ const introConfig: EpisodeConfig[] = [
       {
         type: "button",
         button: {
-          text: "▶ «К вокзалу»",
+          text: "▶ К выходу",
           action: () => {
-            console.log("К вокзалу");
+            console.log("К выходу");
           },
         },
       },
@@ -204,24 +199,24 @@ const introConfig: EpisodeConfig[] = [
   },
   // exit to train
   {
-    slideIndex: 17,
+    slideIndex: 16,
     filename: "Frame 16.jpg",
 
   },
   {
-    slideIndex: 18,
+    slideIndex: 16,
     filename: "Frame 17.jpg",
     actions: [
       {
         type: "thoughts",
         characterName: "Алексей",
-        text: "«Тааак, что-то пришло...»",
+        text: "Тааак, что-то пришло...",
       },
       {
         type: "button",
         characterName: "Алексей",
         button: {
-          text: "► «Открыть уведомления»",
+          text: "► Открыть уведомления",
           action: () => {
             console.log("Открыть уведомления");
           },
@@ -230,77 +225,70 @@ const introConfig: EpisodeConfig[] = [
     ],
   },
   {
-    slideIndex: 19,
+    slideIndex: 17,
     filename: "Frame 18.jpg",
 
   },
   {
-    slideIndex: 20,
+    slideIndex: 18,
     filename: "Frame 19.jpg",
 
   },
   {
-    slideIndex: 21,
+    slideIndex: 19,
     filename: "Frame 20.jpg",
 
   },
   {
-    slideIndex: 22,
+    slideIndex: 20,
     filename: "Frame 17.jpg",
   },
   {
-    slideIndex: 23,
+    slideIndex: 21,
     filename: "Frame 21.jpg",
     actions: [
       {
         type: "thoughts",
         characterName: "Алексей",
-        text: "«У неё стиль — всё сказать шуткой...»",
+        text: "У неё стиль — всё сказать шуткой...",
       },
       {
         type: "choice",
         characterName: "Алексей",
         options: [
-          "«Ты тоже. Только сову не пугай.»",
-          "«Уставший гном благодарит за поддержку.»",
+          "Ты тоже. Только сову не пугай.",
+          "Уставший гном благодарит за поддержку.",
           "[Стикер 🐻 + ❤️]",
         ],
       },
     ],
   },
   {
-    slideIndex: 23,
+    slideIndex: 22,
     filename: "Frame 23.jpg",
-    actions: [
-      {
-        type: "message",
-        characterName: "Алексей",
-        text: "Коридор",
-      },
-    ],
   },
   {
-    slideIndex: 24,
+    slideIndex: 23,
     filename: "Frame 24.jpg",
     actions: [
       {
         type: "speech",
         characterName: "Мама",
-        text: "«Всё. Поехал. Варежки не взял, спорим?...»",
+        text: "Всё. Поехал. Варежки не взял, спорим?...",
       },
       {
         type: "thoughts",
         characterName: "Алексей",
-        text: "«Она не обнимает на прощание. Просто даёт инструкции.»",
+        text: "Она не обнимает на прощание. Просто даёт инструкции.",
       },
       {
         type: "choice",
         characterName: "Алексей",
         options: [
-          "«Хм. Ну конечно...»",
-          "«Варежки... Да...»",
+          "Хм. Ну конечно...",
+          "Варежки... Да...",
           "[Молча кивает]",
-          "«Варежки... ага...»",
+          "Варежки... ага...",
         ],
       },
       {
