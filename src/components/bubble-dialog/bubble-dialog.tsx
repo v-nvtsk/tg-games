@@ -91,10 +91,10 @@ export const BubbleDialog: React.FC<BubbleDialogProps> = ({
   if (isLeft) {
     nameplateVars = { ...nameplateVars,
       "--nameplate-right": "0",
-      "--nameplate-translate-x": "100px" };
+      "--nameplate-translate-x": "-100%" };
   } else if (isRight) {
     nameplateVars = { ...nameplateVars,
-      "--nameplate-left": "0",
+      "--nameplate-right": "0",
       "--nameplate-translate-x": "-100%" };
   } else {
     nameplateVars = { ...nameplateVars,
