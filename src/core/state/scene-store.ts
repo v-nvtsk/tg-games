@@ -3,7 +3,6 @@ import { type SceneName, type SceneDataMap, type SceneBackground } from "@core/t
 import { useAuthStore } from "./auth-store";
 import { logAppError } from "@utils/log-app-error";
 import { logActivity } from "$/api/log-activity";
-import { getAssetsPathByType, getAssetsPath } from "../../utils";
 
 interface SceneState {
   currentScene: SceneName;
@@ -17,21 +16,7 @@ interface SceneState {
 export const useSceneStore = create<SceneState>((set, get) => ({
   currentScene: "Auth",
   sceneData: null,
-  backgroundLayers: {
-    background: getAssetsPathByType({ type: "images",
-      scene: "move",
-      filename: "background.svg" }),
-    preBackground: getAssetsPathByType({ type: "images",
-      scene: "move",
-      filename: "pre-background.svg" }),
-    light: getAssetsPathByType({ type: "images",
-      scene: "move",
-      filename: "light.svg" }),
-    front: getAssetsPathByType({ type: "images",
-      scene: "move",
-      filename: "front.svg" }),
-    ground: getAssetsPath("images/platform.png"),
-  },
+  backgroundLayers: null,
 
   setScene: async (scene, data) => {
 

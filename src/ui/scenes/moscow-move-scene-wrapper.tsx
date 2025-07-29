@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useMoveSceneStore } from "@core/state/move-scene-store";
 import { getAssetsPath } from "../../utils";
 import { QuizOverlay } from "../../features/game-quiz/components/quiz-overlay";
-import type { QuizItem } from "../../core/types/common-types";
+import { type QuizItem } from "@core/types/common-types";
 
-export const MoveSceneWrapper: React.FC = () => {
+export const MoscowMoveSceneWrapper = () => {
   const {
     questions,
     currentIndex,

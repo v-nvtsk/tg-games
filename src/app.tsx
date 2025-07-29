@@ -6,6 +6,7 @@ import { IntroSceneWrapper, AuthSceneWrapper, GameMapSceneWrapper, GameFoodScene
 import { useAuth } from "./core/hooks";
 import { FlyingGameSceneWrapper } from "./ui/scenes/flying-game-scene-wrapper";
 import { GameScene } from "@core/types/common-types";
+import { MoscowMoveSceneWrapper } from "./ui/scenes/moscow-move-scene-wrapper";
 
 export const App: React.FC = () => {
   useAuth();
@@ -36,6 +37,8 @@ export const App: React.FC = () => {
       return <MoveSceneWrapper />;
     case GameScene.FlyingGame:
       return <FlyingGameSceneWrapper />;
+    case GameScene.MoscowMove:
+      return <MoscowMoveSceneWrapper />;
     default:
       return null;
     }
