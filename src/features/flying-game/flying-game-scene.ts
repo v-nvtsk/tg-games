@@ -1,34 +1,39 @@
 import { Scene } from "phaser";
-import { setBackground } from "../../utils/set-background";
 import { getAssetsPathByType } from "../../utils/get-assets-path";
 
-// --- Константы для игры ---
 const PLAYER_SIZE = 60;
-const PLAYER_SPEED = 300;
-const OBJECT_SPEED = 200;
-const OBSTACLE_HEIGHT = 32; // <--- ИЗМЕНЕНО: Соответствует размеру rock.png
-const COIN_SIZE = 40;
-const LEVEL_ELEMENT_SPACING = 1500;
+const PLAYER_BODY_W = PLAYER_SIZE;
+const PLAYER_BODY_H = PLAYER_SIZE;
 
-const SCORE_TEXT_STYLE = { fontSize: "32px",
+const SHEEP_SIZE = 40;
+const PLAYER_SPEED = 300;
+const TAP_MOVE_SPEED = 300;
+const TAP_STOP_THRESHOLD = 8;
+
+const OBJECT_SPEED = 200; // скорость падения скал / земли
+const OBSTACLE_HEIGHT = 100;
+const HORIZONTAL_BUFFER = 50;
+const SCORE_TEXT_STYLE = { fontSize: "16px",
   color: "#ffffff" };
 
-// <--- ИЗМЕНЕНО: Увеличиваем минимальный проход для безопасности
-const MIN_PASSAGE_WIDTH = PLAYER_SIZE * 3;
-const HORIZONTAL_BUFFER = 50; // Отступ от краев экрана для препятствий
+const MAX_TILT_ANGLE = 25;
+const TILT_SPEED_PX = 15;
+const ROTATION_LERP = 0.15;
 
-const COIN_SPAWN_CHANCE = 0.7;
+const WORLD_HALF = 100_000; // мир от –100 000 до +100 000 по X
+const SIDE_BUFFER_SCREENS = 1;
 
-// --- Ключи текстур ---
-const PLAYER_TEXTURE_KEY = "player_texture";
-const ROCK_TEXTURE_KEY = "rock";
-const COIN_TEXTURE_KEY = "coin";
+const DRAG_DEADZONE_PX = 30;
+const DRAG_FULL_DISTANCE = 300;
+const DRAG_MIN_SPEED = 50;
+const DRAG_MAX_SPEED = 400;
 
-interface PooledObject extends Phaser.Physics.Arcade.Sprite {
-  body: Phaser.Physics.Arcade.Body;
-}
+// — облака двигаются только по Y, медленнее земли / скал
+const CLOUD_MIN_FACTOR_Y = 0.3; // 30 % скорости скал
+const CLOUD_MAX_FACTOR_Y = 0.6; // 60 %
 
-// Универсальный тип для объектов, которые Phaser передает в колбэки физики
+interface PooledObject extends Phaser.Physics.Arcade.Sprite { body: Phaser.Physics.Arcade.Body; }
+interface CloudImage extends Phaser.GameObjects.Image { speedY: number; }
 type PhysicsCallbackObject =
   | Phaser.GameObjects.GameObject
   | Phaser.Physics.Arcade.Body
@@ -38,374 +43,338 @@ type PhysicsCallbackObject =
 export class FlyingGameScene extends Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private rocks!: Phaser.Physics.Arcade.Group;
-  private coins!: Phaser.Physics.Arcade.Group;
+  private sheeps!: Phaser.Physics.Arcade.Group;
+  private clouds!: Phaser.GameObjects.Group;
+  private grass!: Phaser.GameObjects.TileSprite;
+
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private score = 0;
   private scoreText!: Phaser.GameObjects.Text;
   private gameOver = false;
 
   private isDraggingPlayer = false;
-  private dragStartX = 0;
-  private dragPlayerStartX = 0;
+  private tapTargetX: number | null = null;
+  private prevX = 0;
+  private currentAngle = 0;
 
-  constructor() {
-    super("FlyingGameScene");
+  constructor() { super("FlyingGameScene"); }
+
+  preload(): void {
+    this.load.svg("flying-player", getAssetsPathByType({ type: "images",
+      scene: "flying",
+      filename: "hero-flight.svg" }));
+    this.load.image("rock", getAssetsPathByType({ type: "images",
+      scene: "flying",
+      filename: "rock.png" }));
+    this.load.image("sheep", getAssetsPathByType({ type: "images",
+      scene: "flying",
+      filename: "sheep.png" }));
+    this.load.image("grass", getAssetsPathByType({ type: "images",
+      scene: "flying",
+      filename: "grass.png" }));
+    for (let i = 1; i <= 4; i++) {
+      this.load.image(`cloud-${i}`, getAssetsPathByType({ type: "images",
+        scene: "flying",
+        filename: `cloud-${i}.svg` }));
+    }
   }
 
-  preload() {
-    // this.load.image("background", "assets/images/background.png");
+  /* ──────────────────────────────── CREATE ──────────────────────────────── */
+  create(): void {
+    /* Мир и камера */
+    this.physics.world.setBounds(-WORLD_HALF, 0, WORLD_HALF * 2, this.scale.height);
+    this.cameras.main.setBounds(-WORLD_HALF, 0, WORLD_HALF * 2, this.scale.height);
+    this.cameras.main.roundPixels = true;
 
-    this.textures.createCanvas(PLAYER_TEXTURE_KEY, PLAYER_SIZE, PLAYER_SIZE);
-    const playerGraphics = this.add.graphics();
-    playerGraphics.fillStyle(0x0000ff, 1);
-    playerGraphics.fillRect(0, 0, PLAYER_SIZE, PLAYER_SIZE);
-    playerGraphics.generateTexture(PLAYER_TEXTURE_KEY, PLAYER_SIZE, PLAYER_SIZE);
-    playerGraphics.destroy();
+    /* однотонный фон */
+    this.add.rectangle(-WORLD_HALF, 0, WORLD_HALF * 2, this.scale.height, 0x33a700)
+      .setOrigin(0, 0)
+      .setAlpha(0.5)
+      .setScrollFactor(0)
+      .setDepth(-20);
 
-    this.load.image(ROCK_TEXTURE_KEY, getAssetsPathByType({
-      type: "images",
-      scene: "flying",
-      filename: "rock6_3.png",
-    }));
+    /* земля (трава), закрывает весь мир по X */
+    this.grass = this.add.tileSprite(-WORLD_HALF, 0, WORLD_HALF * 2, this.scale.height, "grass")
+      .setOrigin(0, 0)
+      .setTileScale(0.5)
+      .setScrollFactor(1, 0) // X — вместе с камерой; Y — вручную
+      .setDepth(-10);
 
-    this.load.image(COIN_TEXTURE_KEY, getAssetsPathByType({
-      type: "images",
-      scene: "flying",
-      filename: "coin.png",
-    }));
-  }
+    /* группы и пулы */
+    this.rocks = this.physics.add.group({ classType: Phaser.Physics.Arcade.Sprite,
+      runChildUpdate: true });
+    this.sheeps = this.physics.add.group({ classType: Phaser.Physics.Arcade.Sprite,
+      runChildUpdate: true });
+    this.clouds = this.add.group();
 
-  create() {
-    setBackground(this, "background", true);
+    /* пред-спавним облака */
+    for (let i = 0; i < 6; i++) this.spawnCloud(true);
 
-    this.add.rectangle(
-      this.scale.width / 2,
-      this.scale.height / 2,
-      this.scale.width,
-      this.scale.height,
-      0x444444,
-    );
-
-    this.player = this.physics.add.sprite(
-      this.scale.width / 2,
-      this.scale.height - PLAYER_SIZE * 2,
-      PLAYER_TEXTURE_KEY,
-    );
-    (this.player.body as Phaser.Physics.Arcade.Body).setCollideWorldBounds(true);
-    (this.player.body as Phaser.Physics.Arcade.Body).setSize(PLAYER_SIZE, PLAYER_SIZE, true);
-
-    this.player.setInteractive();
-
-    this.rocks = this.physics.add.group({
-      classType: Phaser.Physics.Arcade.Sprite,
-      runChildUpdate: true,
-    });
-
-    this.coins = this.physics.add.group({
-      classType: Phaser.Physics.Arcade.Sprite,
-      runChildUpdate: true,
-    });
-
+    /* пул скал */
     for (let i = 0; i < 50; i++) {
-      const rock = this.rocks.create(0, 0, ROCK_TEXTURE_KEY) as PooledObject;
-      rock.setOrigin(0, 0); // Origin для камня
-      rock.setActive(false).setVisible(false)
-        .setSize(OBSTACLE_HEIGHT, OBSTACLE_HEIGHT);
-      if (rock.body) {
-        rock.body.setAllowGravity(false);
-        rock.body.enable = false;
-      }
+      const r = this.rocks.create(0, 0, "rock") as PooledObject;
+      r.setOrigin(0.5).setActive(false)
+        .setVisible(false)
+        .setDepth(0);
+      r.body.setAllowGravity(false); r.body.enable = false;
+      r.displayWidth = r.displayHeight = OBSTACLE_HEIGHT;
+      r.body.setSize(OBSTACLE_HEIGHT, OBSTACLE_HEIGHT, true); // центрируем тело
+    }
+    /* пул овец */
+    for (let i = 0; i < 50; i++) {
+      const s = this.sheeps.create(0, 0, "sheep") as PooledObject;
+      s.setOrigin(0.5).setActive(false)
+        .setVisible(false);
+      s.body.setAllowGravity(false); s.body.enable = false;
+      s.displayWidth = s.displayHeight = SHEEP_SIZE;
+      s.body.setSize(SHEEP_SIZE, SHEEP_SIZE, true);
     }
 
-    for (let i = 0; i < 50; i++) {
-      const coin = this.coins.create(0, 0, COIN_TEXTURE_KEY) as PooledObject;
-      coin.setOrigin(0.5, 0.5); // Origin для монетки
-      coin.setActive(false).setVisible(false);
-      if (coin.body) {
-        coin.body.setAllowGravity(false);
-        coin.body.enable = false;
-        coin.body.setCircle(COIN_SIZE / 2);
-      }
-    }
+    /* игрок */
+    this.player = this.physics.add.sprite(0, this.scale.height - PLAYER_SIZE * 2, "flying-player")
+      .setOrigin(0.5)
+      .setDepth(5);
+    (this.player.body as Phaser.Physics.Arcade.Body).setSize(PLAYER_BODY_W, PLAYER_BODY_H);
+    this.cameras.main.startFollow(this.player, false, 1, 0);
+    this.prevX = this.player.x;
 
-    this.score = 0;
-    this.scoreText = this.add
-      .text(16, 16, "Очки: 0", SCORE_TEXT_STYLE)
-      .setDepth(1);
+    /* UI */
+    this.scoreText = this.add.text(16, 16, "Очки: 0", SCORE_TEXT_STYLE).setScrollFactor(0);
+    this.cursors = this.input.keyboard ? this.input.keyboard.createCursorKeys()
+                                         : ({} as Phaser.Types.Input.Keyboard.CursorKeys);
 
-    this.cursors = this.input.keyboard ? this.input.keyboard.createCursorKeys() : {} as Phaser.Types.Input.Keyboard.CursorKeys;
+    /* input */
+    this.input.on("pointerdown", this.onPointerDown);
+    this.input.on("pointermove", this.onPointerMove);
+    this.input.on("pointerup", this.onPointerUp);
 
-    this.input.on("pointerdown", this.onScenePointerDown.bind(this), this);
-    this.input.on("pointermove", this.onScenePointerMove.bind(this), this);
-    this.input.on("pointerup", this.onScenePointerUp.bind(this), this);
-
-    this.time.addEvent({
-      delay: LEVEL_ELEMENT_SPACING,
-      callback: this.spawnLevelElements.bind(this),
+    /* таймер на спавн элементов */
+    this.time.addEvent({ delay: 1500,
+      callback: this.spawnLevelElements,
       callbackScope: this,
-      loop: true,
-    });
+      loop: true });
 
-    this.physics.add.collider(
-      this.player,
-      this.rocks,
-      this.hitObstacle.bind(this),
-      undefined,
-      this,
-    );
-
-    this.physics.add.overlap(
-      this.player,
-      this.coins,
-      this.collectCoin.bind(this),
-      undefined,
-      this,
-    );
+    /* коллизии / триггеры */
+    this.physics.add.collider(this.player, this.rocks, this.hitObstacle, undefined, this);
+    this.physics.add.overlap(this.player, this.sheeps, this.collectSheep, undefined, this);
   }
 
-  update(_time: number, _delta: number) {
-    if (this.gameOver) {
-      return;
+  /* ──────────────────────────────── UPDATE ──────────────────────────────── */
+  update(): void {
+    if (this.gameOver) return;
+    const body = this.player.body as Phaser.Physics.Arcade.Body;
+
+    /* горизонтальное управление */
+    if (!this.input.activePointer.isDown && this.tapTargetX === null && !this.isDraggingPlayer) {
+      body.setVelocityX(0);
+      if (this.cursors.left?.isDown) body.setVelocityX(-PLAYER_SPEED);
+      else if (this.cursors.right?.isDown) body.setVelocityX(PLAYER_SPEED);
+    }
+    if (this.tapTargetX !== null && !this.isDraggingPlayer) {
+      const diff = this.tapTargetX - this.player.x;
+      if (Math.abs(diff) < TAP_STOP_THRESHOLD) { body.setVelocityX(0); this.tapTargetX = null; }
+      else body.setVelocityX(Math.sign(diff) * TAP_MOVE_SPEED);
     }
 
-    const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
+    /* наклон игрока */
+    const dx = this.player.x - this.prevX;
+    const ratio = Phaser.Math.Clamp(dx / TILT_SPEED_PX, -1, 1);
+    this.currentAngle = Phaser.Math.Linear(this.currentAngle, ratio * MAX_TILT_ANGLE, ROTATION_LERP);
+    this.player.setAngle(this.currentAngle);
+    this.prevX = this.player.x;
 
-    if (playerBody && !this.input.activePointer.isDown) {
-      playerBody.setVelocityX(0);
+    /* земля идёт вниз вместе со скалами */
+    const dt = this.game.loop.delta;
+    this.grass.tilePositionY -= (OBJECT_SPEED * dt) / (1000 * this.grass.tileScaleY);
 
-      if (this.cursors.left?.isDown) {
-        playerBody.setVelocityX(-PLAYER_SPEED);
-      } else if (this.cursors.right?.isDown) {
-        playerBody.setVelocityX(PLAYER_SPEED);
+    /* скалы / овцы падают */
+    this.rocks.children.each((obj) => {
+      const r = obj as PooledObject;
+      if (r.active) {
+        r.body.setVelocityY(OBJECT_SPEED);
+        if (r.y > this.cameras.main.scrollY + this.scale.height) r.disableBody(true, true);
       }
-    }
-
-    this.rocks.children.each((gameObject: Phaser.GameObjects.GameObject) => {
-      const rock = gameObject as PooledObject;
-      if (rock.active && rock.body) {
-        rock.body.setVelocityY(OBJECT_SPEED);
-
-        if (rock.y > this.scale.height) {
-          rock.setActive(false).setVisible(false);
-          rock.body.enable = false;
-        }
+      return true;
+    });
+    this.sheeps.children.each((obj) => {
+      const s = obj as PooledObject;
+      if (s.active) {
+        s.body.setVelocityY(OBJECT_SPEED);
+        if (s.y > this.cameras.main.scrollY + this.scale.height) s.disableBody(true, true);
       }
       return true;
     });
 
-    this.coins.children.each((gameObject: Phaser.GameObjects.GameObject) => {
-      const coin = gameObject as PooledObject;
-      if (coin.active && coin.body) {
-        coin.body.setVelocityY(OBJECT_SPEED);
-
-        if (coin.y > this.scale.height) {
-          coin.setActive(false).setVisible(false);
-          coin.body.enable = false;
-        }
-      }
+    /* облака: только по Y (медленнее), без горизонтального смещения */
+    this.clouds.children.each((obj) => {
+      const cloud = obj as CloudImage;
+      cloud.y += cloud.speedY * dt / 1000;
+      if (cloud.y > this.cameras.main.scrollY + this.scale.height + 300) cloud.destroy();
       return true;
     });
   }
 
-  private onScenePointerDown(pointer: Phaser.Input.Pointer): void {
-    if (this.gameOver) {
-      return;
-    }
-
-    if (Phaser.Geom.Rectangle.Contains(this.player.getBounds(), pointer.x, pointer.y)) {
+  /* ────────────────────────────── INPUT ────────────────────────────── */
+  private onPointerDown = (p: Phaser.Input.Pointer): void => {
+    if (this.gameOver) return;
+    const hit = Phaser.Geom.Rectangle.Contains(this.player.getBounds(), p.worldX, p.worldY);
+    if (hit) {
       this.isDraggingPlayer = true;
-      this.dragStartX = pointer.x;
-      this.dragPlayerStartX = this.player.x;
+      this.tapTargetX = null;
       (this.player.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
     } else {
       this.isDraggingPlayer = false;
-      const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
-      if (playerBody) {
-        if (pointer.x < this.player.x) {
-          playerBody.setVelocityX(-PLAYER_SPEED * 1.5);
-        } else {
-          playerBody.setVelocityX(PLAYER_SPEED * 1.5);
-        }
-        this.time.delayedCall(100, () => {
-          if (!pointer.isDown && !this.isDraggingPlayer) {
-            playerBody.setVelocityX(0);
-          }
-        });
-      }
+      this.tapTargetX = Phaser.Math.Clamp(p.worldX, -WORLD_HALF + PLAYER_SIZE / 2, WORLD_HALF - PLAYER_SIZE / 2);
     }
-  }
+  };
+  private onPointerMove = (p: Phaser.Input.Pointer): void => {
+    if (!this.isDraggingPlayer || !p.isDown || this.gameOver) return;
+    const body = this.player.body as Phaser.Physics.Arcade.Body;
+    const dxWorld = p.worldX - this.player.x;
 
-  private onScenePointerMove(pointer: Phaser.Input.Pointer): void {
-    if (this.gameOver) {
-      return;
-    }
+    if (Math.abs(dxWorld) <= DRAG_DEADZONE_PX) { body.setVelocityX(0); return; }
 
-    if (this.isDraggingPlayer && pointer.isDown) {
-      const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
-      if (playerBody) {
-        const newPlayerX = this.dragPlayerStartX + (pointer.x - this.dragStartX);
-        this.player.x = Phaser.Math.Clamp(newPlayerX, PLAYER_SIZE / 2, this.scale.width - PLAYER_SIZE / 2);
-        playerBody.setVelocityX(0);
-      }
-    }
-  }
-
-  private onScenePointerUp(): void {
-    if (this.gameOver) {
-      return;
-    }
+    const dist = Math.abs(dxWorld) - DRAG_DEADZONE_PX;
+    const t = Phaser.Math.Clamp(dist / DRAG_FULL_DISTANCE, 0, 1);
+    const speed = DRAG_MIN_SPEED + t * (DRAG_MAX_SPEED - DRAG_MIN_SPEED);
+    body.setVelocityX(Math.sign(dxWorld) * speed);
+  };
+  private onPointerUp = (): void => {
+    if (this.gameOver) return;
     this.isDraggingPlayer = false;
-    const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
-    if (playerBody) {
-      playerBody.setVelocityX(0);
-    }
-  }
+    (this.player.body as Phaser.Physics.Arcade.Body).setVelocityX(0);
+  };
 
+  /* ────────────────────────────── ПУЛЫ ────────────────────────────── */
   private getPooledRock(): PooledObject | null {
-    const rock = this.rocks.getFirstDead(false) as PooledObject | null;
-    if (rock && rock.body) {
-      rock.setActive(true).setVisible(true);
-      rock.body.enable = true;
-      return rock;
-    }
-    return null;
+    const r = this.rocks.getFirstDead(false) as PooledObject | null;
+    if (!r) return null;
+    r.setActive(true).setVisible(true); r.body.enable = true;
+    return r;
+  }
+  private getPooledSheep(): PooledObject | null {
+    const s = this.sheeps.getFirstDead(false) as PooledObject | null;
+    if (!s) return null;
+    s.setActive(true).setVisible(true); s.body.enable = true;
+    return s;
   }
 
-  private getPooledCoin(): PooledObject | null {
-    const coin = this.coins.getFirstDead(false) as PooledObject | null;
-    if (coin && coin.body) {
-      coin.setActive(true).setVisible(true);
-      coin.body.enable = true;
-      return coin;
-    }
-    return null;
+  /* ────────────────────────────── ОБЛАКА ────────────────────────────── */
+  private spawnCloud(initial = false): void {
+    const key = `cloud-${Phaser.Math.Between(1, 4)}`;
+
+    /* --- вертикальная позиция --- */
+    const camY = this.cameras.main.scrollY;
+    const y = initial
+      ? Phaser.Math.Between(camY, camY + this.scale.height / 2)
+      : camY - Phaser.Math.Between(100, 300);
+
+    /* --- масштаб + глубина --- */
+    const scale = Phaser.Math.FloatBetween(0.2, 0.5);
+    const depth = scale < 0.35 ? 4 : 6;
+
+    /* --- параллакс по X --- */
+    const parallaxX = Phaser.Math.Linear(0.05, 0.18, (scale - 0.2) / (0.5 - 0.2));
+
+    /* --- экранируем координату, потом пересчитываем в world --- */
+    const screenX = Phaser.Math.Between(0, this.scale.width);
+    const worldX = screenX + this.cameras.main.scrollX * parallaxX;
+
+    const cloud = this.add.image(worldX, y, key)
+      .setOrigin(0.5)
+      .setDepth(depth)
+      .setAlpha(Phaser.Math.FloatBetween(0.8, 1))
+      .setScale(scale)
+      .setScrollFactor(parallaxX, 1) as CloudImage;
+
+    cloud.speedY = OBJECT_SPEED *
+      Phaser.Math.FloatBetween(CLOUD_MIN_FACTOR_Y, CLOUD_MAX_FACTOR_Y);
+
+    this.clouds.add(cloud);
   }
 
-  private spawnLevelElements(): void {
+  /* ────────────────────────────── СПАВН ────────────────────────────── */
+  private spawnLevelElements = (): void => {
     if (this.gameOver) return;
 
-    const screenWidth = this.scale.width;
-    const spawnY = -OBSTACLE_HEIGHT; // Появляются сверху, на высоте одного камня
+    const viewW = this.scale.width;
+    const camLeft = this.cameras.main.scrollX;
+    const rangeStart = camLeft - SIDE_BUFFER_SCREENS * viewW;
+    const rangeEnd = camLeft + (SIDE_BUFFER_SCREENS + 1) * viewW;
+    const spawnY = this.cameras.main.scrollY - OBSTACLE_HEIGHT;
+    const placed: Phaser.Math.Vector2[] = [];
 
-    // 1. Определяем ширину прохода.
-    const minPassage = MIN_PASSAGE_WIDTH;
-    const maxPassage = screenWidth - (2 * HORIZONTAL_BUFFER);
+    const placeRock = (): void => {
+      let x: number, y: number, safe: boolean; let tries = 0;
+      do {
+        x = Phaser.Math.Between(rangeStart + HORIZONTAL_BUFFER, rangeEnd - HORIZONTAL_BUFFER);
+        y = spawnY - Phaser.Math.Between(0, 300);
+        safe = placed.every((r) => Phaser.Math.Distance.Between(x, y, r.x, r.y) > OBSTACLE_HEIGHT);
+        tries++;
+      } while (!safe && tries < 5);
+      if (!safe) return;
 
-    const actualPassageWidth = Phaser.Math.Between(minPassage, Math.max(minPassage, maxPassage));
+      const rock = this.getPooledRock(); if (!rock) return;
+      rock.x = x; rock.y = y;
+      // rock.displayWidth = rock.displayHeight = OBSTACLE_HEIGHT;
+      rock.setDisplaySize(OBSTACLE_HEIGHT, OBSTACLE_HEIGHT);
 
-    // 2. Определяем X-координату начала прохода.
-    const passageStartXMin = HORIZONTAL_BUFFER;
-    const passageStartXMax = screenWidth - actualPassageWidth - HORIZONTAL_BUFFER;
+      const kOpacity = 0.8;
+      const unscaled = OBSTACLE_HEIGHT / rock.scaleX * kOpacity;
+      rock.body.setSize(unscaled, unscaled, true);
+      rock.body.setVelocityY(OBJECT_SPEED);
+      placed.push(new Phaser.Math.Vector2(rock.x, rock.y));
+    };
 
-    const passageStartX = Phaser.Math.Between(passageStartXMin, Math.max(passageStartXMin, passageStartXMax));
-    const passageEndX = passageStartX + actualPassageWidth;
+    const placeSheep = (): void => {
+      let x: number; let safe = false; let tries = 0;
+      do {
+        x = Phaser.Math.Between(rangeStart + HORIZONTAL_BUFFER, rangeEnd - HORIZONTAL_BUFFER);
+        safe = placed.every((r) => Phaser.Math.Distance.Between(x, spawnY, r.x, r.y) > OBSTACLE_HEIGHT);
+        tries++;
+      } while (!safe && tries < 5);
+      if (!safe) return;
 
-    // 3. Спавним индивидуальные камни (32x32)
-    // Левая часть препятствия
-    for (let x = 0; x < passageStartX; x += OBSTACLE_HEIGHT) { // Шаг равен ширине камня
-      const rock = this.getPooledRock();
-      if (rock) {
-        rock.x = x;
-        rock.y = spawnY;
-        rock.displayWidth = OBSTACLE_HEIGHT; // Задаем размер спрайта 32x32
-        rock.displayHeight = OBSTACLE_HEIGHT;
-        rock.body.setSize(OBSTACLE_HEIGHT, OBSTACLE_HEIGHT); // Размер физического тела 32x32
-        rock.body.setOffset(0, 0);
-        rock.body.setVelocityY(OBJECT_SPEED);
-        rock.setActive(true).setVisible(true);
-      }
-    }
+      const sheep = this.getPooledSheep(); if (!sheep) return;
+      sheep.x = x; sheep.y = spawnY - Phaser.Math.Between(50, 300);
+      sheep.body.setVelocityY(OBJECT_SPEED);
+    };
 
-    // Правая часть препятствия
-    for (let x = passageEndX; x < screenWidth; x += OBSTACLE_HEIGHT) { // Начинаем от конца прохода
-      const rock = this.getPooledRock();
-      if (rock) {
-        rock.x = x;
-        rock.y = spawnY;
-        rock.displayWidth = OBSTACLE_HEIGHT;
-        rock.displayHeight = OBSTACLE_HEIGHT;
-        rock.body.setSize(OBSTACLE_HEIGHT, OBSTACLE_HEIGHT);
-        rock.body.setOffset(0, 0);
-        rock.body.setVelocityY(OBJECT_SPEED);
-        rock.setActive(true).setVisible(true);
-      }
-    }
+    for (let i = 0; i < Phaser.Math.Between(1, 3); i++) placeRock();
+    for (let i = 0; i < Phaser.Math.Between(0, 2); i++) placeSheep();
+    if (Math.random() < 0.7) this.spawnCloud();
+  };
 
-    // Шанс спавна монетки в проходе
-    if (Math.random() < COIN_SPAWN_CHANCE) {
-      const coin = this.getPooledCoin();
-      if (coin) {
-        const coinX = passageStartX + actualPassageWidth / 2;
-        // Позиционируем монетку вертикально по центру линии препятствий
-        const coinY = spawnY + OBSTACLE_HEIGHT / 2;
-
-        coin.x = coinX;
-        coin.y = coinY;
-        coin.displayWidth = COIN_SIZE;
-        coin.displayHeight = COIN_SIZE;
-        coin.body.setCircle(COIN_SIZE / 2);
-        coin.body.setVelocityY(OBJECT_SPEED);
-        coin.setActive(true).setVisible(true);
-      }
-    }
-  }
-
-  // Обработчик столкновения с препятствием
-  private hitObstacle(_playerObj: PhysicsCallbackObject, _rockObj: PhysicsCallbackObject): void {
-    this.gameOver = true;
-    this.physics.pause();
-    this.player.setTint(0xff0000);
-
-    this.add.text(
-      this.scale.width / 2,
-      this.scale.height / 2,
-      `Игра окончена!\nОчки: ${this.score}\nНажмите или SPACE для перезапуска`,
-      { fontSize: "48px",
+  /* ────────────────────────────── КОЛЛИЗИИ ────────────────────────────── */
+  private hitObstacle = (): void => {
+    this.gameOver = true; this.physics.pause(); this.player.setTint(0xff0000);
+    this.add.text(this.cameras.main.worldView.centerX, this.cameras.main.worldView.centerY,
+      `Игра окончена!\nОчки: ${this.score}\nSPACE или Tap для рестарта`,
+      { fontSize: "24px",
         color: "#ff0000",
-        align: "center" },
-    ).setOrigin(0.5);
+        align: "center" })
+      .setOrigin(0.5)
+      .setScrollFactor(0);
+    this.input.once("pointerdown", this.restart);
+    this.input.keyboard?.once("keydown-SPACE", this.restart);
+  };
+  private collectSheep = (_: PhysicsCallbackObject, sheepObj: PhysicsCallbackObject): void => {
+    if (!(sheepObj instanceof Phaser.GameObjects.Sprite)) return;
+    const s = sheepObj as PooledObject; s.disableBody(true, true);
+    this.score += 1; this.scoreText.setText(`Очки: ${this.score}`);
+  };
 
-    this.input.once("pointerdown", () => {
-      this.restart();
-    });
-    this.input.keyboard?.once("keydown-SPACE", () => {
-      this.restart();
-    });
-  }
-
-  // Обработчик сбора монетки
-  private collectCoin(_playerObj: PhysicsCallbackObject, coinObject: PhysicsCallbackObject): void {
-    // Безопасно проверяем, является ли объект спрайтом, прежде чем пытаться им манипулировать
-    if (coinObject instanceof Phaser.GameObjects.Sprite) {
-      const coin = coinObject as PooledObject;
-      coin.disableBody(true, true); // Деактивируем и скрываем монетку
-
-      this.score += 10; // Начисляем очки за монетку
-      this.scoreText.setText(`Очки: ${this.score}`);
-    } else {
-      console.warn("Attempted to collect a non-sprite object as a coin.", coinObject);
-    }
-  }
-
-  private restart(): void {
-    this.gameOver = false;
-    this.score = 0;
-    this.player.clearTint();
+  /* ────────────────────────────── РЕСТАРТ ────────────────────────────── */
+  private restart = (): void => {
+    this.gameOver = false; this.score = 0;
+    this.player.clearTint(); this.player.setAngle(0); this.currentAngle = 0;
+    this.player.setPosition(0, this.scale.height - PLAYER_SIZE * 2); this.prevX = this.player.x;
+    this.tapTargetX = null; this.isDraggingPlayer = false;
     this.physics.resume();
-
-    this.rocks.children.each((gameObject: Phaser.GameObjects.GameObject) => {
-      const pooledObject = gameObject as PooledObject;
-      pooledObject.setActive(false).setVisible(false);
-      if (pooledObject.body) pooledObject.body.enable = false;
-      return true;
-    });
-    this.coins.children.each((gameObject: Phaser.GameObjects.GameObject) => {
-      const pooledObject = gameObject as PooledObject;
-      pooledObject.setActive(false).setVisible(false);
-      if (pooledObject.body) pooledObject.body.enable = false;
-      return true;
-    });
-
+    this.rocks.clear(true, true);
+    this.sheeps.clear(true, true);
+    this.clouds.clear(true, true);
+    this.cameras.main.scrollX = 0;
     this.scene.restart();
-  }
+  };
 }

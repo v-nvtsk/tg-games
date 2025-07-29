@@ -133,8 +133,14 @@ class GameFlowManager {
 
   public showFlyingGame() {
     if (this.game) {
+      this.game.scene.stop(GameScene.Intro);
       this.game.scene.start(GameScene.FlyingGame);
     }
+
+    useSceneStore.setState({
+      currentScene: GameScene.FlyingGame,
+    });
+
   }
 
   /**
@@ -155,7 +161,7 @@ class GameFlowManager {
         background: null,
         preBackground: null,
         light: getAssetsPathByType({ type: "images",
-          scene: "moscow-move",
+          scene: "to-train-move",
           filename: "background.svg" }),
         front: null,
         ground: getAssetsPath("images/platform.png"),
