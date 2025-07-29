@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { type SceneName, type SceneDataMap } from "@core/types/common-types";
+import { type SceneName, type SceneDataMap, type SceneBackground } from "@core/types/common-types";
 import { useAuthStore } from "./auth-store";
 import { logAppError } from "@utils/log-app-error";
 import { logActivity } from "$/api/log-activity";
@@ -7,13 +7,16 @@ import { logActivity } from "$/api/log-activity";
 interface SceneState {
   currentScene: SceneName;
   sceneData: SceneDataMap[SceneName];
+  backgroundLayers: SceneBackground | null;
 
   setScene: <T extends SceneName>(scene: T, data: SceneDataMap[T]) => Promise<void>;
+  setBackgroundLayers: (layers: SceneBackground) => void;
 }
 
 export const useSceneStore = create<SceneState>((set, get) => ({
   currentScene: "Auth",
   sceneData: null,
+  backgroundLayers: null,
 
   setScene: async (scene, data) => {
 
@@ -43,4 +46,6 @@ export const useSceneStore = create<SceneState>((set, get) => ({
       logAppError("Scene Change Logging", logError);
     }
   },
+
+  setBackgroundLayers: (layers) => set({ backgroundLayers: layers }),
 }));

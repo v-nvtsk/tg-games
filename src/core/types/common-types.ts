@@ -1,9 +1,11 @@
 export interface MoveSceneData {
+  scenePrefix?: string;
   fromLocationId?: string;
   toLocationId?: string;
   travelTime?: number;
   targetX: number;
   targetY: number;
+  backgroundLayers: SceneBackground;
 }
 
 export interface GameMapSceneData {
@@ -40,6 +42,7 @@ export interface SceneDataMap {
   GameFood: GameFoodLevelData;
   Game2048: null;
   FlyingGameScene: FlyingGame;
+  MoscowMoveScene: MoveSceneData | null;
 }
 
 export type SceneName = keyof SceneDataMap;
@@ -54,6 +57,7 @@ export const GameScene = {
   Game2048: "Game2048",
   Move: "MoveScene",
   FlyingGame: "FlyingGameScene",
+  MoscowMove: "MoveScene",
 } as const;
 
 export type GameScene = typeof GameScene[keyof typeof GameScene];
@@ -81,3 +85,11 @@ export interface QuizItem {
 }
 
 export type QuizQuestions = QuizItem[];
+
+export interface SceneBackground {
+  background: string;
+  preBackground: string | null;
+  light: string | null;
+  front: string | null;
+  ground: string;
+}
