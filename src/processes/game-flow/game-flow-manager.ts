@@ -151,29 +151,21 @@ class GameFlowManager {
       this.game.scene.stop(GameScene.Game2048);
       this.game.scene.stop(GameScene.FlyingGame);
 
-      // Настраиваем кастомные фоны для MoscowMove
       const layers = {
-        background: getAssetsPathByType({ type: "images",
+        background: null,
+        preBackground: null,
+        light: getAssetsPathByType({ type: "images",
           scene: "moscow-move",
           filename: "background.svg" }),
-        preBackground: null,
-        light: null,
         front: null,
         ground: getAssetsPath("images/platform.png"),
       };
 
-      // Сохраняем в Zustand для доступа из React
       useSceneStore.setState({
         currentScene: GameScene.MoscowMove,
         sceneData: data,
         backgroundLayers: layers,
       });
-
-      // Запускаем MovePhaserScene, передав MoscowMove слои
-      // this.game.scene.start(GameScene.Move, {
-      //   ...data,
-      //   backgroundLayers: layers,
-      // });
 
       this.game.scene.start(GameScene.Move, {
         ...data,

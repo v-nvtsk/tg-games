@@ -87,7 +87,7 @@ export interface QuizItem {
 export type QuizQuestions = QuizItem[];
 
 export interface SceneBackground {
-  background: string;
+  background: string | null;
   preBackground: string | null;
   light: string | null;
   front: string | null;
