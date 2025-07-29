@@ -25,7 +25,7 @@ export class MovePhaserScene extends Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private moveLeft = false;
   private moveRight = false;
-  private isMoving = false;
+  private isMovingInternal = false; // Внутреннее состояние движения сцены
 
   private parallaxBackground?: Phaser.GameObjects.TileSprite;
   private parallaxPreBackground?: Phaser.GameObjects.TileSprite;
@@ -93,10 +93,15 @@ export class MovePhaserScene extends Scene {
 
     this.physics.add.collider(this.player, this.platforms);
     this.scale.on("resize", this.handleResize, this);
+
+    // Устанавливаем начальное состояние движения в сторе
+    useMoveSceneStore.getState().setMoving(false);
   }
 
   destroy(): void {
     console.log(`${this.prefix}: destroy() — очищена сцена`);
+    // Убедимся, что состояние движения сброшено при уничтожении сцены
+    useMoveSceneStore.getState().setMoving(false);
   }
 
   private handleResize = (gameSize: Phaser.Structs.Size): void => {
@@ -228,8 +233,13 @@ export class MovePhaserScene extends Scene {
   }
 
   update(_time: number, _delta: number): void {
+    // Если квиз видим, останавливаем движение и анимацию, и выходим
     if (useMoveSceneStore.getState().isQuizVisible) {
-      this.isMoving = false;
+      // Убеждаемся, что isMovingInternal и isMoving в сторе установлены в false
+      if (this.isMovingInternal) {
+        this.isMovingInternal = false;
+        useMoveSceneStore.getState().setMoving(false);
+      }
       this.player?.setVelocityX(0);
       this.player?.anims.stop();
       if (this.player && this.player.anims.currentAnim?.key !== `${this.prefix}-idle`) {
@@ -242,24 +252,26 @@ export class MovePhaserScene extends Scene {
 
     if (this.player.body.touching.down) this.player.setVelocityY(0);
 
+    let currentVelocityX = 0;
     if (this.cursors) {
       if (this.moveLeft || this.cursors.left.isDown) {
-        this.handleMovementState(true);
-        this.player.setVelocityX(-PLAYER_SPEED);
+        currentVelocityX = -PLAYER_SPEED;
         this.player.setFlipX(true);
       } else if (this.moveRight || this.cursors.right.isDown) {
-        this.handleMovementState(true);
-        this.player.setVelocityX(PLAYER_SPEED);
+        currentVelocityX = PLAYER_SPEED;
         this.player.setFlipX(false);
-      } else {
-        this.handleMovementState(false);
-        this.player.setVelocityX(0);
       }
+      this.player.setVelocityX(currentVelocityX);
       this.platforms.setX(this.player.x);
     }
 
-    if (this.player.body.velocity.x !== 0) {
-      const speedFactor = this.player.body.velocity.x * this.game.loop.delta / 1000;
+    // Обновляем состояние движения и анимацию
+    const isCurrentlyMoving = currentVelocityX !== 0;
+    this.handleMovementState(isCurrentlyMoving);
+
+    // Обновляем параллакс только если игрок движется
+    if (isCurrentlyMoving) {
+      const speedFactor = currentVelocityX * this.game.loop.delta / 1000;
       if (this.parallaxBackground) this.parallaxBackground.tilePositionX += speedFactor * PARALLAX_FACTORS.background;
       if (this.parallaxPreBackground) this.parallaxPreBackground.tilePositionX += speedFactor * PARALLAX_FACTORS.preBackground;
       if (this.parallaxLight) this.parallaxLight.tilePositionX += speedFactor * PARALLAX_FACTORS.light;
@@ -268,15 +280,23 @@ export class MovePhaserScene extends Scene {
   }
 
   private handleMovementState(isMoving: boolean): void {
-    if (isMoving && !this.isMoving) {
-      this.isMoving = true;
-      this.player.play(`${this.prefix}-start_walking`, true);
-      this.player.once("animationcomplete", () => {
-        if (this.isMoving) this.player.play(`${this.prefix}-walk`, true);
-      });
-    } else if (!isMoving && this.isMoving) {
-      this.isMoving = false;
-      this.player.play(`${this.prefix}-idle`, true);
+    // Если состояние движения изменилось
+    if (isMoving !== this.isMovingInternal) {
+      this.isMovingInternal = isMoving;
+      // Обновляем состояние в Zustand-сторе
+      useMoveSceneStore.getState().setMoving(isMoving);
+
+      if (isMoving) {
+        this.player.play(`${this.prefix}-start_walking`, true);
+        this.player.once("animationcomplete", () => {
+          // Убедимся, что игрок все еще движется, прежде чем переключаться на анимацию ходьбы
+          if (this.isMovingInternal) {
+            this.player.play(`${this.prefix}-walk`, true);
+          }
+        });
+      } else {
+        this.player.play(`${this.prefix}-idle`, true);
+      }
     }
   }
 
