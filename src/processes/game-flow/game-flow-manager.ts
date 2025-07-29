@@ -77,7 +77,7 @@ class GameFlowManager {
     }
   }
 
-  showMoveScene(data?: MoveSceneData) {
+  showMoveScene(data?: Omit<MoveSceneData, "backgroundLayers">) {
     if (this.game) {
       this.game.scene.stop(GameScene.GameMap);
 
