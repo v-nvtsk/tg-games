@@ -12,7 +12,7 @@ const SLIDE_TIMEOUT = 100;
 export const IntroSceneWrapper = () => {
   const slides = useMemo(getIntroSlides, []);
   const [slideIndex, setSlideIndex] = useState(0);
-  const [actionIndex, setActionIndex] = useState(-1); // -1 означает, что изображение еще не показано
+  const [actionIndex, setActionIndex] = useState(-1);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [canSkip, setCanSkip] = useState(false);
 
@@ -26,7 +26,6 @@ export const IntroSceneWrapper = () => {
   const translateY = -currentSlide.originY * 100;
   const showSkipButton = currentAction?.type !== "button" && currentAction?.type !== "choice";
 
-  // Обработчик загрузки изображения
   const handleImageLoad = useCallback(() => {
     setImageLoaded(true);
   }, []);
@@ -35,27 +34,23 @@ export const IntroSceneWrapper = () => {
     if (currentActions.length > 0 && actionIndex < currentActions.length - 1) {
       setActionIndex(actionIndex + 1);
     } else {
-      // Переходим к следующему slide
       if (slideIndex < slides.length - 1) {
         setSlideIndex((prev) => prev + 1);
-        setActionIndex(-1); // Сбрасываем action index для нового slide
+        setActionIndex(-1);
         setImageLoaded(false);
       } else {
-        // Конец всех slides
-        gameFlowManager.startGameMap();
+        gameFlowManager.showMoscowMoveScene();
       }
     }
-  }, [actionIndex, currentActions.length, slideIndex]);
+  }, [actionIndex, currentActions.length, slideIndex, slides]);
 
-  // Переход к следующему action или slide
   const goNext = useCallback(() => {
-    if (!canSkip) return; // Не позволяем переходить, пока не истек таймаут
+    if (!canSkip) return;
     setCanSkip(false);
 
     processUpdate();
   }, [processUpdate, canSkip]);
 
-  // Обработчик клика по кнопке в action
   const handleActionButtonClick = useCallback((action: Action) => {
     if (action?.button?.action) {
       action.button.action();
@@ -63,7 +58,6 @@ export const IntroSceneWrapper = () => {
     processUpdate();
   }, [processUpdate]);
 
-  // Обработчик выбора в choice action
   const handleChoiceSelect = useCallback((option: string) => {
     currentActions.splice(actionIndex + 1, 0, {
       type: "thoughts",
@@ -72,18 +66,14 @@ export const IntroSceneWrapper = () => {
     processUpdate();
   }, [processUpdate]);
 
-  // Обработка загрузки изображения
   useEffect(() => {
     if (imageLoaded && actionIndex === -1) {
-      // Изображение загружено, но action еще не показан
       if (currentActions.length === 0) {
-        // Если нет actions, сразу показываем кнопку "Далее"
         setCanSkip(true);
       }
     }
   }, [imageLoaded, actionIndex]);
 
-  // Обработка показа кнопки "Далее" для actions
   useEffect(() => {
     if (showSkipButton) {
       const timer = setTimeout(() => {
