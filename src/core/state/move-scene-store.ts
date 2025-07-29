@@ -10,8 +10,8 @@ interface MoveSceneState {
   isQuizVisible: boolean;
   stage: "intro" | "question" | "hidden";
   selected: string | null;
+  canSkip: boolean;
 
-  // --- Методы ---
   setQuestions: (questions: QuizItem[]) => void;
   startQuizCycle: () => void;
   openQuiz: (index: number) => void;
@@ -27,15 +27,21 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
   isQuizVisible: false,
   stage: "hidden",
   selected: null,
+  canSkip: false,
 
   setQuestions: (questions) => set({ questions }),
 
-  /** 🔹 Запуск цикла: первый таймер */
   startQuizCycle: () => {
-    const { questions } = get();
-    if (!questions.length) return;
-    set({ currentIndex: 0 });
-    setTimeout(() => get().openQuiz(0), TIMEOUT_FOR_QUESTION);
+    const { questions, currentIndex, openQuiz } = get();
+
+    if (currentIndex >= questions.length) {
+      get().completeQuiz();
+      return;
+    }
+
+    setTimeout(() => {
+      openQuiz(currentIndex);
+    }, TIMEOUT_FOR_QUESTION);
   },
 
   /** 🔹 Показ квиза */
@@ -45,22 +51,27 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
       get().completeQuiz();
       return;
     }
-    set({ currentIndex: index,
+
+    set({
+      currentIndex: index,
       isQuizVisible: true,
       stage: "intro",
-      selected: null });
+      selected: null,
+      canSkip: false,
+    });
 
-    // Переход к стадии question через 5 секунд
     setTimeout(() => {
       if (get().isQuizVisible && get().currentIndex === index) {
-        set({ stage: "question" });
+        set({ canSkip: true });
       }
     }, TIMEOUT_FOR_QUESTION);
   },
 
-  /** 🔹 Скип интро по тапу */
   skipIntro: () => {
-    if (get().stage === "intro") set({ stage: "question" });
+    const { stage, canSkip } = get();
+    if (stage === "intro" && canSkip) {
+      set({ stage: "question" });
+    }
   },
 
   /** 🔹 Обработка ответа */
@@ -68,7 +79,6 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
     const { currentIndex, questions } = get();
     set({ selected: answerId });
 
-    // Симуляция запроса к серверу
     console.log("Ответ отправлен:", { questionId: questions[currentIndex].id,
       answerId });
 
@@ -77,7 +87,6 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
         stage: "hidden" });
 
       if (currentIndex < questions.length - 1) {
-        // Следующий вопрос через TIMEOUT_FOR_QUESTION
         setTimeout(() => get().openQuiz(currentIndex + 1), TIMEOUT_FOR_QUESTION);
       } else {
         get().completeQuiz();
