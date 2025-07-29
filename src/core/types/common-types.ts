@@ -68,3 +68,16 @@ export type Gender = typeof Gender[keyof typeof Gender];
 export function isGender(value: string): value is Gender {
   return Object.values(Gender).includes(value as Gender);
 }
+
+export interface QuizItem {
+  id: string;
+  text: string[];
+  question: string;
+  answers: { id: string;
+    text: string }[];
+  backgroundColor?: string;
+  borderColor?: string;
+  color?: string;
+}
+
+export type QuizQuestions = QuizItem[];

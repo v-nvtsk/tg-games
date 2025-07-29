@@ -1,0 +1,122 @@
+.quizWrapper {
+  position: absolute;
+  font-size: 10px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100%;
+  width: 100%;
+
+  /* max-height: 502px; */
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  animation: fade-in 0.4s ease-in;
+}
+
+.cloud {
+  position: absolute;
+  z-index: -10;
+  max-width: 95%;
+  width: 100%;
+
+  /* max-height: 502px; */
+}
+
+/* Контент внутри облака */
+
+.content {
+  height: 100%;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Текст истории */
+
+.questionText {
+  font-weight: 400;
+  color: #000;
+}
+
+.questionText p {
+  margin: 0.2rem 0;
+}
+
+/* Блок вопроса */
+
+.question {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  animation: fade-in 0.3s ease-in;
+}
+
+.question h3 {
+  margin: 0;
+  font-weight: 600;
+  color: #000;
+}
+
+/* Контейнер кнопок */
+
+.questionAnswers {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Кнопка (состояние по умолчанию) */
+
+.answerButton {
+  width: 90%;
+  margin: 0 auto;
+  padding: 0.6em 0.8em;
+  font-weight: 500;
+  cursor: pointer;
+  background: #cceed9;
+  border: 4px solid #3f9160;
+  border-radius: 20px;
+  color: #000;
+  font-size: 10px;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.answerButton:hover:not(:disabled) {
+  transform: scale(1.03);
+}
+
+/* Кнопка (активная) */
+
+.active {
+  background: #3f9160 !important;
+  border: 4px solid #3f9160 !important;
+  color: #fff !important;
+}
+
+@keyframes fade-in {
+
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
