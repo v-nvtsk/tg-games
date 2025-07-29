@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./style.module.css";
 import type { QuizItem } from "@core/types/common-types";
+import { getAssetsPath } from "../../../utils";
 
 interface Props {
   question: QuizItem;
@@ -13,7 +14,8 @@ interface Props {
 export const QuizOverlay: React.FC<Props> = ({ question, stage, selected, onSkipIntro, onAnswer }) => {
   if (stage === "hidden") return null;
 
-  const bgImg = `url(images/quiz/${question.id}.svg)`;
+  const imgPath = getAssetsPath(`images/quiz/${question.id}.svg`);
+  const bgImg = `url(${imgPath})`;
 
   return (
     <div className={styles.quizWrapper} onClick={onSkipIntro}>
