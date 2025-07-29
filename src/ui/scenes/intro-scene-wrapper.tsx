@@ -16,12 +16,6 @@ export const IntroSceneWrapper = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [canSkip, setCanSkip] = useState(false);
 
-  useEffect(() => {
-    console.error("remove this");
-    gameFlowManager.startGameMap();
-
-  });
-
   const currentSlide = slides[slideIndex];
   const currentActions = currentSlide?.actions || [];
   const currentAction = actionIndex >= 0 && actionIndex < currentActions.length
