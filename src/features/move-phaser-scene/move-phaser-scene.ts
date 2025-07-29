@@ -1,7 +1,8 @@
 import { Scene } from "phaser";
-import { createTiledBackground, getAssetsPath, getAssetsPathByType } from "$/utils";
+import { createTiledBackground, getAssetsPathByType } from "$/utils";
 import type { MoveSceneData } from "@core/types/common-types";
 import { useMoveSceneStore } from "$/core/state/move-scene-store";
+import { useSceneStore } from "../../core/state";
 
 const GROUND_HEIGHT = 50;
 const PLAYER_GRAVITY = 500;
@@ -51,19 +52,13 @@ export class MovePhaserScene extends Scene {
         filename: `alex/cycle_${i}.png` }));
     }
 
-    this.load.image("parallax/background", getAssetsPathByType({ type: "images",
-      scene: "move",
-      filename: "background.svg" }));
-    this.load.image("parallax/pre-background", getAssetsPathByType({ type: "images",
-      scene: "move",
-      filename: "pre-background.svg" }));
-    this.load.image("parallax/light", getAssetsPathByType({ type: "images",
-      scene: "move",
-      filename: "light.svg" }));
-    this.load.image("parallax/front", getAssetsPathByType({ type: "images",
-      scene: "move",
-      filename: "front.svg" }));
-    this.load.image("ground", getAssetsPath("images/platform.png"));
+    const { backgroundLayers } = useSceneStore.getState();
+
+    this.load.image("parallax/background", backgroundLayers?.background);
+    this.load.image("parallax/pre-background", backgroundLayers?.preBackground);
+    this.load.image("parallax/light", backgroundLayers?.light);
+    this.load.image("parallax/front", backgroundLayers?.front);
+    this.load.image("ground", backgroundLayers?.ground);
   }
 
   create(): void {

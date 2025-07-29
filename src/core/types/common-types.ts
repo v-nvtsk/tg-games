@@ -81,3 +81,11 @@ export interface QuizItem {
 }
 
 export type QuizQuestions = QuizItem[];
+
+export interface SceneBackground {
+  background: string;
+  preBackground: string;
+  light: string;
+  front: string;
+  ground: string;
+}
