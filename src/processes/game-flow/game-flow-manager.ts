@@ -36,6 +36,13 @@ class GameFlowManager {
     }
   }
 
+  private stopActiveScenes(){
+    Object.values(GameScene).forEach((scene) => {
+      if (this.game && this.game.scene.isActive(scene))
+        this.game.scene.stop(scene);
+    });
+  }
+
   showAuth() {
     if (this.game) {
       useSceneStore.setState({
@@ -48,6 +55,8 @@ class GameFlowManager {
 
   showIntro(episodeNumber = 0) {
     if (this.game) {
+      // this.stopActiveScenes();
+
       useSceneStore.setState({
         currentScene: GameScene.Intro,
         sceneData: { episodeNumber },
@@ -58,6 +67,8 @@ class GameFlowManager {
 
   startGameMap() {
     if (this.game) {
+      this.stopActiveScenes();
+
       this.game.scene.start(GameScene.GameMap);
       useSceneStore.setState({
         currentScene: GameScene.GameMap,
@@ -69,6 +80,7 @@ class GameFlowManager {
 
   showMoveScene(data?: Omit<MoveSceneData, "backgroundLayers">) {
     if (this.game) {
+      this.stopActiveScenes();
       this.game.scene.start(GameScene.Move, data);
       useSceneStore.setState({
         currentScene: GameScene.Move,
@@ -107,7 +119,8 @@ class GameFlowManager {
 
   public showFlyingGame() {
     if (this.game) {
-      this.game.scene.stop(GameScene.Intro);
+      this.stopActiveScenes();
+
       this.game.scene.start(GameScene.FlyingGame);
       useSceneStore.setState({
         currentScene: GameScene.FlyingGame,
@@ -128,6 +141,8 @@ class GameFlowManager {
      */
   public showMoscowMoveScene(data?: MoveSceneData) {
     if (this.game) {
+      this.stopActiveScenes();
+
       const layers = {
         background: null,
         preBackground: null,
@@ -155,6 +170,8 @@ class GameFlowManager {
   }
 
   public showDetectiveGame() {
+    this.stopActiveScenes();
+
     useSceneStore.setState({
       currentScene: GameScene.DetectiveGame,
       sceneData: null,

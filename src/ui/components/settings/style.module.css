@@ -1,0 +1,73 @@
+/* Стили почти такие же, как для меню */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgb(0 0 0 / 30%);
+  z-index: 2000;
+}
+
+.menu {
+  position: fixed;
+  inset: calc(env(safe-area-inset-top, 0px) + 70px) 0 0;
+  background: rgb(34 34 34 / 95%);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  animation: slide-down 0.25s ease;
+  overflow-y: auto;
+}
+
+.menuHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+}
+
+.menuTitle {
+  font-size: 18px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  color: #fff;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.item {
+  padding: 16px 20px;
+  color: #fff;
+  font-size: 18px;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item:hover {
+  background: rgb(255 255 255 / 10%);
+}
+
+@keyframes slide-down {
+
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

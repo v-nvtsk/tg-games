@@ -9,5 +9,5 @@ export const FlyingGameSceneWrapper: React.FC = () => {
     void useSceneStore.getState().setScene(GameScene.FlyingGame, {});
   }, []);
 
-  return null; // Phaser Canvas отображается отдельно
+  return null;
 };
