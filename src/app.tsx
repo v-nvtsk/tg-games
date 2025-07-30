@@ -26,7 +26,10 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     if (phaserCanvasRef.current) {
-      gameFlowManager.initializeGame(phaserCanvasRef.current.id);
+      void gameFlowManager.initializeGame(phaserCanvasRef.current.id);
+
+      /* TODO: Думаю этот вызов лишний - запуск этой сцены должен быть условным, если ещё не регистрировался */
+      console.error("TODO: Думаю этот вызов лишний - запуск этой сцены должен быть условным, если ещё не регистрировался");
       gameFlowManager.showAuth();
     }
   }, []);

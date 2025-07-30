@@ -1,5 +1,6 @@
 import { Scene } from "phaser";
 import { getAssetsPathByType } from "../../utils/get-assets-path";
+import { usePlayerState } from "../../core/state";
 
 const PLAYER_SIZE = 60;
 const PLAYER_BODY_W = PLAYER_SIZE;
@@ -361,7 +362,10 @@ export class FlyingGameScene extends Scene {
   private collectSheep = (_: PhysicsCallbackObject, sheepObj: PhysicsCallbackObject): void => {
     if (!(sheepObj instanceof Phaser.GameObjects.Sprite)) return;
     const s = sheepObj as PooledObject; s.disableBody(true, true);
-    this.score += 1; this.scoreText.setText(`Очки: ${this.score}`);
+    this.score += 1;
+    this.scoreText.setText(`Очки: ${this.score}`);
+    const energy = usePlayerState.getState().energy;
+    usePlayerState.getState().setEnergy(energy + this.score % 2 ? 1 : 0);
   };
 
   /* ────────────────────────────── РЕСТАРТ ────────────────────────────── */

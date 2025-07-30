@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { gameConfig } from "@core/game-engine/config";
 import { useSceneStore } from "@core/state";
+import { usePlayerState } from "@core/state/player-store"; // ✅ добавлено
 
 import { AuthPhaserScene } from "$features/auth-phaser-scene";
 import { GameFoodPhaserScene } from "$features/game-food";
@@ -14,7 +15,7 @@ import { getAssetsPath, getAssetsPathByType } from "$utils/get-assets-path";
 class GameFlowManager {
   private game: Phaser.Game | null = null;
 
-  initializeGame(parent: string | HTMLElement) {
+  async initializeGame(parent: string | HTMLElement) {
     if (!this.game) {
       this.game = new Phaser.Game({
         ...gameConfig,
@@ -33,14 +34,26 @@ class GameFlowManager {
       this.game.events.on(Phaser.Core.Events.READY, () => {
         console.log("Phaser Game Ready");
       });
+
+      // ✅ при старте загружаем состояние игрока
+      try {
+        await usePlayerState.getState().loadPlayerState();
+      } catch (err) {
+        console.error("Failed to load player state on init", err);
+      }
     }
   }
 
-  private stopActiveScenes(){
+  private stopActiveScenes() {
     Object.values(GameScene).forEach((scene) => {
-      if (this.game && this.game.scene.isActive(scene))
+      if (this.game && this.game.scene.isActive(scene)) {
         this.game.scene.stop(scene);
+      }
     });
+  }
+
+  private isSceneHidden(scene: GameScene): boolean {
+    return usePlayerState.getState().hiddenScenes.includes(scene);
   }
 
   showAuth() {
@@ -55,8 +68,12 @@ class GameFlowManager {
 
   showIntro(episodeNumber = 0) {
     if (this.game) {
-      // this.stopActiveScenes();
+      if (this.isSceneHidden(GameScene.Intro)) {
+        console.warn("Intro scene is hidden, skipping.");
+        return;
+      }
 
+      this.stopActiveScenes();
       useSceneStore.setState({
         currentScene: GameScene.Intro,
         sceneData: { episodeNumber },
@@ -67,8 +84,12 @@ class GameFlowManager {
 
   startGameMap() {
     if (this.game) {
-      this.stopActiveScenes();
+      if (this.isSceneHidden(GameScene.GameMap)) {
+        console.warn("GameMap is hidden, skipping.");
+        return;
+      }
 
+      this.stopActiveScenes();
       this.game.scene.start(GameScene.GameMap);
       useSceneStore.setState({
         currentScene: GameScene.GameMap,
@@ -80,6 +101,11 @@ class GameFlowManager {
 
   showMoveScene(data?: Omit<MoveSceneData, "backgroundLayers">) {
     if (this.game) {
+      if (this.isSceneHidden(GameScene.Move)) {
+        console.warn("Move Scene is hidden, skipping.");
+        return;
+      }
+
       this.stopActiveScenes();
       this.game.scene.start(GameScene.Move, data);
       useSceneStore.setState({
@@ -97,6 +123,11 @@ class GameFlowManager {
 
   showGameFood(data?: GameFoodLevelData) {
     if (this.game) {
+      if (this.isSceneHidden(GameScene.GameFood)) {
+        console.warn("GameFood scene is hidden, skipping.");
+        return;
+      }
+
       this.game.scene.start(GameScene.GameFood, data);
       useSceneStore.setState({
         currentScene: GameScene.GameFood,
@@ -108,6 +139,11 @@ class GameFlowManager {
 
   showGame2048() {
     if (this.game) {
+      if (this.isSceneHidden(GameScene.Game2048)) {
+        console.warn("2048 Game scene is hidden, skipping.");
+        return;
+      }
+
       this.game.scene.start(GameScene.Game2048);
       useSceneStore.setState({
         currentScene: GameScene.Game2048,
@@ -117,38 +153,39 @@ class GameFlowManager {
     }
   }
 
-  public showFlyingGame() {
+  showFlyingGame() {
     if (this.game) {
-      this.stopActiveScenes();
+      if (this.isSceneHidden(GameScene.FlyingGame)) {
+        console.warn("FlyingGame is hidden, skipping.");
+        return;
+      }
 
+      this.stopActiveScenes();
       this.game.scene.start(GameScene.FlyingGame);
       useSceneStore.setState({
         currentScene: GameScene.FlyingGame,
         sceneData: null,
       });
     }
-
-    useSceneStore.setState({
-      currentScene: GameScene.FlyingGame,
-    });
-
   }
 
-  /**
-     * Показывает сцену перемещения (MovePhaserScene) с данными,
-     * но указывает, что текущая сцена - MoscowMove.
-     * Фон будет установлен в MoscowSceneWrapper.
-     */
-  public showMoscowMoveScene(data?: MoveSceneData) {
+  showMoscowMoveScene(data?: MoveSceneData) {
     if (this.game) {
+      if (this.isSceneHidden(GameScene.MoscowMove)) {
+        console.warn("MoscowMove is hidden, skipping.");
+        return;
+      }
+
       this.stopActiveScenes();
 
       const layers = {
         background: null,
         preBackground: null,
-        light: getAssetsPathByType({ type: "images",
+        light: getAssetsPathByType({
+          type: "images",
           scene: "to-train-move",
-          filename: "background.svg" }),
+          filename: "background.svg",
+        }),
         front: null,
         ground: getAssetsPath("images/platform.png"),
       };
@@ -169,9 +206,13 @@ class GameFlowManager {
     }
   }
 
-  public showDetectiveGame() {
-    this.stopActiveScenes();
+  showDetectiveGame() {
+    if (this.isSceneHidden(GameScene.DetectiveGame)) {
+      console.warn("DetectiveGame is hidden, skipping.");
+      return;
+    }
 
+    this.stopActiveScenes();
     useSceneStore.setState({
       currentScene: GameScene.DetectiveGame,
       sceneData: null,

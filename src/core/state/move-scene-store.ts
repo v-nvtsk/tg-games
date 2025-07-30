@@ -1,8 +1,22 @@
 import { create } from "zustand";
 import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
 import type { QuizItem } from "@core/types/common-types";
+import { usePlayerState } from "./player-store"; // ✅
 
 const TIMEOUT_FOR_QUESTION = 5000;
+
+/*
+ * TODO: добавить функции на сервере и реализовать здесь
+ * ✅ Заглушка для отправки ответа на сервер
+ */
+console.error("TODO: добавить функции на сервере и реализовать здесь");
+
+async function sendAnswerToServer(questionId: string, answerId: string): Promise<void> {
+  /* TODO: заменить на реальный вызов apiClient для отправки ответа игрока */
+  console.error("Заглушка: отправка ответа на сервер", { questionId,
+    answerId });
+  return Promise.resolve();
+}
 
 interface MoveSceneState {
   questions: QuizItem[];
@@ -163,9 +177,13 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
     const { currentIndex, questions, pauseTimer } = get();
     pauseTimer();
 
+    const questionId = questions[currentIndex].id;
     set({ selected: answerId });
-    console.log("Ответ отправлен:", { questionId: questions[currentIndex].id,
-      answerId });
+
+    // ✅ сразу отправляем ответ на сервер (заглушка)
+    sendAnswerToServer(questionId, answerId).catch((err) => {
+      console.error("Ошибка отправки ответа на сервер", err);
+    });
 
     setTimeout(() => {
       set({ isQuizVisible: false,
@@ -182,6 +200,13 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
   completeQuiz: () => {
     set({ isQuizVisible: false,
       stage: "hidden" });
+
+    try {
+      usePlayerState.getState().hideScene("MoveScene");
+    } catch (err) {
+      console.error("Failed to save progress for MoveScene", err);
+    }
+
     gameFlowManager.startGameMap();
   },
 

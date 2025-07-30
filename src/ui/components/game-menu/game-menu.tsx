@@ -20,6 +20,36 @@ export const GameMenu: React.FC<GameMenuProps> = ({
 }) => {
   if (!visible) return null;
 
+  const onSceneSelection = (scene: string) => {
+    switch (scene) {
+    case "flight":
+      gameFlowManager.showFlyingGame();
+      break;
+    case "game-map":
+      gameFlowManager.startGameMap();
+      break;
+    case "game-food":
+      gameFlowManager.showGameFood();
+      break;
+    case "game-2048":
+      gameFlowManager.showGame2048();
+      break;
+    case "move":
+      gameFlowManager.showMoveScene();
+      break;
+    case "train-move":
+      gameFlowManager.showMoscowMoveScene();
+      break;
+    case "detective":
+      gameFlowManager.showDetectiveGame();
+      break;
+    default:
+      break;
+    }
+    onClose();
+
+  };
+
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.menu} onClick={(e) => e.stopPropagation()}>
@@ -34,11 +64,11 @@ export const GameMenu: React.FC<GameMenuProps> = ({
         </div>
 
         <div className={styles.subHeader}>Debug</div>
-        <div className={styles.item} onClick={() => gameFlowManager.showFlyingGame()}>🛩️ Игра полёт</div>
-        <div className={styles.item} onClick={() => gameFlowManager.showMoscowMoveScene()}>🚉 Сцена переход к вокзалу</div>
-        <div className={styles.item} onClick={() => gameFlowManager.showMoveScene()}>🌲 Сцена переход в лесу</div>
-        <div className={styles.item} onClick={() => gameFlowManager.showDetectiveGame()}>🕵️ Детектив</div>
-        <div className={styles.item} onClick={() => gameFlowManager.startGameMap()}>🧭 Карта</div>
+        <div className={styles.item} onClick={() => onSceneSelection("flight")}>🛩️ Игра полёт</div>
+        <div className={styles.item} onClick={() => onSceneSelection("train-move")}>🚉 Сцена переход к вокзалу</div>
+        <div className={styles.item} onClick={() => onSceneSelection("move")}>🌲 Сцена переход в лесу</div>
+        <div className={styles.item} onClick={() => onSceneSelection("detective")}>🕵️ Детектив</div>
+        <div className={styles.item} onClick={() => onSceneSelection("game-map")}>🧭 Карта</div>
       </div>
     </div>
   );

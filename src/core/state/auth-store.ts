@@ -3,6 +3,7 @@ import WebApp from "@twa-dev/sdk";
 import { type UserInfoDto, apiClient } from "$/api";
 import { logAppError } from "@utils/log-app-error";
 import { logActivity } from "../../api/log-activity";
+import { usePlayerState } from "./player-store"; // ✅ добавлено
 
 interface AuthState {
   isTelegram: boolean | null;
@@ -80,6 +81,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } catch (logError: unknown) {
         logAppError("Authentication Logging", logError);
       }
+
+      // ✅ после успешной аутентификации загружаем состояние игрока
+      try {
+        await usePlayerState.getState().loadPlayerState();
+      } catch (loadError: unknown) {
+        logAppError("LoadPlayerState", loadError);
+      }
+
       set({ isVerifying: false });
     } catch (error: unknown) {
       logAppError("Authentication", error);

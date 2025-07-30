@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import styles from "./style.module.css";
 import { GameMenu } from "../game-menu";
 import { Settings } from "../settings";
+import { usePlayerState } from "../../../core/state";
 
 interface GameHeaderProps {
-  compact?: boolean; // ✅ новый проп
+  compact?: boolean;
 }
 
 export const GameHeader: React.FC<GameHeaderProps> = ({ compact = false }) => {
@@ -26,6 +27,9 @@ export const GameHeader: React.FC<GameHeaderProps> = ({ compact = false }) => {
     // Здесь логика перехода на сцену
   };
 
+  const hunger = usePlayerState((state) => state.hunger);
+  const energy = usePlayerState((state) => state.energy);
+
   return (
     <>
       <header className={`${styles.header} ${compact ? styles.compact : ""}`}>
@@ -38,14 +42,14 @@ export const GameHeader: React.FC<GameHeaderProps> = ({ compact = false }) => {
               onMouseEnter={(e) => showTooltip(e, "Голод")}
               onMouseLeave={() => setTooltip(null)}
             >
-              🍗
+              🍗 : {hunger}
             </div>
             <div
               className={styles.statusIcon}
               onMouseEnter={(e) => showTooltip(e, "Энергия")}
               onMouseLeave={() => setTooltip(null)}
             >
-              ⚡
+              ⚡ : {energy}
             </div>
           </div>
         )}
