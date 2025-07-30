@@ -147,12 +147,31 @@ export interface CreateGameProgressDto {
      */
     'lastPlayed': string;
     /**
+     * Скрытые сцены
+     * @type {Array<string>}
+     * @memberof CreateGameProgressDto
+     */
+    'hiddenScenes'?: Array<string>;
+    /**
+     * 
+     * @type {CreateGameProgressDtoCurrentEpisode}
+     * @memberof CreateGameProgressDto
+     */
+    'currentEpisode'?: CreateGameProgressDtoCurrentEpisode;
+    /**
      * Дополнительные данные прогресса игры (JSONB)
      * @type {object}
      * @memberof CreateGameProgressDto
      */
     'data': object;
 }
+/**
+ * @type CreateGameProgressDtoCurrentEpisode
+ * Текущий эпизод
+ * @export
+ */
+export type CreateGameProgressDtoCurrentEpisode = number | string;
+
 /**
  * 
  * @export
@@ -202,6 +221,24 @@ export interface GameProgressResponseDto {
      * @memberof GameProgressResponseDto
      */
     'updatedAt': string;
+    /**
+     * Текущая сцена
+     * @type {string}
+     * @memberof GameProgressResponseDto
+     */
+    'currentScene': string;
+    /**
+     * Текущий эпизод
+     * @type {string}
+     * @memberof GameProgressResponseDto
+     */
+    'currentEpisode'?: string | null;
+    /**
+     * Список скрытых сцен
+     * @type {Array<string>}
+     * @memberof GameProgressResponseDto
+     */
+    'hiddenScenes': Array<string>;
     /**
      * Информация о пользователе
      * @type {UserResponseDto}
@@ -270,6 +307,18 @@ export interface UpdateGameProgressDto {
      * @memberof UpdateGameProgressDto
      */
     'lastPlayed'?: string;
+    /**
+     * Скрытые сцены
+     * @type {Array<string>}
+     * @memberof UpdateGameProgressDto
+     */
+    'hiddenScenes'?: Array<string>;
+    /**
+     * 
+     * @type {CreateGameProgressDtoCurrentEpisode}
+     * @memberof UpdateGameProgressDto
+     */
+    'currentEpisode'?: CreateGameProgressDtoCurrentEpisode;
     /**
      * Дополнительные данные прогресса игры (JSONB)
      * @type {object}

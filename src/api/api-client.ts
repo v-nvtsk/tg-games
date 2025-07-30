@@ -1,4 +1,4 @@
-import { ActivityLogsApi, AuthApi, Configuration } from "./generated";
+import { ActivityLogsApi, AuthApi, Configuration, GameStateApi } from "./generated";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -10,9 +10,11 @@ const config = new Configuration({
   },
 });
 
-export const authApi = new AuthApi(config);
+const authApi = new AuthApi(config);
 
-export const activityLogsApi = new ActivityLogsApi(config);
+const activityLogsApi = new ActivityLogsApi(config);
+
+const gameStateApi = new GameStateApi(config);
 
 // export const apiClient = {
 //   auth: {
@@ -26,4 +28,5 @@ export const activityLogsApi = new ActivityLogsApi(config);
 export const apiClient = {
   auth: authApi,
   activityLogs: activityLogsApi,
+  gameState: gameStateApi,
 };

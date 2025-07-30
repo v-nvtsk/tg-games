@@ -5,17 +5,28 @@
 
 .header {
   position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + var(--tg-safe-top));
+  top: calc(env(safe-area-inset-top, 0px) + 70px);
   left: 0;
   right: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px var(--tg-safe-right) 8px 16px;
+  padding: 8px 16px;
   background: rgb(0 0 0 / 40%);
   border-radius: 0 0 12px 12px;
   backdrop-filter: blur(6px);
   z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+
+
+.compact {
+  background: transparent;
+  width: auto;
+  right: auto;
+  border-radius: 8px;
+  padding: 4px 6px;
 }
 
 .menuBtn {
@@ -36,7 +47,6 @@
 .statusIcon {
   font-size: 24px;
   cursor: pointer;
-  user-select: none;
 }
 
 .tooltip {

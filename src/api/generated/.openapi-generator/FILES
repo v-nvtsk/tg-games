@@ -10,6 +10,7 @@ docs/AuthApi.md
 docs/AuthResponseDto.md
 docs/CreateActivityLogDto.md
 docs/CreateGameProgressDto.md
+docs/CreateGameProgressDtoCurrentEpisode.md
 docs/CreatePlayerStateDto.md
 docs/GameProgressResponseDto.md
 docs/GameStateApi.md

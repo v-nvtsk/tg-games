@@ -8,6 +8,8 @@ Name | Type | Description | Notes
 **score** | **number** | Текущий счет игры | [default to undefined]
 **currentScene** | **string** | Текущая сцена | [default to undefined]
 **lastPlayed** | **string** | Дата последнего обновления прогресса | [default to undefined]
+**hiddenScenes** | **Array&lt;string&gt;** | Скрытые сцены | [optional] [default to undefined]
+**currentEpisode** | [**CreateGameProgressDtoCurrentEpisode**](CreateGameProgressDtoCurrentEpisode.md) |  | [optional] [default to undefined]
 **data** | **object** | Дополнительные данные прогресса игры (JSONB) | [default to undefined]
 
 ## Example
@@ -19,6 +21,8 @@ const instance: CreateGameProgressDto = {
     score,
     currentScene,
     lastPlayed,
+    hiddenScenes,
+    currentEpisode,
     data,
 };
 ```

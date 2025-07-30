@@ -3,7 +3,11 @@ import styles from "./style.module.css";
 import { GameMenu } from "../game-menu";
 import { Settings } from "../settings";
 
-export const GameHeader: React.FC = () => {
+interface GameHeaderProps {
+  compact?: boolean; // ✅ новый проп
+}
+
+export const GameHeader: React.FC<GameHeaderProps> = ({ compact = false }) => {
   const [tooltip, setTooltip] = useState<{ text: string;
     left: number } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,34 +21,36 @@ export const GameHeader: React.FC = () => {
   };
 
   const handleDebugAction = (action: string) => {
-    console.log("DEBUG action:", action);
-    // здесь вызывайте переход к нужной сцене
+    console.log("DEBUG:", action);
     setMenuOpen(false);
+    // Здесь логика перехода на сцену
   };
 
   return (
     <>
-      <header className={styles.header}>
+      <header className={`${styles.header} ${compact ? styles.compact : ""}`}>
         <button className={styles.menuBtn} onClick={() => setMenuOpen(true)}>☰</button>
 
-        <div className={styles.statusGroup}>
-          <div
-            className={styles.statusIcon}
-            onMouseEnter={(e) => showTooltip(e, "Голод")}
-            onMouseLeave={() => setTooltip(null)}
-          >
-            🍗
+        {!compact && (
+          <div className={styles.statusGroup}>
+            <div
+              className={styles.statusIcon}
+              onMouseEnter={(e) => showTooltip(e, "Голод")}
+              onMouseLeave={() => setTooltip(null)}
+            >
+              🍗
+            </div>
+            <div
+              className={styles.statusIcon}
+              onMouseEnter={(e) => showTooltip(e, "Энергия")}
+              onMouseLeave={() => setTooltip(null)}
+            >
+              ⚡
+            </div>
           </div>
-          <div
-            className={styles.statusIcon}
-            onMouseEnter={(e) => showTooltip(e, "Энергия")}
-            onMouseLeave={() => setTooltip(null)}
-          >
-            ⚡
-          </div>
-        </div>
+        )}
 
-        {tooltip && (
+        {tooltip && !compact && (
           <div className={styles.tooltip} style={{ left: tooltip.left }}>
             {tooltip.text}
           </div>
@@ -54,10 +60,7 @@ export const GameHeader: React.FC = () => {
       <GameMenu
         visible={menuOpen}
         onClose={() => setMenuOpen(false)}
-        onSettings={() => {
-          setMenuOpen(false);
-          setSettingsOpen(true);
-        }}
+        onSettings={() => { setMenuOpen(false); setSettingsOpen(true); }}
         onToggleSound={() => setSoundEnabled((prev) => !prev)}
         soundEnabled={soundEnabled}
         onDebugAction={handleDebugAction}
