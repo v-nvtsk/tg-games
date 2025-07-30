@@ -17,3 +17,17 @@ export function getAssetsPathByType({
 
   return `${getAssetsPath()}${type}/${scenePath}/${filename}`;
 }
+
+// Функция для получения пути к изображению овоща
+export const getVegetableImagePath = (type: string): string => {
+  const imageMap: Record<string, string> = {
+    carrot: '/src/assets/images/scenes/cooking/ingredients/carrot.png',
+    tomato: '/src/assets/images/scenes/cooking/ingredients/tomato.png',
+    cucumber: '/src/assets/images/scenes/cooking/ingredients/cucumber.png',
+    pepper: '/src/assets/images/scenes/cooking/ingredients/pepper.png',
+    mushroom: '/src/assets/images/scenes/cooking/ingredients/mushroom.png',
+    potato: '/src/assets/images/scenes/cooking/ingredients/potato.png'
+  };
+  
+  return imageMap[type] || imageMap.carrot; // fallback на морковь
+};

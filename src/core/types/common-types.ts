@@ -38,6 +38,11 @@ export interface DetectiveGameData {
   targetY?: number;
 }
 
+export interface CookingGameData {
+  targetX?: number;
+  targetY?: number;
+}
+
 export interface SceneDataMap {
   Auth: null;
   Intro: IntroSceneData;
@@ -48,6 +53,7 @@ export interface SceneDataMap {
   FlyingGameScene: FlyingGame;
   MoveToTrain: MoveSceneData | null;
   DetectiveGame: DetectiveGameData;
+  CookingGame: CookingGameData;
 }
 
 export type SceneName = keyof SceneDataMap;
@@ -64,6 +70,7 @@ export const GameScene = {
   FlyingGame: "FlyingGameScene",
   MoveToTrain: "MoveToTrain",
   DetectiveGame: "DetectiveGame",
+  CookingGame: "CookingGame",
 } as const;
 
 export type GameScene = typeof GameScene[keyof typeof GameScene];

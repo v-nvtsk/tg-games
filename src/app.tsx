@@ -10,6 +10,7 @@ import {
   Game2048SceneWrapper,
   MoveSceneWrapper,
   DetectiveGameSceneWrapper,
+  CookingGameSceneWrapper
 } from "./ui/scenes";
 import { useAuth } from "./core/hooks";
 import { FlyingGameSceneWrapper } from "./ui/scenes/flying-game-scene-wrapper";
@@ -50,6 +51,8 @@ export const App: React.FC = () => {
       return <MoveToTrainSceneWrapper />;
     case GameScene.DetectiveGame:
       return <DetectiveGameSceneWrapper />;
+    case GameScene.CookingGame:
+      return <CookingGameSceneWrapper />;
     default:
       return null;
     }

@@ -13,6 +13,7 @@ import { MovePhaserScene } from "@features/move-phaser-scene";
 import { GameFoodPhaserScene } from "$features/game-food";
 import { Game2048PhaserScene } from "$features/game-2048";
 import { FlyingGameScene } from "@features/flying-game/flying-game-scene";
+import { type MoveSceneData, type GameFoodLevelData, type CookingGameData, GameScene } from "@core/types/common-types";
 import { getAssetsPath, getAssetsPathByType } from "$utils/get-assets-path";
 import { getIntroSlides } from "../../features/slides";
 
@@ -190,6 +191,14 @@ class GameFlowManager {
       return;
     }
     this.startPhaserScene(sceneName);
+  }
+
+  public showCookingGame(data?: CookingGameData) {
+    useSceneStore.setState({
+      currentScene: GameScene.CookingGame,
+      sceneData: data,
+    });
+    console.log("Showing Cooking Game Scene with data:", data);
   }
 }
 

@@ -16,3 +16,4 @@ export * from "./move-scene-wrapper";
 
 export * from "./detective-game-scene-wrapper";
 
+export * from "./cooking-game-scene-wrapper";
