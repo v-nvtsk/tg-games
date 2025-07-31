@@ -97,8 +97,8 @@ export class FlyingGameScene extends Scene {
     /* земля (трава), закрывает весь мир по X */
     this.grass = this.add.tileSprite(-WORLD_HALF, 0, WORLD_HALF * 2, this.scale.height, "grass")
       .setOrigin(0, 0)
-      .setTileScale(0.5)
-      .setScrollFactor(1, 0) // X — вместе с камерой; Y — вручную
+      .setTileScale(0.2)
+      .setScrollFactor(1, 0)
       .setDepth(-10);
 
     /* группы и пулы */
@@ -125,17 +125,19 @@ export class FlyingGameScene extends Scene {
     for (let i = 0; i < 50; i++) {
       const s = this.sheeps.create(0, 0, "sheep") as PooledObject;
       s.setOrigin(0.5).setActive(false)
-        .setVisible(false);
+        .setVisible(false)
+        .setDisplaySize(SHEEP_SIZE, SHEEP_SIZE);
       s.body.setAllowGravity(false); s.body.enable = false;
       s.displayWidth = s.displayHeight = SHEEP_SIZE;
       s.body.setSize(SHEEP_SIZE, SHEEP_SIZE, true);
     }
 
     /* игрок */
-    this.player = this.physics.add.sprite(0, this.scale.height - PLAYER_SIZE * 2, "flying-player")
-      .setOrigin(0.5)
-      .setDepth(5);
-    (this.player.body as Phaser.Physics.Arcade.Body).setSize(PLAYER_BODY_W, PLAYER_BODY_H);
+    this.player = this.physics.add.sprite(0, this.scale.height - PLAYER_SIZE * 3, "flying-player")
+      .setOrigin(0.5, 0.5)
+      .setDepth(5)
+      .setDisplaySize(PLAYER_SIZE, PLAYER_SIZE);
+    (this.player.body as Phaser.Physics.Arcade.Body).setSize(PLAYER_BODY_W, PLAYER_BODY_H, true);
     this.cameras.main.startFollow(this.player, false, 1, 0);
     this.prevX = this.player.x;
 
@@ -257,6 +259,7 @@ export class FlyingGameScene extends Scene {
     const s = this.sheeps.getFirstDead(false) as PooledObject | null;
     if (!s) return null;
     s.setActive(true).setVisible(true); s.body.enable = true;
+    s.body.setSize(SHEEP_SIZE, SHEEP_SIZE, true);
     return s;
   }
 
@@ -338,6 +341,8 @@ export class FlyingGameScene extends Scene {
 
       const sheep = this.getPooledSheep(); if (!sheep) return;
       sheep.x = x; sheep.y = spawnY - Phaser.Math.Between(50, 300);
+      const unscaled = SHEEP_SIZE / sheep.scaleX;
+      sheep.body.setSize(unscaled, unscaled, true);
       sheep.body.setVelocityY(OBJECT_SPEED);
     };
 
@@ -372,7 +377,7 @@ export class FlyingGameScene extends Scene {
   private restart = (): void => {
     this.gameOver = false; this.score = 0;
     this.player.clearTint(); this.player.setAngle(0); this.currentAngle = 0;
-    this.player.setPosition(0, this.scale.height - PLAYER_SIZE * 2); this.prevX = this.player.x;
+    this.player.setPosition(0, this.scale.height - PLAYER_SIZE * 3); this.prevX = this.player.x;
     this.tapTargetX = null; this.isDraggingPlayer = false;
     this.physics.resume();
     this.rocks.clear(true, true);
