@@ -53,25 +53,26 @@ class GameFlowManager {
       });
 
       // ✅ загружаем состояние игрока
-      try {
-        await usePlayerState.getState().loadPlayerState();
-      } catch (err) {
-        console.error("Failed to load player state on init", err);
-      }
+      // try {
+      //   await usePlayerState.getState().loadPlayerState();
+      // } catch (err) {
+      //   console.error("Failed to load player state on init", err);
+      // }
 
-      const { isAuthenticated } = useAuthStore.getState();
-      if (!isAuthenticated) {
-        this.startScene(GameScene.Auth);
-        return ;
-      }
-      const { currentScene } = usePlayerState.getState();
-      if (currentScene) {
-        console.log(`Восстанавливаем сцену: ${currentScene}`);
-        this.startScene(currentScene as GameScene);
-      } else {
-        console.log("Нет сохранённой сцены, показываем интро");
-        this.showIntro();
-      }
+      // const { isAuthenticated } = useAuthStore.getState();
+      // if (!isAuthenticated) {
+      //   this.startScene(GameScene.Auth);
+      //   return;
+      // }
+      // const { currentScene } = usePlayerState.getState();
+      // if (currentScene) {
+      //   console.log(`Восстанавливаем сцену: ${currentScene}`);
+      //   this.startScene(currentScene as GameScene);
+      // } else {
+      //   console.log("Нет сохранённой сцены, показываем интро");
+      //   this.showIntro();
+      // }
+      this.showIntro();
     }
   }
 
