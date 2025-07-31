@@ -1,1 +1,1 @@
-export { CookingGame } from './cooking-game';
+export { CookingGame } from "./cooking-game";

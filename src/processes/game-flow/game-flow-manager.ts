@@ -97,7 +97,7 @@ class GameFlowManager {
     this.game.scene.start(phaserKey, payload);
     useSceneStore.setState({
       currentScene: scene,
-      sceneData: data || null
+      sceneData: data || null,
     });
 
     console.log(`▶️ Запущена логическая сцена ${scene} (Phaser: ${phaserKey})`, data);

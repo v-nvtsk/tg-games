@@ -1,6 +1,6 @@
-import { type VegetablePiece } from './game-provider';
-import { getVegetableImagePath } from '../../../utils/get-assets-path';
-import styles from './dragged-piece.module.css';
+import { type VegetablePiece } from "./game-provider";
+import { getVegetableImagePath } from "../../../utils/get-assets-path";
+import styles from "./dragged-piece.module.css";
 
 interface DraggedPieceProps {
   piece: VegetablePiece;
@@ -9,11 +9,11 @@ interface DraggedPieceProps {
 
 export function DraggedPiece({ piece, canPlace = false }: DraggedPieceProps) {
   return (
-    <div 
+    <div
       className={`${styles.draggedPiece} ${canPlace ? styles.canPlace : styles.cannotPlace}`}
       style={{
-        transform: 'translate(-50%, -50%)',
-        pointerEvents: 'none',
+        transform: "translate(-50%, -50%)",
+        pointerEvents: "none",
         zIndex: 1000,
       }}
     >
@@ -27,17 +27,17 @@ export function DraggedPiece({ piece, canPlace = false }: DraggedPieceProps) {
                     className={styles.vegetableImage}
                     style={{
                       backgroundImage: `url(${getVegetableImagePath(piece.type)})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat'
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
                     }}
                   />
                 </div>
-              ) || ''}
+              ) || ""}
             </div>
           ))}
         </div>
       ))}
     </div>
   );
-} 
+}

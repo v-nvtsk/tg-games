@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useDraggable } from '@dnd-kit/core';
-import { type VegetablePiece, vegetableShapes } from './game-provider.tsx';
-import { getVegetableImagePath } from '../../../utils/get-assets-path';
-import styles from './next-piece.module.css';
+import { useState, useEffect } from "react";
+import { useDraggable } from "@dnd-kit/core";
+import { type VegetablePiece, vegetableShapes } from "./game-provider.tsx";
+import { getVegetableImagePath } from "../../../utils/get-assets-path";
+import styles from "./next-piece.module.css";
 
 interface NextPieceProps {
   onPieceSuccessfullyPlaced?: (piece: VegetablePiece) => void;
@@ -17,11 +17,11 @@ function DraggablePiece({ piece }: { piece: VegetablePiece }) {
   });
 
   return (
-    <div 
+    <div
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`${styles.piece} ${styles.draggable} ${isDragging ? styles.dragging : ''}`}
+      className={`${styles.piece} ${styles.draggable} ${isDragging ? styles.dragging : ""}`}
     >
       {piece.shape.map((row, rowIndex) => (
         <div key={rowIndex} className={styles.shapeRow}>
@@ -33,13 +33,13 @@ function DraggablePiece({ piece }: { piece: VegetablePiece }) {
                     className={styles.vegetableImage}
                     style={{
                       backgroundImage: `url(${getVegetableImagePath(piece.type)})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat'
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
                     }}
                   />
                 </div>
-              ) || ''}
+              ) || ""}
             </div>
           ))}
         </div>
@@ -68,7 +68,7 @@ export function NextPiece({ onPieceSuccessfullyPlaced, onPiecesChange }: NextPie
       const randomIndex = Math.floor(Math.random() * vegetableShapes.length);
       newPieces.push({
         ...vegetableShapes[randomIndex],
-        id: `${vegetableShapes[randomIndex].type}-${Date.now()}-${i}`
+        id: `${vegetableShapes[randomIndex].type}-${Date.now()}-${i}`,
       });
     }
     setPieces(newPieces);
@@ -78,17 +78,17 @@ export function NextPiece({ onPieceSuccessfullyPlaced, onPiecesChange }: NextPie
   useEffect(() => {
     const handlePiecePlaced = (event: CustomEvent) => {
       const piece = event.detail as VegetablePiece;
-      setPieces(prevPieces => prevPieces.filter(p => p.id !== piece.id));
+      setPieces((prevPieces) => prevPieces.filter((p) => p.id !== piece.id));
       onPieceSuccessfullyPlaced?.(piece);
       if (pieces.length === 0) {
         generateNewPieces();
       }
     };
 
-    document.addEventListener('piecePlaced', handlePiecePlaced as EventListener);
-    
+    document.addEventListener("piecePlaced", handlePiecePlaced as EventListener);
+
     return () => {
-      document.removeEventListener('piecePlaced', handlePiecePlaced as EventListener);
+      document.removeEventListener("piecePlaced", handlePiecePlaced as EventListener);
     };
   }, [onPieceSuccessfullyPlaced]);
 
@@ -106,4 +106,4 @@ export function NextPiece({ onPieceSuccessfullyPlaced, onPiecesChange }: NextPie
       </div>
     </div>
   );
-} 
+}

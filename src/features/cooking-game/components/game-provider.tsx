@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, use, useReducer } from "react";
 
 // Типы для игры
 export interface VegetablePiece {
   id: string;
-  type: 'carrot' | 'tomato' | 'cucumber' | 'pepper' | 'mushroom' | 'potato' | 'onion' | 'garlic';
+  type: "carrot" | "tomato" | "cucumber" | "pepper" | "mushroom" | "potato" | "onion" | "garlic";
   shape: number[][];
   color: string;
 }
@@ -17,13 +17,14 @@ export interface GameState {
 }
 
 export interface GameAction {
-  type: 'PLACE_PIECE' | 'CLEAR_LINES' | 'NEW_PIECE' | 'GAME_OVER' | 'RESTART' | 'UPDATE_SCORE' | 'START_CLEAR_ANIMATION' | 'FINISH_CLEAR_ANIMATION';
+  type: "PLACE_PIECE" | "CLEAR_LINES" | "NEW_PIECE" | "GAME_OVER" | "RESTART" | "UPDATE_SCORE" | "START_CLEAR_ANIMATION" | "FINISH_CLEAR_ANIMATION";
   payload?: any;
 }
 
 // Начальное состояние
 const initialState: GameState = {
-  board: Array(8).fill(null).map(() => Array(8).fill(null)),
+  board: Array(8).fill(null)
+    .map(() => Array(8).fill(null)),
   currentPiece: null,
   score: 0,
   isGameOver: false,
@@ -33,160 +34,160 @@ const initialState: GameState = {
 // Фигуры овощей
 export const vegetableShapes: VegetablePiece[] = [
   {
-    id: 'carrot-1',
-    type: 'carrot',
+    id: "carrot-1",
+    type: "carrot",
     shape: [[1, 1], [1, 0]],
-    color: '#FF6B35'
+    color: "#FF6B35",
   },
   {
-    id: 'carrot-2',
-    type: 'carrot',
+    id: "carrot-2",
+    type: "carrot",
     shape: [[1, 1, 1], [0, 1, 0]],
-    color: '#FF6B35'
+    color: "#FF6B35",
   },
   {
-    id: 'tomato-1',
-    type: 'tomato',
+    id: "tomato-1",
+    type: "tomato",
     shape: [[1, 1, 1]],
-    color: '#FF4444'
+    color: "#FF4444",
   },
   {
-    id: 'tomato-2',
-    type: 'tomato',
+    id: "tomato-2",
+    type: "tomato",
     shape: [[1, 1], [1, 1]],
-    color: '#FF4444'
+    color: "#FF4444",
   },
   {
-    id: 'cucumber-1',
-    type: 'cucumber',
+    id: "cucumber-1",
+    type: "cucumber",
     shape: [[1], [1], [1]],
-    color: '#4CAF50'
+    color: "#4CAF50",
   },
   {
-    id: 'cucumber-2',
-    type: 'cucumber',
+    id: "cucumber-2",
+    type: "cucumber",
     shape: [[1, 1, 1, 1]],
-    color: '#4CAF50'
+    color: "#4CAF50",
   },
   {
-    id: 'pepper-1',
-    type: 'pepper',
+    id: "pepper-1",
+    type: "pepper",
     shape: [[1, 1], [0, 1]],
-    color: '#FF9800'
+    color: "#FF9800",
   },
   {
-    id: 'pepper-2',
-    type: 'pepper',
+    id: "pepper-2",
+    type: "pepper",
     shape: [[1, 0], [1, 1], [1, 0]],
-    color: '#FF9800'
+    color: "#FF9800",
   },
   {
-    id: 'mushroom-1',
-    type: 'mushroom',
+    id: "mushroom-1",
+    type: "mushroom",
     shape: [[1, 1], [1, 1]],
-    color: '#8D6E63'
+    color: "#8D6E63",
   },
   {
-    id: 'mushroom-2',
-    type: 'mushroom',
+    id: "mushroom-2",
+    type: "mushroom",
     shape: [[1, 1, 1], [0, 1, 0], [0, 1, 0]],
-    color: '#8D6E63'
+    color: "#8D6E63",
   },
   {
-    id: 'potato-1',
-    type: 'potato',
+    id: "potato-1",
+    type: "potato",
     shape: [[1, 1, 1], [0, 1, 0]],
-    color: '#795548'
+    color: "#795548",
   },
   {
-    id: 'potato-2',
-    type: 'potato',
+    id: "potato-2",
+    type: "potato",
     shape: [[1, 1], [1, 1], [1, 1]],
-    color: '#795548'
+    color: "#795548",
   },
   // 1 ячейка
   {
-    id: 'onion-1',
-    type: 'onion',
+    id: "onion-1",
+    type: "onion",
     shape: [[1]],
-    color: '#9C27B0'
+    color: "#9C27B0",
   },
   // 2 ячейки по вертикали
   {
-    id: 'garlic-1',
-    type: 'garlic',
+    id: "garlic-1",
+    type: "garlic",
     shape: [[1], [1]],
-    color: '#FFEB3B'
+    color: "#FFEB3B",
   },
   // Зигзаг cucumber
   {
-    id: 'cucumber-1',
-    type: 'cucumber',
+    id: "cucumber-1",
+    type: "cucumber",
     shape: [[1, 1, 0], [0, 1, 1]],
-    color: '#8BC34A'
+    color: "#8BC34A",
   },
   {
-    id: 'cucumber-2',
-    type: 'cucumber',
+    id: "cucumber-2",
+    type: "cucumber",
     shape: [[0, 1, 1], [1, 1, 0]],
-    color: '#8BC34A'
-  }
+    color: "#8BC34A",
+  },
 ];
 
 // Редьюсер
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
-    case 'PLACE_PIECE':
-      return {
-        ...state,
-        board: action.payload.board,
-        currentPiece: null
-      };
-    
-    case 'NEW_PIECE':
-      return {
-        ...state,
-        currentPiece: action.payload.piece
-      };
-    
-    case 'START_CLEAR_ANIMATION':
-      return {
-        ...state,
-        clearingCells: new Set(action.payload.cellIds)
-      };
-    
-    case 'FINISH_CLEAR_ANIMATION':
-      return {
-        ...state,
-        board: action.payload.board,
-        score: state.score + action.payload.points,
-        clearingCells: new Set()
-      };
-    
-    case 'CLEAR_LINES':
-      return {
-        ...state,
-        board: action.payload.board,
-        score: state.score + action.payload.points
-      };
-    
-    case 'UPDATE_SCORE':
-      return {
-        ...state,
-        score: action.payload.score
-      };
-    
-    case 'GAME_OVER':
-      return {
-        ...state,
-        isGameOver: true
-      };
-    
-    case 'RESTART':
-      return initialState;
-    
-    default:
-      return state;
+  case "PLACE_PIECE":
+    return {
+      ...state,
+      board: action.payload.board,
+      currentPiece: null,
+    };
+
+  case "NEW_PIECE":
+    return {
+      ...state,
+      currentPiece: action.payload.piece,
+    };
+
+  case "START_CLEAR_ANIMATION":
+    return {
+      ...state,
+      clearingCells: new Set(action.payload.cellIds),
+    };
+
+  case "FINISH_CLEAR_ANIMATION":
+    return {
+      ...state,
+      board: action.payload.board,
+      score: state.score + action.payload.points,
+      clearingCells: new Set(),
+    };
+
+  case "CLEAR_LINES":
+    return {
+      ...state,
+      board: action.payload.board,
+      score: state.score + action.payload.points,
+    };
+
+  case "UPDATE_SCORE":
+    return {
+      ...state,
+      score: action.payload.score,
+    };
+
+  case "GAME_OVER":
+    return {
+      ...state,
+      isGameOver: true,
+    };
+
+  case "RESTART":
+    return initialState;
+
+  default:
+    return state;
   }
 }
 
@@ -198,9 +199,9 @@ const GameContext = createContext<{
 
 // Хук для использования контекста
 export function useGameContext() {
-  const context = useContext(GameContext);
+  const context = use(GameContext);
   if (!context) {
-    throw new Error('useGameContext must be used within a GameProvider');
+    throw new Error("useGameContext must be used within a GameProvider");
   }
   return context;
 }
@@ -214,8 +215,9 @@ export function GameProvider({ children }: GameProviderProps) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
   return (
-    <GameContext.Provider value={{ state, dispatch }}>
+    <GameContext value={{ state,
+      dispatch }}>
       {children}
-    </GameContext.Provider>
+    </GameContext>
   );
-} 
+}

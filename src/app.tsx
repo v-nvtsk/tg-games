@@ -10,7 +10,7 @@ import {
   Game2048SceneWrapper,
   MoveSceneWrapper,
   DetectiveGameSceneWrapper,
-  CookingGameSceneWrapper
+  CookingGameSceneWrapper,
 } from "./ui/scenes";
 import { useAuth } from "./core/hooks";
 import { FlyingGameSceneWrapper } from "./ui/scenes/flying-game-scene-wrapper";
