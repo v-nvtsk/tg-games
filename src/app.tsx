@@ -14,8 +14,7 @@ import {
 import { useAuth } from "./core/hooks";
 import { FlyingGameSceneWrapper } from "./ui/scenes/flying-game-scene-wrapper";
 import { GameScene, type IntroSceneData } from "@core/types/common-types";
-import { MoscowMoveSceneWrapper } from "./ui/scenes/moscow-move-scene-wrapper";
-import { getIntroSlides } from "$features/slides";
+import { MoveToTrainSceneWrapper } from "./ui/scenes/move-to-train-scene-wrapper";
 import { Layout } from "./ui/layout/";
 
 export const App: React.FC = () => {
@@ -35,16 +34,8 @@ export const App: React.FC = () => {
     switch (currentScene) {
     case GameScene.Auth:
       return <AuthSceneWrapper />;
-    case GameScene.Intro: {
-
-      return (
-        <SlidesWrapper
-          createSlides={getIntroSlides}
-          onComplete={() => gameFlowManager.showMoscowMoveScene()}
-          episodeNumber={episodeNumber || 0}
-        />
-      );
-    }
+    case GameScene.Intro:
+      return <SlidesWrapper />;
     case GameScene.GameMap:
       return <GameMapSceneWrapper />;
     case GameScene.GameFood:
@@ -55,8 +46,8 @@ export const App: React.FC = () => {
       return <MoveSceneWrapper />;
     case GameScene.FlyingGame:
       return <FlyingGameSceneWrapper />;
-    case GameScene.MoscowMove:
-      return <MoscowMoveSceneWrapper />;
+    case GameScene.MoveToTrain:
+      return <MoveToTrainSceneWrapper />;
     case GameScene.DetectiveGame:
       return <DetectiveGameSceneWrapper />;
     default:

@@ -14,6 +14,7 @@ import { GameFoodPhaserScene } from "$features/game-food";
 import { Game2048PhaserScene } from "$features/game-2048";
 import { FlyingGameScene } from "@features/flying-game/flying-game-scene";
 import { getAssetsPath, getAssetsPathByType } from "$utils/get-assets-path";
+import { getIntroSlides } from "../../features/slides";
 
 class GameFlowManager {
   private game: Phaser.Game | null = null;
@@ -24,6 +25,7 @@ class GameFlowManager {
     [GameScene.Intro]: GameScene.Intro,
     [GameScene.GameMap]: GameScene.GameMap,
     [GameScene.Move]: GameScene.Move,
+    [GameScene.MoveToTrain]: GameScene.MoveToTrain,
     [GameScene.GameFood]: GameScene.GameFood,
     [GameScene.Game2048]: GameScene.Game2048,
     [GameScene.FlyingGame]: GameScene.FlyingGame,
@@ -109,8 +111,12 @@ class GameFlowManager {
     return usePlayerState.getState().hiddenScenes.includes(scene);
   }
 
-  /** ✅ Унифицированные методы запуска */
   showIntro(episodeNumber = 0) {
+    useSceneStore.getState().setSlidesConfig(
+      () => getIntroSlides(episodeNumber),
+      GameScene.Intro,
+    );
+
     this.startPhaserScene(GameScene.Intro, { episodeNumber });
   }
 
@@ -137,11 +143,11 @@ class GameFlowManager {
     this.startPhaserScene(GameScene.FlyingGame);
   }
 
-  /** ✅ Особый случай MoscowMove */
-  showMoscowMoveScene(data?: MoveSceneData) {
+  /** ✅ Особый случай MoveToTrain */
+  showMoveToTrainScene(data?: MoveSceneData) {
     if (!this.game) return;
-    if (this.isSceneHidden(GameScene.MoscowMove)) {
-      console.warn("MoscowMove is hidden, skipping.");
+    if (this.isSceneHidden(GameScene.MoveToTrain)) {
+      console.warn("MoveToTrain is hidden, skipping.");
       return;
     }
 
@@ -158,7 +164,7 @@ class GameFlowManager {
     };
 
     useSceneStore.setState({
-      currentScene: GameScene.MoscowMove,
+      currentScene: GameScene.MoveToTrain,
       sceneData: data,
       backgroundLayers: layers,
     });
@@ -166,11 +172,11 @@ class GameFlowManager {
     this.stopActiveScenes();
     this.game.scene.start(GameScene.Move, {
       ...data,
-      scenePrefix: "MoscowMove",
+      scenePrefix: "MoveToTrain",
       backgroundLayers: layers,
     });
 
-    console.log("▶️ Запущена логическая сцена MoscowMove (Phaser: Move)", data);
+    console.log("▶️ Запущена логическая сцена MoveToTrain (Phaser: Move)", data);
   }
 
   showDetectiveGame() {
@@ -179,8 +185,8 @@ class GameFlowManager {
 
   /** ✅ Унифицированный способ восстановить сохранённую сцену */
   private startScene(sceneName: GameScene): void {
-    if (sceneName === GameScene.MoscowMove) {
-      this.showMoscowMoveScene();
+    if (sceneName === GameScene.MoveToTrain) {
+      this.showMoveToTrainScene();
       return;
     }
     this.startPhaserScene(sceneName);

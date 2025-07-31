@@ -32,6 +32,9 @@ const introConfig: EpisodeConfig[] = [
       type: "thoughts",
       characterName: "Алексей",
       text: "Да ладно. Это точно дед. Только он мог прислать что-то без объяснений. И с интригой.",
+      onNext: {
+        sound: "звук открытия коробки! кадр 4 .mp3",
+      },
     }],
   },
   {
@@ -60,6 +63,7 @@ const introConfig: EpisodeConfig[] = [
       characterName: "Алексей",
       button: {
         text: "▶ Включить кассету",
+        sound: "Звук вставили касету! кадр 4.mp3",
         action: () => {
           console.log("Включить кассету");
         },
@@ -72,6 +76,7 @@ const introConfig: EpisodeConfig[] = [
     filename: "frame-25.jpg",
     originX: 0.3,
     positionX: 0.3,
+    backgroundSound: "Звук помех. 5-8 кадры.mp3",
     actions: [
       {
         type: "message",
@@ -103,6 +108,7 @@ const introConfig: EpisodeConfig[] = [
   {
     slideIndex: 9,
     filename: "frame-31.jpg",
+    backgroundSound: "Звук помех. 5-8 кадры.mp3",
     actions: [{
       type: "thoughts",
       characterName: "Алексей",
@@ -114,6 +120,7 @@ const introConfig: EpisodeConfig[] = [
     filename: "frame-25.jpg",
     originX: 0.3,
     positionX: 0.3,
+    backgroundSound: "Звук помех. 5-8 кадры.mp3",
     actions: [
       {
         type: "message",
@@ -130,6 +137,7 @@ const introConfig: EpisodeConfig[] = [
   {
     slideIndex: 11,
     filename: "frame-34.jpg",
+    backgroundSound: "Звук помех. 5-8 кадры.mp3",
     actions: [
       {
         type: "message",
@@ -181,6 +189,7 @@ const introConfig: EpisodeConfig[] = [
   {
     slideIndex: 15,
     filename: "Frame 13.jpg",
+    startSound: "Звук открытия закрытия рюкзака.mp3",
     actions: [
       {
         type: "thoughts",
@@ -206,6 +215,7 @@ const introConfig: EpisodeConfig[] = [
   {
     slideIndex: 16,
     filename: "Frame 17.jpg",
+    startSound: "Звук сообщения.mp3",
     actions: [
       {
         type: "thoughts",
@@ -296,8 +306,9 @@ const introConfig: EpisodeConfig[] = [
         characterName: "Алексей",
         button: {
           text: "► На вокзал",
+          sound: "закрытие двери.mp3",
           action: () => {
-            console.log("На вокзал");
+            gameFlowManager.showMoveToTrainScene();
           },
         },
       },
@@ -305,13 +316,15 @@ const introConfig: EpisodeConfig[] = [
   },
 ];
 
-export function getIntroSlides(): Episode[] {
+export function getIntroSlides(episode: number): Episode[] {
   const episodes: Episode[] = [];
   // Применяем конфигурации к эпизодам
   introConfig.forEach((config) => {
-    const episode = new Episode(config.slideIndex, config.filename, "intro", config.actions, config.originX, config.originY, config.positionX, config.positionY);
+    const episode = new Episode({
+      ...config,
+      scene: "intro" });
     episodes.push(episode);
   });
 
-  return episodes;
+  return episodes.slice(episode);
 }

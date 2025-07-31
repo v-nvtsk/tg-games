@@ -1,12 +1,15 @@
 import { useEffect } from "react";
 import { getAssetsPathByType } from "../../../utils";
+import { useSettingsStore } from "../../state";
 
 interface HookProps{
   filename: string,
   scene: string
 }
 
-export const useMusic = ({ filename, scene }: HookProps) => {
+export const useBackgroundMusic = ({ filename, scene }: HookProps) => {
+
+  const isSoundEnabled = useSettingsStore((s) => s.isSoundEnabled);
 
   useEffect(() => {
     const audio = new Audio(getAssetsPathByType({
@@ -15,13 +18,18 @@ export const useMusic = ({ filename, scene }: HookProps) => {
       filename }));
     audio.volume = 0.1;
     audio.loop = true;
-    void audio.play();
+    if (isSoundEnabled){
+      void audio.play();
+    } else {
+      audio.pause();
+      audio.currentTime = 0;
+    }
 
     return () => {
       audio.pause();
       audio.currentTime = 0;
     };
-  }, [filename, scene]);
+  }, [filename, isSoundEnabled, scene]);
 
 };
 

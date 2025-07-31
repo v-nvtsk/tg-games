@@ -7,7 +7,11 @@ export interface Action {
   options?: string[];
   button?: {
     text: string;
+    sound?: string;
     action: () => void;
+  },
+  onNext?: {
+    sound?: string
   }
 }
 
@@ -18,6 +22,8 @@ export interface EpisodeConfig {
   originY?: number;
   positionX?: number;
   positionY?: number;
+  backgroundSound?: string,
+  startSound?: string;
   actions?: Action[];
 }
 
@@ -31,27 +37,72 @@ export interface EpisodeConfig {
 export class Episode {
   public key: string;
   public src: string;
+  public slideIndex: number;
+  public scene: string;
+  public actions: Action[];
+  public originX: number;
+  public originY: number;
+  public positionX: number;
+  public positionY: number;
+  public backgroundSound?: string;
+  public startSound?: string;
 
-  constructor(
-    public slideIndex: number,
-    public filename: string,
-    public scene: string,
-    public actions: Action[] = [],
-    public originX = 0.5,
-    public originY = 0.5,
-    public positionX = 0.5,
-    public positionY = 0.5,
-  ) {
-    this.slideIndex = slideIndex;
-    this.key = `slide-${slideIndex.toString().padStart(2, "0")}`;
+  constructor(config: EpisodeConfig & { scene: string }) {
+    this.slideIndex = config.slideIndex;
+    this.scene = config.scene;
+    this.key = `slide-${config.slideIndex.toString().padStart(2, "0")}`;
+
     this.src = getAssetsPathByType({
       type: "images",
-      scene: "intro",
-      filename: filename,
+      scene: this.scene,
+      filename: config.filename,
     });
-    this.originX = originX;
-    this.originY = originY;
-    this.positionX = positionX;
-    this.positionY = positionY;
+
+    this.originX = config.originX ?? 0.5;
+    this.originY = config.originY ?? 0.5;
+    this.positionX = config.positionX ?? 0.5;
+    this.positionY = config.positionY ?? 0.5;
+
+    this.backgroundSound = config.backgroundSound
+  ? getAssetsPathByType({
+    type: "sounds",
+    scene: this.scene,
+    filename: config.backgroundSound,
+  })
+  : undefined;
+
+    this.startSound = config.startSound
+  ? getAssetsPathByType({
+    type: "sounds",
+    scene: this.scene,
+    filename: config.startSound,
+  })
+  : undefined;
+
+    // ✅ нормализуем actions и звуки
+    this.actions = (config.actions ?? []).map((a) => ({
+      ...a,
+      button: a.button
+        ? {
+          ...a.button,
+          sound: a.button.sound
+              ? getAssetsPathByType({
+                type: "sounds",
+                scene: this.scene,
+                filename: a.button.sound,
+              })
+              : undefined,
+        }
+        : undefined,
+      onNext: a.onNext?.sound
+        ? {
+          sound: getAssetsPathByType({
+            type: "sounds",
+            scene: this.scene,
+            filename: a.onNext.sound,
+          }),
+        }
+        : a.onNext,
+    }));
   }
 }

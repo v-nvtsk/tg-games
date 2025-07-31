@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styles from "./style.module.css";
 import { GameMenu } from "../game-menu";
 import { Settings } from "../settings";
-import { usePlayerState } from "../../../core/state";
+import { usePlayerState, useSettingsStore } from "../../../core/state";
 
 interface GameHeaderProps {
   compact?: boolean;
@@ -13,7 +13,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({ compact = false }) => {
     left: number } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const isSoundEnabled = useSettingsStore((state) => state.isSoundEnabled);
 
   const showTooltip = (e: React.MouseEvent<HTMLDivElement>, text: string) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -29,6 +29,10 @@ export const GameHeader: React.FC<GameHeaderProps> = ({ compact = false }) => {
 
   const hunger = usePlayerState((state) => state.hunger);
   const energy = usePlayerState((state) => state.energy);
+
+  const onToggleSound = () => {
+    useSettingsStore.getState().toggleSound();
+  };
 
   return (
     <>
@@ -65,8 +69,8 @@ export const GameHeader: React.FC<GameHeaderProps> = ({ compact = false }) => {
         visible={menuOpen}
         onClose={() => setMenuOpen(false)}
         onSettings={() => { setMenuOpen(false); setSettingsOpen(true); }}
-        onToggleSound={() => setSoundEnabled((prev) => !prev)}
-        soundEnabled={soundEnabled}
+        onToggleSound={onToggleSound}
+        soundEnabled={isSoundEnabled}
         onDebugAction={handleDebugAction}
       />
 

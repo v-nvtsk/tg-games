@@ -133,7 +133,7 @@ export const AuthSceneWrapper: React.FC = () => {
 
   const handleStartGame = () => {
     if (playerName && selectedGender) {
-      gameFlowManager.showIntro();
+      void gameFlowManager.showIntro(0);
     }
   };
 

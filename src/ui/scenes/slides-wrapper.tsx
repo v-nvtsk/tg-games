@@ -1,97 +1,65 @@
-import { useMemo, useState, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Episode, type Action } from "$features/slides";
-import styles from "./slides-wrapper.module.css";
+import { useEffect, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ThoughtBubble } from "../../components";
+import { useBackgroundMusic } from "../../core/hooks/use-background-music/use-music";
+import { useSceneStore } from "../../core/state";
+import type { Episode } from "../../features/slides";
 import { Button } from "../components/button";
 import { Messagebox } from "../components/messagebox";
-import { useMusic } from "../../core/hooks/useMusic/use-music";
+import { useSlidesNavigation } from "./use-slides-navigation";
 
-const SLIDE_TIMEOUT = 100;
+import styles from "./slides-wrapper.module.css";
+import { useSlideEffects } from "./use-slides-effects";
+import { useSlideSounds } from "./use-slides-sounds";
 
-interface SlidesWrapperProps {
-  createSlides: () => Episode[];
-  onComplete: () => void;
-  episodeNumber: number;
-}
+export const SlidesWrapper = () => {
+  const slidesConfig = useSceneStore((s) => s.slidesConfig);
+  const slides: Episode[] = useMemo(() => (slidesConfig ? slidesConfig() : []), [slidesConfig]);
 
-export const SlidesWrapper = ({ createSlides, onComplete, episodeNumber }: SlidesWrapperProps) => {
-  useMusic({
-    filename: "rain-on-window-29298.mp3",
-    scene: "intro",
+  // ✅ Хук звуков — передаем первый слайд (или undefined, если пусто)
+  const { playSceneSound, setCurrentSlide } = useSlideSounds();
+
+  // ✅ Хук навигации
+  const {
+    slideIndex,
+    actionIndex,
+    currentSlide,
+    currentAction,
+    currentActions,
+    canSkip,
+    setCanSkip,
+    imageLoaded,
+    setImageLoaded,
+    goNext,
+    handleActionButtonClick,
+    handleChoiceSelect,
+  } = useSlidesNavigation(slides, playSceneSound);
+
+  // ✅ обновляем currentSlide для звуков
+  useEffect(() => {
+    if (currentSlide) setCurrentSlide(currentSlide);
+  }, [currentSlide, setCurrentSlide]);
+
+  // ✅ Фон
+  useBackgroundMusic({ filename: "rain-on-window-29298.mp3",
+    scene: "intro" });
+
+  const showSkipButton = currentAction?.type !== "button" && currentAction?.type !== "choice";
+
+  // ✅ Эффекты (canSkip и т.д.)
+  useSlideEffects({
+    imageLoaded,
+    actionIndex,
+    currentActions,
+    showSkipButton,
+    setCanSkip,
   });
-  const slides = useMemo(createSlides, []);
-  const [slideIndex, setSlideIndex] = useState(episodeNumber);
-  const [actionIndex, setActionIndex] = useState(-1);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [canSkip, setCanSkip] = useState(false);
 
-  const currentSlide = slides[slideIndex];
-  const currentActions = currentSlide?.actions || [];
-  const currentAction = actionIndex >= 0 && actionIndex < currentActions.length
-    ? currentActions[actionIndex]
-    : null;
+  // ✅ Безопасный рендер
+  if (!slidesConfig || slides.length === 0) return <div />;
 
   const translateX = -currentSlide.originX * 100;
   const translateY = -currentSlide.originY * 100;
-  const showSkipButton = currentAction?.type !== "button" && currentAction?.type !== "choice";
-
-  const handleImageLoad = useCallback(() => {
-    setImageLoaded(true);
-  }, []);
-
-  const processUpdate = useCallback(() => {
-    if (currentActions.length > 0 && actionIndex < currentActions.length - 1) {
-      setActionIndex(actionIndex + 1);
-    } else {
-      if (slideIndex < slides.length - 1) {
-        setSlideIndex((prev) => prev + 1);
-        setActionIndex(-1);
-        setImageLoaded(false);
-      } else {
-        onComplete();
-      }
-    }
-  }, [actionIndex, currentActions.length, slideIndex, slides]);
-
-  const goNext = useCallback(() => {
-    if (!canSkip) return;
-    setCanSkip(false);
-
-    processUpdate();
-  }, [processUpdate, canSkip]);
-
-  const handleActionButtonClick = useCallback((action: Action) => {
-    if (action?.button?.action) {
-      action.button.action();
-    }
-    processUpdate();
-  }, [processUpdate]);
-
-  const handleChoiceSelect = useCallback((option: string) => {
-    currentActions.splice(actionIndex + 1, 0, {
-      type: "thoughts",
-      text: option,
-    });
-    processUpdate();
-  }, [processUpdate]);
-
-  useEffect(() => {
-    if (imageLoaded && actionIndex === -1) {
-      if (currentActions.length === 0) {
-        setCanSkip(true);
-      }
-    }
-  }, [imageLoaded, actionIndex]);
-
-  useEffect(() => {
-    if (showSkipButton) {
-      const timer = setTimeout(() => {
-        setCanSkip(true);
-      }, SLIDE_TIMEOUT);
-      return () => clearTimeout(timer);
-    }
-  }, [imageLoaded, actionIndex]);
 
   return (
     <div className={styles.wrapper} onPointerDown={goNext}>
@@ -114,10 +82,9 @@ export const SlidesWrapper = ({ createSlides, onComplete, episodeNumber }: Slide
               transform: `translate(${translateX}%, ${translateY}%)`,
             }}
             draggable={false}
-            onLoad={handleImageLoad}
+            onLoad={() => setImageLoaded(true)}
           />
 
-          {/* Кнопка "Далее" показывается по истечении таймаута */}
           {canSkip && showSkipButton && (
             <motion.button
               className={styles.nextBtn}
@@ -140,7 +107,6 @@ export const SlidesWrapper = ({ createSlides, onComplete, episodeNumber }: Slide
         </motion.div>
       </AnimatePresence>
 
-      {/* Отображение actions */}
       <AnimatePresence mode="wait">
         {currentAction && (
           <motion.div
@@ -150,14 +116,12 @@ export const SlidesWrapper = ({ createSlides, onComplete, episodeNumber }: Slide
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Message action */}
             {currentAction.type === "message" && currentAction.text && (
               <div className={styles.messageContainer}>
                 <Messagebox text={currentAction.text} />
               </div>
             )}
 
-            {/* Thoughts action */}
             {currentAction.type === "thoughts" && currentAction.text && (
               <ThoughtBubble
                 message={currentAction.text}
@@ -166,7 +130,6 @@ export const SlidesWrapper = ({ createSlides, onComplete, episodeNumber }: Slide
               />
             )}
 
-            {/* Speech action */}
             {currentAction.type === "speech" && currentAction.text && (
               <ThoughtBubble
                 message={currentAction.text}
@@ -175,32 +138,30 @@ export const SlidesWrapper = ({ createSlides, onComplete, episodeNumber }: Slide
               />
             )}
 
-            {/* Choice action */}
             {currentAction.type === "choice" && currentAction.options && (
-              <>
-                <div className={styles.choiceContainer}>
-                  <div className={styles.choiceMessage}>
-                    <Messagebox text={
-                      currentAction.characterName && currentAction.text
+              <div className={styles.choiceContainer}>
+                <div className={styles.choiceMessage}>
+                  <Messagebox
+                    text={
+                      currentAction.characterName
                         ? `${currentAction.characterName}: ${currentAction.text}`
                         : currentAction.text || "Выберите вариант:"
-                    } />
-                  </div>
-                  <div className={styles.choiceOptions}>
-                    {currentAction.options.map((option, index) => (
-                      <Button
-                        key={`options-${index}`}
-                        text={option}
-                        onClick={() => handleChoiceSelect(option)}
-                        className={styles.choiceButton}
-                      />
-                    ))}
-                  </div>
+                    }
+                  />
                 </div>
-              </>
+                <div className={styles.choiceOptions}>
+                  {currentAction.options.map((o: string) => (
+                    <Button
+                      key={`choice-${o}`}
+                      text={o}
+                      onClick={() => handleChoiceSelect(o)}
+                      className={styles.choiceButton}
+                    />
+                  ))}
+                </div>
+              </div>
             )}
 
-            {/* Button action */}
             {currentAction.type === "button" && currentAction.button && (
               <div className={styles.actionButtonContainer}>
                 <Button

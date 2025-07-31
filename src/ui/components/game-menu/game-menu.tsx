@@ -38,7 +38,7 @@ export const GameMenu: React.FC<GameMenuProps> = ({
       gameFlowManager.showMoveScene();
       break;
     case "train-move":
-      gameFlowManager.showMoscowMoveScene();
+      gameFlowManager.showMoveToTrainScene();
       break;
     case "detective":
       gameFlowManager.showDetectiveGame();
