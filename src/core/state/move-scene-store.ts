@@ -2,20 +2,13 @@ import { create } from "zustand";
 import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
 import type { QuizItem } from "@core/types/common-types";
 import { usePlayerState } from "./player-store"; // ✅
+import { apiClient } from "../../api";
 
 const TIMEOUT_FOR_QUESTION = 5000;
 
-/*
- * TODO: добавить функции на сервере и реализовать здесь
- * ✅ Заглушка для отправки ответа на сервер
- */
-console.error("TODO: добавить функции на сервере и реализовать здесь");
-
 async function sendAnswerToServer(questionId: string, answerId: string): Promise<void> {
-  /* TODO: заменить на реальный вызов apiClient для отправки ответа игрока */
-  console.error("Заглушка: отправка ответа на сервер", { questionId,
+  await apiClient.quiz.quizAnswerControllerCreate({ questionId,
     answerId });
-  return Promise.resolve();
 }
 
 interface MoveSceneState {

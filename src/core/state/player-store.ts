@@ -16,6 +16,10 @@ interface PlayerState {
   setPlayerGender: (gender: "boy" | "girl" | null) => void;
 
   setEnergy: (value: number) => void;
+
+  increaseEnergy: () => void;
+  decreaseEnergy: () => void;
+
   setHunger: (value: number) => void;
   setProgress: (scene: SceneName, episode: number) => void;
   hideScene: (scene: SceneName) => void;
@@ -29,7 +33,7 @@ interface PlayerState {
 export const usePlayerState = create<PlayerState>((set, get) => ({
   playerName: "",
   playerGender: null,
-  energy: 100,
+  energy: 20,
   hunger: 0,
   currentScene: null,
   currentEpisode: null,
@@ -42,6 +46,22 @@ export const usePlayerState = create<PlayerState>((set, get) => ({
     set({ energy: value });
     get().savePlayerState()
       .catch((err) => logAppError("autoSaveEnergy", err));
+  },
+
+  increaseEnergy() {
+    if (get().energy < 20) {
+      set((state) => ({ energy: state.energy + 1 }));
+      get().savePlayerState()
+        .catch((err) => logAppError("autoSaveEnergy", err));
+    }
+  },
+
+  decreaseEnergy() {
+    if (get().energy > 1) {
+      set((state) => ({ energy: state.energy - 1 }));
+      get().savePlayerState()
+        .catch((err) => logAppError("autoSaveEnergy", err));
+    }
   },
 
   setHunger: (value) => {
@@ -77,19 +97,6 @@ export const usePlayerState = create<PlayerState>((set, get) => ({
       if (!player || !progress) {
         return;
       }
-
-      /*
-      TODO:
-        Бэкенд сейчас не хранит / не возвращает текущее состояние прохождения игры
-
-        Необходимо добавить:
-
-          currentScene
-          currentEpisode
-          hiddenScenes
-      */
-
-      console.error("TODO: ", "Бэкенд сейчас не хранит / не возвращает текущее состояние прохождения игры");
 
       set({
         energy: player.energy,

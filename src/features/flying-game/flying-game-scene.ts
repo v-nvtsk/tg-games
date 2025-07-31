@@ -364,8 +364,8 @@ export class FlyingGameScene extends Scene {
     const s = sheepObj as PooledObject; s.disableBody(true, true);
     this.score += 1;
     this.scoreText.setText(`Очки: ${this.score}`);
-    const energy = usePlayerState.getState().energy;
-    usePlayerState.getState().setEnergy(energy + this.score % 2 ? 1 : 0);
+    console.log(`Очки: ${this.score}`);
+    if (this.score % 2 === 0) usePlayerState.getState().increaseEnergy();
   };
 
   /* ────────────────────────────── РЕСТАРТ ────────────────────────────── */

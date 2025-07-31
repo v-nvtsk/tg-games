@@ -206,6 +206,31 @@ export interface CreatePlayerStateDto {
 /**
  * 
  * @export
+ * @interface CreateQuizAnswerDto
+ */
+export interface CreateQuizAnswerDto {
+    /**
+     * ID вопроса
+     * @type {string}
+     * @memberof CreateQuizAnswerDto
+     */
+    'questionId': string;
+    /**
+     * ID выбранного ответа
+     * @type {string}
+     * @memberof CreateQuizAnswerDto
+     */
+    'answerId': string;
+    /**
+     * Сцена, где был вопрос
+     * @type {string}
+     * @memberof CreateQuizAnswerDto
+     */
+    'scene'?: string;
+}
+/**
+ * 
+ * @export
  * @interface GameProgressResponseDto
  */
 export interface GameProgressResponseDto {
@@ -282,6 +307,49 @@ export interface PlayerStateResponseDto {
      * @memberof PlayerStateResponseDto
      */
     'user': UserResponseDto;
+}
+/**
+ * 
+ * @export
+ * @interface QuizAnswerResponseDto
+ */
+export interface QuizAnswerResponseDto {
+    /**
+     * 
+     * @type {number}
+     * @memberof QuizAnswerResponseDto
+     */
+    'id': number;
+    /**
+     * 
+     * @type {number}
+     * @memberof QuizAnswerResponseDto
+     */
+    'userId': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof QuizAnswerResponseDto
+     */
+    'questionId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof QuizAnswerResponseDto
+     */
+    'answerId': string;
+    /**
+     * 
+     * @type {object}
+     * @memberof QuizAnswerResponseDto
+     */
+    'scene'?: object | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof QuizAnswerResponseDto
+     */
+    'createdAt': string;
 }
 /**
  * 
@@ -1520,6 +1588,252 @@ export class GameStateApi extends BaseAPI {
      */
     public gameStateControllerUpdatePlayerState(updatePlayerStateDto: UpdatePlayerStateDto, options?: RawAxiosRequestConfig) {
         return GameStateApiFp(this.configuration).gameStateControllerUpdatePlayerState(updatePlayerStateDto, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * QuizAnswersApi - axios parameter creator
+ * @export
+ */
+export const QuizAnswersApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * Принимает ID вопроса, выбранный ответ и (опционально) сцену, сохраняет их в базе.
+         * @summary Отправить ответ на вопрос викторины
+         * @param {CreateQuizAnswerDto} createQuizAnswerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizAnswerControllerCreate: async (createQuizAnswerDto: CreateQuizAnswerDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createQuizAnswerDto' is not null or undefined
+            assertParamExists('quizAnswerControllerCreate', 'createQuizAnswerDto', createQuizAnswerDto)
+            const localVarPath = `/quiz-answers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createQuizAnswerDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Доступно только администраторам. Возвращает список всех ответов на викторины для аналитики.
+         * @summary Получить все ответы игроков
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizAnswerControllerFindAll: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/quiz-answers`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Возвращает список всех ответов викторины, которые отправил авторизованный пользователь.
+         * @summary Получить ответы текущего игрока
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizAnswerControllerFindMyAnswers: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/quiz-answers/me`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * QuizAnswersApi - functional programming interface
+ * @export
+ */
+export const QuizAnswersApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = QuizAnswersApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * Принимает ID вопроса, выбранный ответ и (опционально) сцену, сохраняет их в базе.
+         * @summary Отправить ответ на вопрос викторины
+         * @param {CreateQuizAnswerDto} createQuizAnswerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async quizAnswerControllerCreate(createQuizAnswerDto: CreateQuizAnswerDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QuizAnswerResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.quizAnswerControllerCreate(createQuizAnswerDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['QuizAnswersApi.quizAnswerControllerCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Доступно только администраторам. Возвращает список всех ответов на викторины для аналитики.
+         * @summary Получить все ответы игроков
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async quizAnswerControllerFindAll(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<QuizAnswerResponseDto>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.quizAnswerControllerFindAll(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['QuizAnswersApi.quizAnswerControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * Возвращает список всех ответов викторины, которые отправил авторизованный пользователь.
+         * @summary Получить ответы текущего игрока
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async quizAnswerControllerFindMyAnswers(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<QuizAnswerResponseDto>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.quizAnswerControllerFindMyAnswers(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['QuizAnswersApi.quizAnswerControllerFindMyAnswers']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * QuizAnswersApi - factory interface
+ * @export
+ */
+export const QuizAnswersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = QuizAnswersApiFp(configuration)
+    return {
+        /**
+         * Принимает ID вопроса, выбранный ответ и (опционально) сцену, сохраняет их в базе.
+         * @summary Отправить ответ на вопрос викторины
+         * @param {CreateQuizAnswerDto} createQuizAnswerDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizAnswerControllerCreate(createQuizAnswerDto: CreateQuizAnswerDto, options?: RawAxiosRequestConfig): AxiosPromise<QuizAnswerResponseDto> {
+            return localVarFp.quizAnswerControllerCreate(createQuizAnswerDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Доступно только администраторам. Возвращает список всех ответов на викторины для аналитики.
+         * @summary Получить все ответы игроков
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizAnswerControllerFindAll(options?: RawAxiosRequestConfig): AxiosPromise<Array<QuizAnswerResponseDto>> {
+            return localVarFp.quizAnswerControllerFindAll(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * Возвращает список всех ответов викторины, которые отправил авторизованный пользователь.
+         * @summary Получить ответы текущего игрока
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        quizAnswerControllerFindMyAnswers(options?: RawAxiosRequestConfig): AxiosPromise<Array<QuizAnswerResponseDto>> {
+            return localVarFp.quizAnswerControllerFindMyAnswers(options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * QuizAnswersApi - object-oriented interface
+ * @export
+ * @class QuizAnswersApi
+ * @extends {BaseAPI}
+ */
+export class QuizAnswersApi extends BaseAPI {
+    /**
+     * Принимает ID вопроса, выбранный ответ и (опционально) сцену, сохраняет их в базе.
+     * @summary Отправить ответ на вопрос викторины
+     * @param {CreateQuizAnswerDto} createQuizAnswerDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuizAnswersApi
+     */
+    public quizAnswerControllerCreate(createQuizAnswerDto: CreateQuizAnswerDto, options?: RawAxiosRequestConfig) {
+        return QuizAnswersApiFp(this.configuration).quizAnswerControllerCreate(createQuizAnswerDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Доступно только администраторам. Возвращает список всех ответов на викторины для аналитики.
+     * @summary Получить все ответы игроков
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuizAnswersApi
+     */
+    public quizAnswerControllerFindAll(options?: RawAxiosRequestConfig) {
+        return QuizAnswersApiFp(this.configuration).quizAnswerControllerFindAll(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Возвращает список всех ответов викторины, которые отправил авторизованный пользователь.
+     * @summary Получить ответы текущего игрока
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuizAnswersApi
+     */
+    public quizAnswerControllerFindMyAnswers(options?: RawAxiosRequestConfig) {
+        return QuizAnswersApiFp(this.configuration).quizAnswerControllerFindMyAnswers(options).then((request) => request(this.axios, this.basePath));
     }
 }
 
