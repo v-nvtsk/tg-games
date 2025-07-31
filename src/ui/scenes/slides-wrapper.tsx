@@ -41,8 +41,10 @@ export const SlidesWrapper = () => {
   }, [currentSlide, setCurrentSlide]);
 
   // ✅ Фон
-  useBackgroundMusic({ filename: "rain-on-window-29298.mp3",
-    scene: "intro" });
+  useBackgroundMusic({
+    filename: "rain-on-window-29298.mp3",
+    scene: "intro"
+  });
 
   const showSkipButton = currentAction?.type !== "button" && currentAction?.type !== "choice";
 
@@ -88,12 +90,18 @@ export const SlidesWrapper = () => {
           {canSkip && showSkipButton && (
             <motion.button
               className={styles.nextBtn}
-              initial={{ scale: 0,
-                opacity: 0 }}
-              animate={{ scale: 1.2,
-                opacity: 1 }}
-              transition={{ type: "spring",
-                stiffness: 280 }}
+              initial={{
+                scale: 0,
+                opacity: 0
+              }}
+              animate={{
+                scale: 1.2,
+                opacity: 1
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 280
+              }}
               onPointerDown={(e) => {
                 e.stopPropagation();
                 goNext();
@@ -143,9 +151,11 @@ export const SlidesWrapper = () => {
                 <div className={styles.choiceMessage}>
                   <Messagebox
                     text={
-                      currentAction.characterName
+                      currentAction.characterName && currentAction.text
                         ? `${currentAction.characterName}: ${currentAction.text}`
-                        : currentAction.text || "Выберите вариант:"
+                        : currentAction.text
+                          ? currentAction.text
+                          : "Выберите вариант:"
                     }
                   />
                 </div>

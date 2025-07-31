@@ -55,11 +55,11 @@ class GameFlowManager {
       });
 
       // ✅ загружаем состояние игрока
-      try {
-        await usePlayerState.getState().loadPlayerState();
-      } catch (err) {
-        console.error("Failed to load player state on init", err);
-      }
+      // try {
+      //   await usePlayerState.getState().loadPlayerState();
+      // } catch (err) {
+      //   console.error("Failed to load player state on init", err);
+      // }
 
       const { isAuthenticated } = useAuthStore.getState();
       if (!isAuthenticated) {
