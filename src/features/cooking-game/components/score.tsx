@@ -2,10 +2,9 @@ import styles from './score.module.css';
 
 interface ScoreProps {
   score: number;
-  level: number;
 }
 
-export function Score({ score, level }: ScoreProps) {
+export function Score({ score }: ScoreProps) {
   return (
     <div className={styles.scoreContainer}>
       <div className={styles.scoreItem}>

@@ -6,6 +6,7 @@ import styles from './next-piece.module.css';
 
 interface NextPieceProps {
   onPieceSuccessfullyPlaced?: (piece: VegetablePiece) => void;
+  onPiecesChange: (pieces: VegetablePiece[]) => void;
 }
 
 // Компонент для отдельной перетаскиваемой фигуры
@@ -47,13 +48,18 @@ function DraggablePiece({ piece }: { piece: VegetablePiece }) {
   );
 }
 
-export function NextPiece({ onPieceSuccessfullyPlaced }: NextPieceProps) {
+export function NextPiece({ onPieceSuccessfullyPlaced, onPiecesChange }: NextPieceProps) {
   const [pieces, setPieces] = useState<VegetablePiece[]>([]);
 
   // Генерируем фигуры только один раз при монтировании компонента
   useEffect(() => {
     generateNewPieces();
   }, []);
+
+  // Уведомляем родительский компонент об изменении фигур
+  useEffect(() => {
+    onPiecesChange?.(pieces);
+  }, [pieces]);
 
   // Генерируем новые фигуры
   const generateNewPieces = () => {
@@ -68,30 +74,14 @@ export function NextPiece({ onPieceSuccessfullyPlaced }: NextPieceProps) {
     setPieces(newPieces);
   };
 
-  // Удаляем использованную фигуру
-  const removeUsedPiece = (usedPieceId: string) => {
-    setPieces(prevPieces => {
-      const newPieces = prevPieces.filter(p => p.id !== usedPieceId);
-      
-      // Если все фигуры использованы, генерируем новые
-      if (newPieces.length === 0) {
-        setTimeout(() => {
-          generateNewPieces();
-        }, 100);
-      }
-      
-      return newPieces;
-    });
-  };
-
   // Слушаем события успешного размещения фигур
   useEffect(() => {
     const handlePiecePlaced = (event: CustomEvent) => {
       const piece = event.detail as VegetablePiece;
-      removeUsedPiece(piece.id);
-      
-      if (onPieceSuccessfullyPlaced) {
-        onPieceSuccessfullyPlaced(piece);
+      setPieces(prevPieces => prevPieces.filter(p => p.id !== piece.id));
+      onPieceSuccessfullyPlaced?.(piece);
+      if (pieces.length === 0) {
+        generateNewPieces();
       }
     };
 

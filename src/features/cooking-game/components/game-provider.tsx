@@ -13,7 +13,6 @@ export interface GameState {
   currentPiece: VegetablePiece | null;
   score: number;
   isGameOver: boolean;
-  level: number;
 }
 
 export interface GameAction {
@@ -27,7 +26,6 @@ const initialState: GameState = {
   currentPiece: null,
   score: 0,
   isGameOver: false,
-  level: 1,
 };
 
 // Фигуры овощей
@@ -120,13 +118,13 @@ export const vegetableShapes: VegetablePiece[] = [
   },
   // Зигзаг cucumber
   {
-    id: 'zucchini-1',
+    id: 'cucumber-1',
     type: 'cucumber',
     shape: [[1, 1, 0], [0, 1, 1]],
     color: '#8BC34A'
   },
   {
-    id: 'zucchini-2',
+    id: 'cucumber-2',
     type: 'cucumber',
     shape: [[0, 1, 1], [1, 1, 0]],
     color: '#8BC34A'

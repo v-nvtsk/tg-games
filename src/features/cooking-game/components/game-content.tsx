@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { 
   DndContext, 
   DragOverlay,
@@ -10,7 +10,7 @@ import type {
   DragOverEvent, 
   DragStartEvent
 } from '@dnd-kit/core';
-import { useGameContext, vegetableShapes, type VegetablePiece } from './game-provider.tsx';
+import { useGameContext, type VegetablePiece } from './game-provider.tsx';
 import { GameBoard } from './game-board.tsx';
 import { NextPiece } from './next-piece.tsx';
 import { Score } from './score.tsx';
@@ -63,21 +63,37 @@ export function GameContent() {
     previewPosition: null,
     isValidPosition: true
   });
+  const [availablePieces, setAvailablePieces] = useState<VegetablePiece[]>([]);
+
+  // Отладочная информация о доступных фигурах
+  useEffect(() => {
+    checkGameOver();
+  }, [availablePieces]);
 
   // Проверка возможности размещения фигуры
   const canPlacePiece = useCallback((piece: VegetablePiece, position: Position): boolean => {
     const { height, width } = PieceUtils.getPieceDimensions(piece);
     
+    // Проверяем, что фигура полностью помещается в поле
+    if (position.row < 0 || position.col < 0 || 
+        position.row + height > BOARD_SIZE || 
+        position.col + width > BOARD_SIZE) {
+      return false;
+    }
+    
+    // Проверяем каждую ячейку фигуры
     for (let r = 0; r < height; r++) {
       for (let c = 0; c < width; c++) {
         if (piece.shape[r][c]) {
           const newRow = position.row + r;
           const newCol = position.col + c;
           
+          // Дополнительная проверка границ (на всякий случай)
           if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) {
             return false;
           }
           
+          // Проверяем, что ячейка не занята
           if (state.board[newRow][newCol] !== null) {
             return false;
           }
@@ -156,7 +172,11 @@ export function GameContent() {
     }
 
     dispatch({ type: 'PLACE_PIECE', payload: { board: newBoard } });
+    console.log('📍 Фигура размещена, вызываем checkLines');
+    
+    // Проверяем линии и окончание игры только после успешного размещения
     checkLines(newBoard);
+    
     return true;
   }, [state.board, canPlacePiece]);
 
@@ -184,30 +204,82 @@ export function GameContent() {
     }
 
     if (linesCleared > 0) {
-      const points = linesCleared * POINTS_PER_LINE * state.level;
+      const points = linesCleared * POINTS_PER_LINE;
       dispatch({ 
         type: 'CLEAR_LINES', 
         payload: { board: newBoard, points } 
       });
     }
-
-    checkGameOver(newBoard);
-  }, [state.level]);
+  }, [availablePieces]);
 
   // Проверка окончания игры
-  const checkGameOver = useCallback((board: (VegetablePiece | null)[][]) => {
-    for (const piece of vegetableShapes) {
+  const checkGameOver = useCallback(() => {
+    if (availablePieces.length === 0) {
+      return;
+    }
+    
+    console.log('🔍 Проверка окончания игры...');
+    
+    // Проверяем, можно ли разместить хотя бы одну фигуру из доступных
+    let canPlaceAnyPiece = false;
+    let availablePositions = 0;
+    let checkedPieces = 0;
+    
+    console.log(`🎲 Проверяем ${availablePieces.length} доступных фигур:`, availablePieces.map(p => p.id));
+    
+    // Если нет доступных фигур для проверки, игра не может продолжаться
+    if (availablePieces.length === 0) {
+      console.log('❌ Нет доступных фигур для проверки');
+      return;
+    }
+    
+    for (const piece of availablePieces) {
+      checkedPieces++;
+      let pieceCanBePlaced = false;
+      let validPositions = 0;
+      
       for (let row = 0; row < BOARD_SIZE; row++) {
         for (let col = 0; col < BOARD_SIZE; col++) {
           if (canPlacePiece(piece, { row, col })) {
-            return; // Игра может продолжаться
+            canPlaceAnyPiece = true;
+            availablePositions++;
+            validPositions++;
+            pieceCanBePlaced = true;
           }
         }
+        if (canPlaceAnyPiece) {
+          break;
+        }
+      }
+      
+      if (pieceCanBePlaced) {
+        break;
+      } else {
+        console.log(`❌ Фигура ${piece.id} НЕ может быть размещена нигде`);
       }
     }
     
-    dispatch({ type: 'GAME_OVER' });
-  }, [canPlacePiece]);
+    console.log(`🎯 Проверено фигур: ${checkedPieces}, Доступных позиций: ${availablePositions}, Можно разместить: ${canPlaceAnyPiece}`);
+    
+    // Если нельзя разместить ни одной фигуры - игра окончена
+    if (!canPlaceAnyPiece) {
+      const gameStats = {
+        availablePositions,
+        score: state.score
+      };
+      
+      console.log('🎮 Игра окончена!', gameStats);
+      
+      // Отправляем событие с детальной статистикой
+      document.dispatchEvent(new CustomEvent('gameOver', { 
+        detail: gameStats 
+      }));
+      
+      dispatch({ type: 'GAME_OVER' });
+    } else {
+      console.log('🎮 Игра продолжается - есть доступные позиции для размещения фигур');
+    }
+  }, [availablePieces, canPlacePiece, state.score]);
 
   // Обработчики событий перетаскивания
   const handleDragStart = useCallback((event: DragStartEvent) => {
@@ -291,8 +363,51 @@ export function GameContent() {
   }, [state.board, calculateOptimalPosition, findNearestValidPosition, canPlacePiece, placePiece]);
 
   const handleRestart = useCallback(() => {
+    // Сбрасываем состояние перетаскивания
+    setDragState({ piece: null, previewPosition: null, isValidPosition: true });
+    
+    // Логируем статистику перед рестартом
+    const finalStats = {
+      finalScore: state.score,
+      timestamp: new Date().toISOString()
+    };
+    
+    console.log('🔄 Перезапуск игры', finalStats);
+    
+    // Отправляем событие о рестарте
+    document.dispatchEvent(new CustomEvent('gameRestart', { 
+      detail: finalStats 
+    }));
+    
     dispatch({ type: 'RESTART' });
-  }, [dispatch]);
+  }, [dispatch, state.score]);
+
+  // Обработка событий игры
+  useEffect(() => {
+    const handleGameOver = (event: CustomEvent) => {
+      const stats = event.detail;
+      console.log('🏁 Игра завершена!', {
+        ...stats,
+        message: `Заполнено ${stats.fillPercentage}% поля (${stats.occupiedCells}/${stats.totalCells} ячеек)`
+      });
+    };
+
+    const handleGameRestart = (event: CustomEvent) => {
+      const stats = event.detail;
+      console.log('🎯 Новая игра началась!', {
+        ...stats,
+        message: `Предыдущий результат: ${stats.finalScore} очков`
+      });
+    };
+
+    document.addEventListener('gameOver', handleGameOver as EventListener);
+    document.addEventListener('gameRestart', handleGameRestart as EventListener);
+    
+    return () => {
+      document.removeEventListener('gameOver', handleGameOver as EventListener);
+      document.removeEventListener('gameRestart', handleGameRestart as EventListener);
+    };
+  }, []);
 
   return (
     <DndContext
@@ -315,11 +430,11 @@ export function GameContent() {
           
           <div className={styles.infoSection}>
             <div className={styles.nextPiecesSection}>
-              <NextPiece />
+              <NextPiece onPiecesChange={setAvailablePieces} />
             </div>
             
             <div className={styles.scoreSection}>
-              <Score score={state.score} level={state.level} />
+              <Score score={state.score} />
               <div className={styles.actionButtons}>
                 <button className={styles.actionButton} title="Магазин">
                   💰
@@ -348,4 +463,4 @@ export function GameContent() {
       </div>
     </DndContext>
   );
-} 
+}
