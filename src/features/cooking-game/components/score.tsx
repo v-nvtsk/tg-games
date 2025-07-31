@@ -1,4 +1,5 @@
 import styles from './score.module.css';
+import scoreIcon from '$/assets/images/scenes/cooking/icons/score_icon.svg';
 
 interface ScoreProps {
   score: number;
@@ -7,11 +8,10 @@ interface ScoreProps {
 export function Score({ score }: ScoreProps) {
   return (
     <div className={styles.scoreContainer}>
-      <div className={styles.scoreItem}>
-        <h3>очков</h3>
-        <div className={styles.scoreValue}>
-          <span className={styles.coinIcon}>🪙</span>
-          {score}
+      <div className={styles.scoreIconWrapper}>
+        <img src={scoreIcon} alt="score" className={styles.scoreIcon} />
+        <div className={styles.scoreOverlay}> 
+          <span className={styles.scoreText}>{score} очков</span>
         </div>
       </div>
     </div>

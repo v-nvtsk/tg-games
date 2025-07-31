@@ -16,7 +16,8 @@ import { NextPiece } from './next-piece.tsx';
 import { Score } from './score.tsx';
 import { DraggedPiece } from './dragged-piece.tsx';
 import styles from './game-content.module.css';
-
+import shopIcon from '$/assets/images/scenes/cooking/icons/shop.png';
+import bookIcon from '$/assets/images/scenes/cooking/icons/book.png';
 // Константы
 const BOARD_SIZE = 8;
 const POINTS_PER_LINE = 100;
@@ -172,7 +173,6 @@ export function GameContent() {
     }
 
     dispatch({ type: 'PLACE_PIECE', payload: { board: newBoard } });
-    console.log('📍 Фигура размещена, вызываем checkLines');
     
     // Проверяем линии и окончание игры только после успешного размещения
     checkLines(newBoard);
@@ -218,18 +218,13 @@ export function GameContent() {
       return;
     }
     
-    console.log('🔍 Проверка окончания игры...');
-    
     // Проверяем, можно ли разместить хотя бы одну фигуру из доступных
     let canPlaceAnyPiece = false;
     let availablePositions = 0;
     let checkedPieces = 0;
     
-    console.log(`🎲 Проверяем ${availablePieces.length} доступных фигур:`, availablePieces.map(p => p.id));
-    
     // Если нет доступных фигур для проверки, игра не может продолжаться
     if (availablePieces.length === 0) {
-      console.log('❌ Нет доступных фигур для проверки');
       return;
     }
     
@@ -252,33 +247,25 @@ export function GameContent() {
         }
       }
       
-      if (pieceCanBePlaced) {
-        break;
-      } else {
-        console.log(`❌ Фигура ${piece.id} НЕ может быть размещена нигде`);
+              if (pieceCanBePlaced) {
+          break;
+        }
       }
-    }
-    
-    console.log(`🎯 Проверено фигур: ${checkedPieces}, Доступных позиций: ${availablePositions}, Можно разместить: ${canPlaceAnyPiece}`);
-    
-    // Если нельзя разместить ни одной фигуры - игра окончена
-    if (!canPlaceAnyPiece) {
-      const gameStats = {
-        availablePositions,
-        score: state.score
-      };
       
-      console.log('🎮 Игра окончена!', gameStats);
-      
-      // Отправляем событие с детальной статистикой
-      document.dispatchEvent(new CustomEvent('gameOver', { 
-        detail: gameStats 
-      }));
-      
-      dispatch({ type: 'GAME_OVER' });
-    } else {
-      console.log('🎮 Игра продолжается - есть доступные позиции для размещения фигур');
-    }
+      // Если нельзя разместить ни одной фигуры - игра окончена
+      if (!canPlaceAnyPiece) {
+        const gameStats = {
+          availablePositions,
+          score: state.score
+        };
+        
+        // Отправляем событие с детальной статистикой
+        document.dispatchEvent(new CustomEvent('gameOver', { 
+          detail: gameStats 
+        }));
+        
+        dispatch({ type: 'GAME_OVER' });
+      }
   }, [availablePieces, canPlacePiece, state.score]);
 
   // Обработчики событий перетаскивания
@@ -372,8 +359,6 @@ export function GameContent() {
       timestamp: new Date().toISOString()
     };
     
-    console.log('🔄 Перезапуск игры', finalStats);
-    
     // Отправляем событие о рестарте
     document.dispatchEvent(new CustomEvent('gameRestart', { 
       detail: finalStats 
@@ -381,33 +366,6 @@ export function GameContent() {
     
     dispatch({ type: 'RESTART' });
   }, [dispatch, state.score]);
-
-  // Обработка событий игры
-  useEffect(() => {
-    const handleGameOver = (event: CustomEvent) => {
-      const stats = event.detail;
-      console.log('🏁 Игра завершена!', {
-        ...stats,
-        message: `Заполнено ${stats.fillPercentage}% поля (${stats.occupiedCells}/${stats.totalCells} ячеек)`
-      });
-    };
-
-    const handleGameRestart = (event: CustomEvent) => {
-      const stats = event.detail;
-      console.log('🎯 Новая игра началась!', {
-        ...stats,
-        message: `Предыдущий результат: ${stats.finalScore} очков`
-      });
-    };
-
-    document.addEventListener('gameOver', handleGameOver as EventListener);
-    document.addEventListener('gameRestart', handleGameRestart as EventListener);
-    
-    return () => {
-      document.removeEventListener('gameOver', handleGameOver as EventListener);
-      document.removeEventListener('gameRestart', handleGameRestart as EventListener);
-    };
-  }, []);
 
   return (
     <DndContext
@@ -427,21 +385,17 @@ export function GameContent() {
               isGameOver={state.isGameOver}
             />
           </div>
-          
-          <div className={styles.infoSection}>
-            <div className={styles.nextPiecesSection}>
+
+          <div className={styles.nextPiecesSection}>
               <NextPiece onPiecesChange={setAvailablePieces} />
             </div>
-            
+          
+          <div className={styles.infoSection}>
             <div className={styles.scoreSection}>
               <Score score={state.score} />
               <div className={styles.actionButtons}>
-                <button className={styles.actionButton} title="Магазин">
-                  💰
-                </button>
-                <button className={styles.actionButton} title="Книга">
-                  📖
-                </button>
+                <img src={shopIcon} alt="shop" />
+                <img src={bookIcon} alt="book" />
               </div>
             </div>
           </div>
