@@ -2,7 +2,8 @@ import React, { useState, useCallback } from "react";
 import styles from "./detective-game.module.css";
 import { Room } from "./room";
 import { Button } from "$ui/components/button";
-import { gameFlowManager } from "$processes/game-flow/game-flow-manager";
+import { usePlayerState, useSceneStore } from "../../core/state";
+import { gameFlowManager } from "../../processes";
 
 interface Item {
   id: string;
@@ -99,6 +100,13 @@ export const DetectiveGame: React.FC = () => {
   const foundCount = items.filter((item) => item.found).length;
   const totalItems = items.length;
 
+  const handleNext = () => {
+    const scene = useSceneStore.getState().currentScene;
+    usePlayerState.getState().setProgress(scene, BAG_EPISODE);
+    void gameFlowManager.showIntro(BAG_EPISODE);
+
+  };
+
   return (
     <div className={styles.container}>
       {/* Кнопка инвентаря */}
@@ -156,7 +164,7 @@ export const DetectiveGame: React.FC = () => {
             <div style={{ marginTop: "5%",
               display: "flex",
               justifyContent: "center" }}>
-              <Button text="Застегнуть рюкзак" onClick={() => gameFlowManager.showIntro(BAG_EPISODE)} />
+              <Button text="Застегнуть рюкзак" onClick={() => handleNext()} />
             </div>
           </>
         )}

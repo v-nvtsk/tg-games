@@ -1,4 +1,4 @@
-import { ActivityLogsApi, AuthApi, Configuration } from "./generated";
+import { ActivityLogsApi, AuthApi, Configuration, GameStateApi, QuizAnswersApi } from "./generated";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -10,20 +10,17 @@ const config = new Configuration({
   },
 });
 
-export const authApi = new AuthApi(config);
+const authApi = new AuthApi(config);
 
-export const activityLogsApi = new ActivityLogsApi(config);
+const activityLogsApi = new ActivityLogsApi(config);
 
-// export const apiClient = {
-//   auth: {
-//     login: async () => {
-//       const response = await authApi.authControllerLogin({ initData: WebApp.initData });
-//       return response;
-//     },
-//   },
-// };
+const gameStateApi = new GameStateApi(config);
+
+const quizApi = new QuizAnswersApi(config);
 
 export const apiClient = {
   auth: authApi,
   activityLogs: activityLogsApi,
+  gameState: gameStateApi,
+  quiz: quizApi,
 };

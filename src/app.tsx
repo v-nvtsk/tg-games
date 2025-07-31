@@ -2,23 +2,31 @@ import React, { useCallback, useEffect, useRef } from "react";
 import "./global.css";
 import { gameFlowManager } from "./processes/game-flow/game-flow-manager";
 import { useSceneStore } from "./core/state/scene-store";
-import { SlidesWrapper, AuthSceneWrapper, GameMapSceneWrapper, GameFoodSceneWrapper, Game2048SceneWrapper, MoveSceneWrapper, DetectiveGameSceneWrapper } from "./ui/scenes";
+import {
+  SlidesWrapper,
+  AuthSceneWrapper,
+  GameMapSceneWrapper,
+  GameFoodSceneWrapper,
+  Game2048SceneWrapper,
+  MoveSceneWrapper,
+  DetectiveGameSceneWrapper,
+} from "./ui/scenes";
 import { useAuth } from "./core/hooks";
 import { FlyingGameSceneWrapper } from "./ui/scenes/flying-game-scene-wrapper";
 import { GameScene, type IntroSceneData } from "@core/types/common-types";
-import { MoscowMoveSceneWrapper } from "./ui/scenes/moscow-move-scene-wrapper";
-import { getIntroSlides } from "$features/slides";
+import { MoveToTrainSceneWrapper } from "./ui/scenes/move-to-train-scene-wrapper";
+import { Layout } from "./ui/layout/";
 
 export const App: React.FC = () => {
   useAuth();
 
   const phaserCanvasRef = useRef<HTMLDivElement>(null);
   const currentScene = useSceneStore((state) => state.currentScene);
+  const { episodeNumber = 0 } = (useSceneStore.getState().sceneData || {}) as IntroSceneData;
 
   useEffect(() => {
     if (phaserCanvasRef.current) {
-      gameFlowManager.initializeGame(phaserCanvasRef.current.id);
-      gameFlowManager.showAuth();
+      void gameFlowManager.initializeGame(phaserCanvasRef.current.id);
     }
   }, []);
 
@@ -26,10 +34,8 @@ export const App: React.FC = () => {
     switch (currentScene) {
     case GameScene.Auth:
       return <AuthSceneWrapper />;
-    case GameScene.Intro: {
-      const sceneData = useSceneStore.getState().sceneData as IntroSceneData;
-      return <SlidesWrapper createSlides={getIntroSlides} onComplete={() => gameFlowManager.showMoscowMoveScene()} episodeNumber={sceneData.episodeNumber} />;
-    }
+    case GameScene.Intro:
+      return <SlidesWrapper />;
     case GameScene.GameMap:
       return <GameMapSceneWrapper />;
     case GameScene.GameFood:
@@ -40,18 +46,21 @@ export const App: React.FC = () => {
       return <MoveSceneWrapper />;
     case GameScene.FlyingGame:
       return <FlyingGameSceneWrapper />;
-    case GameScene.MoscowMove:
-      return <MoscowMoveSceneWrapper />;
+    case GameScene.MoveToTrain:
+      return <MoveToTrainSceneWrapper />;
     case GameScene.DetectiveGame:
       return <DetectiveGameSceneWrapper />;
     default:
       return null;
     }
-  }, [currentScene]);
+  }, [currentScene, episodeNumber]);
+
+  const scene = renderSceneWrapper();
 
   return (
     <div id="game-container" ref={phaserCanvasRef}>
-      {renderSceneWrapper()}
+      {/* ✅ Оборачиваем сцену в Layout, кроме Auth */}
+      {currentScene === GameScene.Auth ? scene : <Layout>{scene}</Layout>}
     </div>
   );
 };

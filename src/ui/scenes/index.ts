@@ -10,7 +10,7 @@ export * from "./game-map-scene-wrapper";
 
 export * from "./slides-wrapper";
 
-export * from "./moscow-move-scene-wrapper";
+export * from "./move-to-train-scene-wrapper";
 
 export * from "./move-scene-wrapper";
 

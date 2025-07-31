@@ -1,0 +1,62 @@
+:root {
+  --tg-safe-top: 70px;
+  --tg-safe-right: 80px;
+}
+
+.header {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 70px);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgb(0 0 0 / 40%);
+  border-radius: 0 0 12px 12px;
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.compact {
+  background: transparent;
+  width: auto;
+  right: auto;
+  border-radius: 8px;
+  padding: 4px 6px;
+}
+
+.menuBtn {
+  font-size: 20px;
+  background: rgb(255 255 255 / 20%);
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: white;
+  cursor: pointer;
+}
+
+.statusGroup {
+  display: flex;
+  gap: 12px;
+}
+
+.statusIcon {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.tooltip {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + var(--tg-safe-top) + 0px);
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 1100;
+}

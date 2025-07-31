@@ -16,7 +16,7 @@ export interface GameMapSceneData {
   targetY: number;
 }
 
-export interface GameFoodLevelData {
+export interface GameFoodLevelData extends Record<string, unknown> {
   levelId?: string;
   currentScore?: number;
   targetScore?: number;
@@ -46,7 +46,7 @@ export interface SceneDataMap {
   GameFood: GameFoodLevelData;
   Game2048: null;
   FlyingGameScene: FlyingGame;
-  MoscowMoveScene: MoveSceneData | null;
+  MoveToTrain: MoveSceneData | null;
   DetectiveGame: DetectiveGameData;
 }
 
@@ -62,7 +62,7 @@ export const GameScene = {
   Game2048: "Game2048",
   Move: "MoveScene",
   FlyingGame: "FlyingGameScene",
-  MoscowMove: "MoveScene",
+  MoveToTrain: "MoveToTrain",
   DetectiveGame: "DetectiveGame",
 } as const;
 

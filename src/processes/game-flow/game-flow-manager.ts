@@ -1,24 +1,42 @@
 import Phaser from "phaser";
 import { gameConfig } from "@core/game-engine/config";
-import { useSceneStore } from "@core/state";
-
+import { useAuthStore, useSceneStore } from "@core/state";
+import { usePlayerState } from "@core/state/player-store";
+import {
+  type MoveSceneData,
+  type GameFoodLevelData,
+  GameScene,
+} from "@core/types/common-types";
 import { AuthPhaserScene } from "$features/auth-phaser-scene";
-import { GameFoodPhaserScene } from "$features/game-food";
 import { GameMapPhaserScene } from "@features/game-map";
-import { Game2048PhaserScene } from "$features/game-2048";
 import { MovePhaserScene } from "@features/move-phaser-scene";
+import { GameFoodPhaserScene } from "$features/game-food";
+import { Game2048PhaserScene } from "$features/game-2048";
 import { FlyingGameScene } from "@features/flying-game/flying-game-scene";
-import { type MoveSceneData, type GameFoodLevelData, GameScene } from "@core/types/common-types";
 import { getAssetsPath, getAssetsPathByType } from "$utils/get-assets-path";
+import { getIntroSlides } from "../../features/slides";
 
 class GameFlowManager {
   private game: Phaser.Game | null = null;
 
-  initializeGame(parent: string | HTMLElement) {
+  /** ✅ Маппинг логическая → физическая Phaser-сцена */
+  private readonly sceneMapping: Record<GameScene, GameScene> = {
+    [GameScene.Auth]: GameScene.Auth,
+    [GameScene.Intro]: GameScene.Intro,
+    [GameScene.GameMap]: GameScene.GameMap,
+    [GameScene.Move]: GameScene.Move,
+    [GameScene.MoveToTrain]: GameScene.MoveToTrain,
+    [GameScene.GameFood]: GameScene.GameFood,
+    [GameScene.Game2048]: GameScene.Game2048,
+    [GameScene.FlyingGame]: GameScene.FlyingGame,
+    [GameScene.DetectiveGame]: GameScene.DetectiveGame,
+  };
+
+  async initializeGame(parent: string | HTMLElement) {
     if (!this.game) {
       this.game = new Phaser.Game({
         ...gameConfig,
-        parent: parent,
+        parent,
         scene: [
           AuthPhaserScene,
           GameMapPhaserScene,
@@ -33,132 +51,145 @@ class GameFlowManager {
       this.game.events.on(Phaser.Core.Events.READY, () => {
         console.log("Phaser Game Ready");
       });
+
+      // ✅ загружаем состояние игрока
+      try {
+        await usePlayerState.getState().loadPlayerState();
+      } catch (err) {
+        console.error("Failed to load player state on init", err);
+      }
+
+      const { isAuthenticated } = useAuthStore.getState();
+      if (!isAuthenticated) {
+        this.startScene(GameScene.Auth);
+        return ;
+      }
+      const { currentScene } = usePlayerState.getState();
+      if (currentScene) {
+        console.log(`Восстанавливаем сцену: ${currentScene}`);
+        this.startScene(currentScene as GameScene);
+      } else {
+        console.log("Нет сохранённой сцены, показываем интро");
+        this.showIntro();
+      }
     }
   }
 
-  showAuth() {
-    if (this.game) {
-      useSceneStore.setState({
-        currentScene: GameScene.Auth,
-        sceneData: null,
-      });
-      console.log("Showing Auth Scene");
+  /** ✅ Общий метод запуска Phaser сцены */
+  private startPhaserScene(scene: GameScene, data?: Record<string, unknown>): void {
+    if (!this.game) return;
+
+    const phaserKey = this.sceneMapping[scene];
+    if (!phaserKey) {
+      console.warn(`Неизвестная сцена: ${scene}, запускаем интро`);
+      return this.startPhaserScene(GameScene.Intro);
     }
+
+    if (this.isSceneHidden(scene)) {
+      console.warn(`${scene} скрыта, пропускаем`);
+      return;
+    }
+
+    const payload = (data && typeof data === "object") ? data : {};
+    this.stopActiveScenes();
+    this.game.scene.start(phaserKey, payload);
+    useSceneStore.setState({ currentScene: scene,
+      sceneData: data || null });
+
+    console.log(`▶️ Запущена логическая сцена ${scene} (Phaser: ${phaserKey})`, data);
+  }
+
+  private stopActiveScenes() {
+    Object.values(GameScene).forEach((scene) => {
+      if (this.game?.scene.isActive(scene)) {
+        this.game.scene.stop(scene);
+      }
+    });
+  }
+
+  private isSceneHidden(scene: GameScene): boolean {
+    return usePlayerState.getState().hiddenScenes.includes(scene);
   }
 
   showIntro(episodeNumber = 0) {
-    if (this.game) {
-      useSceneStore.setState({
-        currentScene: GameScene.Intro,
-        sceneData: { episodeNumber },
-      });
-      console.log("Showing Intro Scene");
-    }
+    useSceneStore.getState().setSlidesConfig(
+      () => getIntroSlides(episodeNumber),
+      GameScene.Intro,
+    );
+
+    this.startPhaserScene(GameScene.Intro, { episodeNumber });
   }
 
   startGameMap() {
-    if (this.game) {
-      this.game.scene.start(GameScene.GameMap);
-      useSceneStore.setState({
-        currentScene: GameScene.GameMap,
-        sceneData: null,
-      });
-      console.log("Starting Game Map Scene");
-    }
+    this.startPhaserScene(GameScene.GameMap);
   }
 
   showMoveScene(data?: Omit<MoveSceneData, "backgroundLayers">) {
-    if (this.game) {
-      this.game.scene.start(GameScene.Move, data);
-      useSceneStore.setState({
-        currentScene: GameScene.Move,
-        sceneData: data,
-      });
-      console.log("Showing Move Scene with data:", data);
-
-      this.game.scene.start(GameScene.Move, {
-        ...data,
-        backgroundLayers: useSceneStore.getState().backgroundLayers,
-      });
-    }
+    this.startPhaserScene(GameScene.Move, {
+      ...data,
+      backgroundLayers: useSceneStore.getState().backgroundLayers,
+    });
   }
 
   showGameFood(data?: GameFoodLevelData) {
-    if (this.game) {
-      this.game.scene.start(GameScene.GameFood, data);
-      useSceneStore.setState({
-        currentScene: GameScene.GameFood,
-        sceneData: data,
-      });
-      console.log("Starting Food Game Scene with data:", data);
-    }
+    this.startPhaserScene(GameScene.GameFood, data);
   }
 
   showGame2048() {
-    if (this.game) {
-      this.game.scene.start(GameScene.Game2048);
-      useSceneStore.setState({
-        currentScene: GameScene.Game2048,
-        sceneData: null,
-      });
-      console.log("Starting 2048 Game Scene");
-    }
+    this.startPhaserScene(GameScene.Game2048);
   }
 
-  public showFlyingGame() {
-    if (this.game) {
-      this.game.scene.stop(GameScene.Intro);
-      this.game.scene.start(GameScene.FlyingGame);
-      useSceneStore.setState({
-        currentScene: GameScene.FlyingGame,
-        sceneData: null,
-      });
+  showFlyingGame() {
+    this.startPhaserScene(GameScene.FlyingGame);
+  }
+
+  /** ✅ Особый случай MoveToTrain */
+  showMoveToTrainScene(data?: MoveSceneData) {
+    if (!this.game) return;
+    if (this.isSceneHidden(GameScene.MoveToTrain)) {
+      console.warn("MoveToTrain is hidden, skipping.");
+      return;
     }
+
+    const layers = {
+      background: null,
+      preBackground: null,
+      light: getAssetsPathByType({
+        type: "images",
+        scene: "to-train-move",
+        filename: "background.svg",
+      }),
+      front: null,
+      ground: getAssetsPath("images/platform.png"),
+    };
 
     useSceneStore.setState({
-      currentScene: GameScene.FlyingGame,
+      currentScene: GameScene.MoveToTrain,
+      sceneData: data,
+      backgroundLayers: layers,
     });
 
+    this.stopActiveScenes();
+    this.game.scene.start(GameScene.Move, {
+      ...data,
+      scenePrefix: "MoveToTrain",
+      backgroundLayers: layers,
+    });
+
+    console.log("▶️ Запущена логическая сцена MoveToTrain (Phaser: Move)", data);
   }
 
-  /**
-     * Показывает сцену перемещения (MovePhaserScene) с данными,
-     * но указывает, что текущая сцена - MoscowMove.
-     * Фон будет установлен в MoscowSceneWrapper.
-     */
-  public showMoscowMoveScene(data?: MoveSceneData) {
-    if (this.game) {
-      const layers = {
-        background: null,
-        preBackground: null,
-        light: getAssetsPathByType({ type: "images",
-          scene: "to-train-move",
-          filename: "background.svg" }),
-        front: null,
-        ground: getAssetsPath("images/platform.png"),
-      };
+  showDetectiveGame() {
+    this.startPhaserScene(GameScene.DetectiveGame);
+  }
 
-      useSceneStore.setState({
-        currentScene: GameScene.MoscowMove,
-        sceneData: data,
-        backgroundLayers: layers,
-      });
-
-      this.game.scene.start(GameScene.Move, {
-        ...data,
-        scenePrefix: "MoscowMove",
-        backgroundLayers: useSceneStore.getState().backgroundLayers,
-      });
-
-      console.log("Showing Moscow Move Scene with Moscow backgrounds");
+  /** ✅ Унифицированный способ восстановить сохранённую сцену */
+  private startScene(sceneName: GameScene): void {
+    if (sceneName === GameScene.MoveToTrain) {
+      this.showMoveToTrainScene();
+      return;
     }
-  }
-
-  public showDetectiveGame() {
-    useSceneStore.setState({
-      currentScene: GameScene.DetectiveGame,
-      sceneData: null,
-    });
+    this.startPhaserScene(sceneName);
   }
 }
 

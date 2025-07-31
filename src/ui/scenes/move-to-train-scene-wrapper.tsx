@@ -3,8 +3,9 @@ import { useMoveSceneStore } from "@core/state/move-scene-store";
 import { getAssetsPath } from "../../utils";
 import { QuizOverlay } from "../../features/game-quiz/components/quiz-overlay";
 import { type QuizItem } from "@core/types/common-types";
+import { useBackgroundMusic } from "../../core/hooks/use-background-music/use-music";
 
-export const MoscowMoveSceneWrapper = () => {
+export const MoveToTrainSceneWrapper = () => {
   const {
     questions,
     currentIndex,
@@ -16,6 +17,9 @@ export const MoscowMoveSceneWrapper = () => {
     skipIntro,
     answerQuestion,
   } = useMoveSceneStore();
+
+  useBackgroundMusic({ scene: "move-to-train",
+    filename: "Звук утреннего города.mp3" });
 
   useEffect(() => {
     fetch(getAssetsPath("data/quiz.json"))
