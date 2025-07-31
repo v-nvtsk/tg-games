@@ -16,7 +16,7 @@ export interface GameMapSceneData {
   targetY: number;
 }
 
-export interface GameFoodLevelData {
+export interface GameFoodLevelData extends Record<string, unknown> {
   levelId?: string;
   currentScore?: number;
   targetScore?: number;

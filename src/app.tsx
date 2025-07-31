@@ -23,14 +23,11 @@ export const App: React.FC = () => {
 
   const phaserCanvasRef = useRef<HTMLDivElement>(null);
   const currentScene = useSceneStore((state) => state.currentScene);
+  const { episodeNumber = 0 } = (useSceneStore.getState().sceneData || {}) as IntroSceneData;
 
   useEffect(() => {
     if (phaserCanvasRef.current) {
       void gameFlowManager.initializeGame(phaserCanvasRef.current.id);
-
-      /* TODO: Думаю этот вызов лишний - запуск этой сцены должен быть условным, если ещё не регистрировался */
-      console.error("TODO: Думаю этот вызов лишний - запуск этой сцены должен быть условным, если ещё не регистрировался");
-      gameFlowManager.showAuth();
     }
   }, []);
 
@@ -39,12 +36,12 @@ export const App: React.FC = () => {
     case GameScene.Auth:
       return <AuthSceneWrapper />;
     case GameScene.Intro: {
-      const sceneData = useSceneStore.getState().sceneData as IntroSceneData;
+
       return (
         <SlidesWrapper
           createSlides={getIntroSlides}
           onComplete={() => gameFlowManager.showMoscowMoveScene()}
-          episodeNumber={sceneData.episodeNumber}
+          episodeNumber={episodeNumber || 0}
         />
       );
     }
@@ -65,7 +62,7 @@ export const App: React.FC = () => {
     default:
       return null;
     }
-  }, [currentScene]);
+  }, [currentScene, episodeNumber]);
 
   const scene = renderSceneWrapper();
 

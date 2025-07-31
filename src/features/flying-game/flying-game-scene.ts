@@ -365,7 +365,7 @@ export class FlyingGameScene extends Scene {
     this.score += 1;
     this.scoreText.setText(`Очки: ${this.score}`);
     console.log(`Очки: ${this.score}`);
-    if (this.score % 2 === 0) usePlayerState.getState().increaseEnergy();
+    if (this.score % 10 === 0) usePlayerState.getState().increaseEnergy();
   };
 
   /* ────────────────────────────── РЕСТАРТ ────────────────────────────── */

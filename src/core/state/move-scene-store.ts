@@ -7,8 +7,14 @@ import { apiClient } from "../../api";
 const TIMEOUT_FOR_QUESTION = 5000;
 
 async function sendAnswerToServer(questionId: string, answerId: string): Promise<void> {
-  await apiClient.quiz.quizAnswerControllerCreate({ questionId,
-    answerId });
+  try {
+    await apiClient.quiz.quizAnswerControllerCreate({
+      questionId,
+      answerId,
+    });
+  } catch (error) {
+    console.error("Ошибка отправки ответа на сервер", error);
+  }
 }
 
 interface MoveSceneState {
