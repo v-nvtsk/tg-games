@@ -5,6 +5,7 @@ import styles from "./slides-wrapper.module.css";
 import { ThoughtBubble } from "../../components";
 import { Button } from "../components/button";
 import { Messagebox } from "../components/messagebox";
+import { useMusic } from "../../core/hooks/useMusic/use-music";
 
 const SLIDE_TIMEOUT = 100;
 
@@ -15,6 +16,10 @@ interface SlidesWrapperProps {
 }
 
 export const SlidesWrapper = ({ createSlides, onComplete, episodeNumber }: SlidesWrapperProps) => {
+  useMusic({
+    filename: "rain-on-window-29298.mp3",
+    scene: "intro",
+  });
   const slides = useMemo(createSlides, []);
   const [slideIndex, setSlideIndex] = useState(episodeNumber);
   const [actionIndex, setActionIndex] = useState(-1);
