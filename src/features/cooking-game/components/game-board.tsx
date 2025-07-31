@@ -9,6 +9,7 @@ interface GameBoardProps {
   isGameOver: boolean;
   previewPosition?: { row: number; col: number } | null;
   previewPiece?: VegetablePiece | null;
+  isValidPosition?: boolean;
 }
 
 // Компонент для отдельной ячейки игрового поля
@@ -17,12 +18,14 @@ function GameCell({
   rowIndex, 
   colIndex, 
   isPreview,
+  isValidPosition,
   isGameOver 
 }: {
   cell: VegetablePiece | null;
   rowIndex: number;
   colIndex: number;
   isPreview?: boolean;
+  isValidPosition?: boolean;
   previewColor?: string;
   isGameOver: boolean;
 }) {
@@ -34,10 +37,12 @@ function GameCell({
   const getCellClassName = () => {
     const baseClass = styles.cell;
     const filledClass = cell ? styles.filled : '';
-    const dragOverClass = isOver ? styles.dragOver : '';
+    const dragOverClass = isOver && !cell ? styles.dragOver : ''; // Не показываем dragOver для заполненных ячеек
     const previewClass = isPreview ? styles.preview : '';
+    const validPreviewClass = isPreview && isValidPosition ? styles.validPreview : '';
+    const invalidPreviewClass = isPreview && !isValidPosition ? styles.invalidPreview : '';
     
-    return [baseClass, filledClass, dragOverClass, previewClass]
+    return [baseClass, filledClass, dragOverClass, previewClass, validPreviewClass, invalidPreviewClass]
       .filter(Boolean)
       .join(' ');
   };
@@ -53,11 +58,19 @@ function GameCell({
     }
     
     if (isPreview) {
-      return {
-        backgroundColor: 'rgba(255, 107, 53, 0.25)', // 40 = 25% прозрачности
-        border: '2px dashed #FF6B35',
-        opacity: 0.7
-      };
+      if (isValidPosition) {
+        return {
+          backgroundColor: 'rgba(76, 175, 80, 0.3)', // Зеленый для валидной позиции
+          border: '2px dashed #4CAF50',
+          opacity: 0.8
+        };
+      } else {
+        return {
+          backgroundColor: 'rgba(244, 67, 54, 0.3)', // Красный для невалидной позиции
+          border: '2px dashed #F44336',
+          opacity: 0.6
+        };
+      }
     }
     
     return {
@@ -81,7 +94,8 @@ export function GameBoard({
   board, 
   isGameOver, 
   previewPosition,
-  previewPiece
+  previewPiece,
+  isValidPosition = true
 }: GameBoardProps) {
   // Функция для определения, является ли ячейка частью предварительного просмотра
   const isPreviewCell = (rowIndex: number, colIndex: number): boolean => {
@@ -115,6 +129,7 @@ export function GameBoard({
                   rowIndex={rowIndex}
                   colIndex={colIndex}
                   isPreview={isPreview}
+                  isValidPosition={isValidPosition}
                   previewColor={previewPiece?.color}
                   isGameOver={isGameOver}
                 />

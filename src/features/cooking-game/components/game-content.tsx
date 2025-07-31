@@ -1,10 +1,9 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { 
   DndContext, 
   DragOverlay,
-  closestCenter,
-  pointerWithin
+  closestCenter
 } from '@dnd-kit/core';
 import type { 
   DragEndEvent, 
@@ -21,87 +20,59 @@ import styles from './game-content.module.css';
 // Константы
 const BOARD_SIZE = 8;
 const POINTS_PER_LINE = 100;
-const MAGNETIC_THRESHOLD = 0.3; // Порог для магнитного притяжения (30% от размера ячейки)
+
+// Типы
+interface Position {
+  row: number;
+  col: number;
+}
+
+interface DragState {
+  piece: VegetablePiece | null;
+  previewPosition: Position | null;
+  isValidPosition: boolean;
+}
+
+// Утилиты для работы с фигурами
+const PieceUtils = {
+  // Определяет, является ли фигура угловой
+  isCornerPiece: (shape: number[][]): boolean => {
+    const hasHoles = shape.some(row => row.includes(0));
+    const isSmall = shape.length <= 2 && shape[0].length <= 2;
+    return hasHoles && isSmall;
+  },
+
+  // Получает размеры фигуры
+  getPieceDimensions: (piece: VegetablePiece) => ({
+    height: piece.shape.length,
+    width: piece.shape[0].length
+  }),
+
+  // Получает размер ячейки в зависимости от размера экрана
+  getCellSize: (): number => {
+    if (window.innerWidth <= 480) return 25;
+    if (window.innerWidth <= 768) return 28;
+    return 35;
+  }
+};
 
 export function GameContent() {
   const { state, dispatch } = useGameContext();
-  const [draggedPiece, setDraggedPiece] = useState<VegetablePiece | null>(null);
-  const [previewPosition, setPreviewPosition] = useState<{ row: number; col: number } | null>(null);
-  const [dragOffset, setDragOffset] = useState<{ x: number; y: number } | null>(null);
-  const [isValidPreviewPosition, setIsValidPreviewPosition] = useState<boolean>(true);
-
-  // Улучшенная функция для получения оптимальной позиции размещения
-  const getOptimalPosition = (piece: VegetablePiece, targetRow: number, targetCol: number, mouseOffset?: { x: number; y: number }) => {
-    const pieceHeight = piece.shape.length;
-    const pieceWidth = piece.shape[0].length;
-    
-    let optimalRow = targetRow;
-    let optimalCol = targetCol;
-    
-    // Если есть смещение мыши, учитываем его для более точного позиционирования
-    if (mouseOffset) {
-      const cellSize = window.innerWidth <= 480 ? 25 : window.innerWidth <= 768 ? 28 : 35;
-      const offsetRow = Math.round(mouseOffset.y / cellSize);
-      const offsetCol = Math.round(mouseOffset.x / cellSize);
-      
-      optimalRow = targetRow + offsetRow;
-      optimalCol = targetCol + offsetCol;
-    }
-    
-    // Центрируем фигуру относительно оптимальной позиции
-    const centerRow = optimalRow - Math.floor(pieceHeight / 2);
-    const centerCol = optimalCol - Math.floor(pieceWidth / 2);
-    
-    // Ограничиваем позицию границами поля
-    const clampedRow = Math.max(0, Math.min(BOARD_SIZE - pieceHeight, centerRow));
-    const clampedCol = Math.max(0, Math.min(BOARD_SIZE - pieceWidth, centerCol));
-    
-    return { row: clampedRow, col: clampedCol };
-  };
-
-  // Функция магнитного притяжения к валидным позициям
-  const findNearestValidPosition = (piece: VegetablePiece, targetRow: number, targetCol: number) => {
-    const pieceHeight = piece.shape.length;
-    const pieceWidth = piece.shape[0].length;
-    
-    // Проверяем текущую позицию
-    if (canPlacePiece(piece, targetRow, targetCol)) {
-      return { row: targetRow, col: targetCol };
-    }
-    
-    // Ищем ближайшую валидную позицию в радиусе 2 ячеек
-    const searchRadius = 2;
-    let bestPosition: { row: number; col: number } | null = null;
-    let bestDistance = Infinity;
-    
-    for (let r = Math.max(0, targetRow - searchRadius); r <= Math.min(BOARD_SIZE - pieceHeight, targetRow + searchRadius); r++) {
-      for (let c = Math.max(0, targetCol - searchRadius); c <= Math.min(BOARD_SIZE - pieceWidth, targetCol + searchRadius); c++) {
-        // Дополнительная проверка границ
-        if (r < 0 || r + pieceHeight > BOARD_SIZE || c < 0 || c + pieceWidth > BOARD_SIZE) {
-          continue;
-        }
-        
-        if (canPlacePiece(piece, r, c)) {
-          const distance = Math.sqrt((r - targetRow) ** 2 + (c - targetCol) ** 2);
-          if (distance < bestDistance) {
-            bestDistance = distance;
-            bestPosition = { row: r, col: c };
-          }
-        }
-      }
-    }
-    
-    // Если не найдена валидная позиция, возвращаем исходную позицию
-    return bestPosition || { row: targetRow, col: targetCol };
-  };
+  const [dragState, setDragState] = useState<DragState>({
+    piece: null,
+    previewPosition: null,
+    isValidPosition: true
+  });
 
   // Проверка возможности размещения фигуры
-  const canPlacePiece = (piece: VegetablePiece, row: number, col: number): boolean => {
-    for (let r = 0; r < piece.shape.length; r++) {
-      for (let c = 0; c < piece.shape[r].length; c++) {
+  const canPlacePiece = useCallback((piece: VegetablePiece, position: Position): boolean => {
+    const { height, width } = PieceUtils.getPieceDimensions(piece);
+    
+    for (let r = 0; r < height; r++) {
+      for (let c = 0; c < width; c++) {
         if (piece.shape[r][c]) {
-          const newRow = row + r;
-          const newCol = col + c;
+          const newRow = position.row + r;
+          const newCol = position.col + c;
           
           if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE) {
             return false;
@@ -114,21 +85,72 @@ export function GameContent() {
       }
     }
     return true;
-  };
+  }, [state.board]);
+
+  // Вычисление оптимальной позиции для размещения
+  const calculateOptimalPosition = useCallback((piece: VegetablePiece, targetPosition: Position): Position => {
+    const { height, width } = PieceUtils.getPieceDimensions(piece);
+    
+    let finalRow = targetPosition.row;
+    let finalCol = targetPosition.col;
+    
+    // Для угловых фигур размещаем точно по точке клика, для остальных - центрируем
+    if (!PieceUtils.isCornerPiece(piece.shape)) {
+      finalRow = targetPosition.row - Math.floor(height / 2);
+      finalCol = targetPosition.col - Math.floor(width / 2);
+    }
+    
+    // Ограничиваем позицию границами поля
+    const clampedRow = Math.max(0, Math.min(BOARD_SIZE - height, finalRow));
+    const clampedCol = Math.max(0, Math.min(BOARD_SIZE - width, finalCol));
+    
+    return { row: clampedRow, col: clampedCol };
+  }, []);
+
+  // Поиск ближайшей валидной позиции
+  const findNearestValidPosition = useCallback((piece: VegetablePiece, targetPosition: Position): Position => {
+    if (canPlacePiece(piece, targetPosition)) {
+      return targetPosition;
+    }
+    
+    const { height, width } = PieceUtils.getPieceDimensions(piece);
+    const searchRadius = PieceUtils.isCornerPiece(piece.shape) ? 3 : 2;
+    
+    let bestPosition: Position | null = null;
+    let bestDistance = Infinity;
+    
+    for (let r = Math.max(0, targetPosition.row - searchRadius); 
+         r <= Math.min(BOARD_SIZE - height, targetPosition.row + searchRadius); r++) {
+      for (let c = Math.max(0, targetPosition.col - searchRadius); 
+           c <= Math.min(BOARD_SIZE - width, targetPosition.col + searchRadius); c++) {
+        
+        const position = { row: r, col: c };
+        if (canPlacePiece(piece, position)) {
+          const distance = Math.sqrt((r - targetPosition.row) ** 2 + (c - targetPosition.col) ** 2);
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            bestPosition = position;
+          }
+        }
+      }
+    }
+    
+    return bestPosition || targetPosition;
+  }, [canPlacePiece]);
 
   // Размещение фигуры на поле
-  const placePiece = (piece: VegetablePiece, row: number, col: number): boolean => {
-    // Проверяем возможность размещения в указанной позиции
-    if (!canPlacePiece(piece, row, col)) {
+  const placePiece = useCallback((piece: VegetablePiece, position: Position): boolean => {
+    if (!canPlacePiece(piece, position)) {
       return false;
     }
 
     const newBoard = state.board.map(row => [...row]);
+    const { height, width } = PieceUtils.getPieceDimensions(piece);
     
-    for (let r = 0; r < piece.shape.length; r++) {
-      for (let c = 0; c < piece.shape[r].length; c++) {
+    for (let r = 0; r < height; r++) {
+      for (let c = 0; c < width; c++) {
         if (piece.shape[r][c]) {
-          newBoard[row + r][col + c] = piece;
+          newBoard[position.row + r][position.col + c] = piece;
         }
       }
     }
@@ -136,10 +158,10 @@ export function GameContent() {
     dispatch({ type: 'PLACE_PIECE', payload: { board: newBoard } });
     checkLines(newBoard);
     return true;
-  };
+  }, [state.board, canPlacePiece]);
 
   // Проверка и очистка заполненных линий
-  const checkLines = (board: (VegetablePiece | null)[][]) => {
+  const checkLines = useCallback((board: (VegetablePiece | null)[][]) => {
     let linesCleared = 0;
     let newBoard = board.map(row => [...row]);
 
@@ -170,14 +192,14 @@ export function GameContent() {
     }
 
     checkGameOver(newBoard);
-  };
+  }, [state.level]);
 
   // Проверка окончания игры
-  const checkGameOver = (board: (VegetablePiece | null)[][]) => {
+  const checkGameOver = useCallback((board: (VegetablePiece | null)[][]) => {
     for (const piece of vegetableShapes) {
       for (let row = 0; row < BOARD_SIZE; row++) {
         for (let col = 0; col < BOARD_SIZE; col++) {
-          if (canPlacePiece(piece, row, col)) {
+          if (canPlacePiece(piece, { row, col })) {
             return; // Игра может продолжаться
           }
         }
@@ -185,36 +207,17 @@ export function GameContent() {
     }
     
     dispatch({ type: 'GAME_OVER' });
-  };
+  }, [canPlacePiece]);
 
-  // Обработка drop фигуры на поле
-  const handlePieceDrop = (piece: VegetablePiece, row: number, col: number): boolean => {
-    if (state.isGameOver) {
-      return false;
-    }
-
-    const success = placePiece(piece, row, col);
-    
-    if (success) {
-      // Отправляем событие для удаления фигуры из NextPiece
-      document.dispatchEvent(new CustomEvent('piecePlaced', { detail: piece }));
-    }
-    
-    return success;
-  };
-
-  // Обработка начала перетаскивания
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    const pieceData = active.data.current as VegetablePiece;
-    
+  // Обработчики событий перетаскивания
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const pieceData = event.active.data.current as VegetablePiece;
     if (pieceData) {
-      setDraggedPiece(pieceData);
+      setDragState(prev => ({ ...prev, piece: pieceData }));
     }
-  };
+  }, []);
 
-  // Обработка перетаскивания над полем
-  const handleDragOver = (event: DragOverEvent) => {
+  const handleDragOver = useCallback((event: DragOverEvent) => {
     const { active, over } = event;
     
     if (!over || !active) return;
@@ -223,37 +226,34 @@ export function GameContent() {
     if (!pieceData) return;
     
     const overId = over.id as string;
-    if (overId.startsWith('cell-')) {
-      const [, rowStr, colStr] = overId.split('-');
-      const row = parseInt(rowStr);
-      const col = parseInt(colStr);
-      
-      if (!isNaN(row) && !isNaN(col)) {
-        // Проверяем, что ячейка не занята
-        if (state.board[row][col] !== null) {
-          return;
-        }
-        
-        // Получаем оптимальную позицию для предварительного просмотра
-        const optimalPosition = getOptimalPosition(pieceData, row, col, dragOffset || undefined);
-        
-        // Находим ближайшую валидную позицию для предварительного просмотра
-        const validPosition = findNearestValidPosition(pieceData, optimalPosition.row, optimalPosition.col);
-        setPreviewPosition(validPosition);
-        
-        // Проверяем валидность позиции
-        const isValid = canPlacePiece(pieceData, validPosition.row, validPosition.col);
-        setIsValidPreviewPosition(isValid);
-      }
-    }
-  };
+    if (!overId.startsWith('cell-')) return;
+    
+    const [, rowStr, colStr] = overId.split('-');
+    const row = parseInt(rowStr);
+    const col = parseInt(colStr);
+    
+    if (isNaN(row) || isNaN(col)) return;
+    
+    // Проверяем, что ячейка не занята
+    if (state.board[row][col] !== null) return;
+    
+    const targetPosition = { row, col };
+    const optimalPosition = calculateOptimalPosition(pieceData, targetPosition);
+    const validPosition = findNearestValidPosition(pieceData, optimalPosition);
+    const isValid = canPlacePiece(pieceData, validPosition);
+    
+    setDragState(prev => ({
+      ...prev,
+      previewPosition: validPosition,
+      isValidPosition: isValid
+    }));
+  }, [state.board, calculateOptimalPosition, findNearestValidPosition, canPlacePiece]);
 
-  // Обработка окончания перетаскивания
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     
     if (!over || !active) {
-      resetDragState();
+      setDragState({ piece: null, previewPosition: null, isValidPosition: true });
       return;
     }
     
@@ -261,44 +261,38 @@ export function GameContent() {
     if (!pieceData) return;
     
     const overId = over.id as string;
-    if (overId.startsWith('cell-')) {
-      const [, rowStr, colStr] = overId.split('-');
-      const row = parseInt(rowStr);
-      const col = parseInt(colStr);
+    if (!overId.startsWith('cell-')) return;
+    
+    const [, rowStr, colStr] = overId.split('-');
+    const row = parseInt(rowStr);
+    const col = parseInt(colStr);
+    
+    if (isNaN(row) || isNaN(col)) return;
+    
+    // Проверяем, что ячейка не занята
+    if (state.board[row][col] !== null) {
+      setDragState({ piece: null, previewPosition: null, isValidPosition: true });
+      return;
+    }
+    
+    const targetPosition = { row, col };
+    const optimalPosition = calculateOptimalPosition(pieceData, targetPosition);
+    const validPosition = findNearestValidPosition(pieceData, optimalPosition);
+    
+    if (canPlacePiece(pieceData, validPosition)) {
+      const success = placePiece(pieceData, validPosition);
       
-      if (!isNaN(row) && !isNaN(col)) {
-        // Проверяем, что ячейка не занята
-        if (state.board[row][col] !== null) {
-          resetDragState();
-          return;
-        }
-        
-        // Используем ту же логику, что и в handleDragOver для консистентности
-        const optimalPosition = getOptimalPosition(pieceData, row, col, dragOffset || undefined);
-        const validPosition = findNearestValidPosition(pieceData, optimalPosition.row, optimalPosition.col);
-        
-        // Проверяем, что позиция действительно валидна перед размещением
-        if (canPlacePiece(pieceData, validPosition.row, validPosition.col)) {
-          handlePieceDrop(pieceData, validPosition.row, validPosition.col);
-        }
+      if (success) {
+        document.dispatchEvent(new CustomEvent('piecePlaced', { detail: pieceData }));
       }
     }
     
-    resetDragState();
-  };
+    setDragState({ piece: null, previewPosition: null, isValidPosition: true });
+  }, [state.board, calculateOptimalPosition, findNearestValidPosition, canPlacePiece, placePiece]);
 
-  // Сброс состояния перетаскивания
-  const resetDragState = () => {
-    setDraggedPiece(null);
-    setPreviewPosition(null);
-    setDragOffset(null);
-    setIsValidPreviewPosition(true);
-  };
-
-  // Перезапуск игры
-  const handleRestart = () => {
+  const handleRestart = useCallback(() => {
     dispatch({ type: 'RESTART' });
-  };
+  }, [dispatch]);
 
   return (
     <DndContext
@@ -308,16 +302,13 @@ export function GameContent() {
       onDragEnd={handleDragEnd}
     >
       <div className={styles.gameContainer}>
-        
-        
         <div className={styles.gameArea}>
           <div className={styles.gameBoardSection}>
             <GameBoard 
               board={state.board} 
-              onPieceDrop={handlePieceDrop}
-              previewPosition={previewPosition}
-              previewPiece={draggedPiece}
-              isValidPosition={isValidPreviewPosition}
+              previewPosition={dragState.previewPosition}
+              previewPiece={dragState.piece}
+              isValidPosition={dragState.isValidPosition}
               isGameOver={state.isGameOver}
             />
           </div>
@@ -342,10 +333,8 @@ export function GameContent() {
         </div>
 
         <DragOverlay>
-          {draggedPiece && (
-            <DraggedPiece 
-              piece={draggedPiece}
-            />
+          {dragState.piece && (
+            <DraggedPiece piece={dragState.piece} />
           )}
         </DragOverlay>
         

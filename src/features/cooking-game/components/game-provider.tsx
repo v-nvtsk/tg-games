@@ -3,7 +3,7 @@ import React, { createContext, useContext, useReducer } from 'react';
 // Типы для игры
 export interface VegetablePiece {
   id: string;
-  type: 'carrot' | 'tomato' | 'cucumber' | 'pepper' | 'mushroom' | 'potato';
+  type: 'carrot' | 'tomato' | 'cucumber' | 'pepper' | 'mushroom' | 'potato' | 'onion' | 'garlic';
   shape: number[][];
   color: string;
 }
@@ -103,6 +103,33 @@ export const vegetableShapes: VegetablePiece[] = [
     type: 'potato',
     shape: [[1, 1], [1, 1], [1, 1]],
     color: '#795548'
+  },
+  // 1 ячейка
+  {
+    id: 'onion-1',
+    type: 'onion',
+    shape: [[1]],
+    color: '#9C27B0'
+  },
+  // 2 ячейки по вертикали
+  {
+    id: 'garlic-1',
+    type: 'garlic',
+    shape: [[1], [1]],
+    color: '#FFEB3B'
+  },
+  // Зигзаг cucumber
+  {
+    id: 'zucchini-1',
+    type: 'cucumber',
+    shape: [[1, 1, 0], [0, 1, 1]],
+    color: '#8BC34A'
+  },
+  {
+    id: 'zucchini-2',
+    type: 'cucumber',
+    shape: [[0, 1, 1], [1, 1, 0]],
+    color: '#8BC34A'
   }
 ];
 

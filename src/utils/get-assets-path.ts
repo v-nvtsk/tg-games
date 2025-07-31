@@ -26,7 +26,9 @@ export const getVegetableImagePath = (type: string): string => {
     cucumber: '/src/assets/images/scenes/cooking/ingredients/cucumber.png',
     pepper: '/src/assets/images/scenes/cooking/ingredients/pepper.png',
     mushroom: '/src/assets/images/scenes/cooking/ingredients/mushroom.png',
-    potato: '/src/assets/images/scenes/cooking/ingredients/potato.png'
+    potato: '/src/assets/images/scenes/cooking/ingredients/potato.png',
+    onion: '/src/assets/images/scenes/cooking/ingredients/onion.png',
+    garlic: '/src/assets/images/scenes/cooking/ingredients/garlic.png',
   };
   
   return imageMap[type] || imageMap.carrot; // fallback на морковь
