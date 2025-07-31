@@ -184,11 +184,15 @@ export function GameContent() {
   const checkLines = useCallback((board: (VegetablePiece | null)[][]) => {
     let linesCleared = 0;
     let newBoard = board.map(row => [...row]);
+    let cellsToClear: string[] = [];
 
     // Проверка строк
     for (let row = 0; row < BOARD_SIZE; row++) {
       if (newBoard[row].every(cell => cell !== null)) {
-        newBoard[row] = Array(BOARD_SIZE).fill(null);
+        // Добавляем все ячейки строки для анимации
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          cellsToClear.push(`${row}-${col}-row`);
+        }
         linesCleared++;
       }
     }
@@ -196,8 +200,9 @@ export function GameContent() {
     // Проверка столбцов
     for (let col = 0; col < BOARD_SIZE; col++) {
       if (newBoard.every(row => row[col] !== null)) {
+        // Добавляем все ячейки столбца для анимации
         for (let row = 0; row < BOARD_SIZE; row++) {
-          newBoard[row][col] = null;
+          cellsToClear.push(`${row}-${col}-column`);
         }
         linesCleared++;
       }
@@ -205,12 +210,38 @@ export function GameContent() {
 
     if (linesCleared > 0) {
       const points = linesCleared * POINTS_PER_LINE;
+      
+      // Запускаем анимацию
       dispatch({ 
-        type: 'CLEAR_LINES', 
-        payload: { board: newBoard, points } 
+        type: 'START_CLEAR_ANIMATION', 
+        payload: { cellIds: cellsToClear } 
       });
+
+      // Ждем окончания анимации и очищаем ячейки
+      setTimeout(() => {
+        // Очищаем строки
+        for (let row = 0; row < BOARD_SIZE; row++) {
+          if (newBoard[row].every(cell => cell !== null)) {
+            newBoard[row] = Array(BOARD_SIZE).fill(null);
+          }
+        }
+
+        // Очищаем столбцы
+        for (let col = 0; col < BOARD_SIZE; col++) {
+          if (newBoard.every(row => row[col] !== null)) {
+            for (let row = 0; row < BOARD_SIZE; row++) {
+              newBoard[row][col] = null;
+            }
+          }
+        }
+
+        dispatch({ 
+          type: 'FINISH_CLEAR_ANIMATION', 
+          payload: { board: newBoard, points } 
+        });
+      }, 800); // Время анимации
     }
-  }, [availablePieces]);
+  }, []);
 
   // Проверка окончания игры
   const checkGameOver = useCallback(() => {

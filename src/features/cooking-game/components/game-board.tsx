@@ -1,5 +1,5 @@
 import { useDroppable } from '@dnd-kit/core';
-import { type VegetablePiece } from './game-provider';
+import { useGameContext, type VegetablePiece } from './game-provider';
 import { getVegetableImagePath } from '$/utils/get-assets-path';
 import styles from './game-board.module.css';
 
@@ -29,6 +29,7 @@ function GameCell({
   previewColor?: string;
   isGameOver: boolean;
 }) {
+  const { state } = useGameContext();
   const { setNodeRef, isOver } = useDroppable({
     id: `cell-${rowIndex}-${colIndex}`,
     disabled: isGameOver || cell !== null,
@@ -37,12 +38,27 @@ function GameCell({
   const getCellClassName = () => {
     const baseClass = styles.cell;
     const filledClass = cell ? styles.filled : '';
-    const dragOverClass = isOver && !cell ? styles.dragOver : ''; // Не показываем dragOver для заполненных ячеек
+    const dragOverClass = isOver && !cell ? styles.dragOver : '';
     const previewClass = isPreview ? styles.preview : '';
     const validPreviewClass = isPreview && isValidPosition ? styles.validPreview : '';
     const invalidPreviewClass = isPreview && !isValidPosition ? styles.invalidPreview : '';
     
-    return [baseClass, filledClass, dragOverClass, previewClass, validPreviewClass, invalidPreviewClass]
+    // Проверяем, находится ли ячейка в процессе анимации очистки
+    const isClearingRow = state.clearingCells.has(`${rowIndex}-${colIndex}-row`);
+    const isClearingColumn = state.clearingCells.has(`${rowIndex}-${colIndex}-column`);
+    const clearingRowClass = isClearingRow ? styles.clearingRow : '';
+    const clearingColumnClass = isClearingColumn ? styles.clearingColumn : '';
+    
+    return [
+      baseClass, 
+      filledClass, 
+      dragOverClass, 
+      previewClass, 
+      validPreviewClass, 
+      invalidPreviewClass,
+      clearingRowClass,
+      clearingColumnClass
+    ]
       .filter(Boolean)
       .join(' ');
   };
@@ -60,13 +76,13 @@ function GameCell({
     if (isPreview) {
       if (isValidPosition) {
         return {
-          backgroundColor: 'rgba(76, 175, 80, 0.3)', // Зеленый для валидной позиции
+          backgroundColor: 'rgba(76, 175, 80, 0.3)',
           border: '2px dashed #4CAF50',
           opacity: 0.8
         };
       } else {
         return {
-          backgroundColor: 'rgba(244, 67, 54, 0.3)', // Красный для невалидной позиции
+          backgroundColor: 'rgba(244, 67, 54, 0.3)',
           border: '2px dashed #F44336',
           opacity: 0.6
         };

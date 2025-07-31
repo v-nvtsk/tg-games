@@ -13,10 +13,11 @@ export interface GameState {
   currentPiece: VegetablePiece | null;
   score: number;
   isGameOver: boolean;
+  clearingCells: Set<string>; // Для отслеживания ячеек в процессе анимации
 }
 
 export interface GameAction {
-  type: 'PLACE_PIECE' | 'CLEAR_LINES' | 'NEW_PIECE' | 'GAME_OVER' | 'RESTART' | 'UPDATE_SCORE';
+  type: 'PLACE_PIECE' | 'CLEAR_LINES' | 'NEW_PIECE' | 'GAME_OVER' | 'RESTART' | 'UPDATE_SCORE' | 'START_CLEAR_ANIMATION' | 'FINISH_CLEAR_ANIMATION';
   payload?: any;
 }
 
@@ -26,6 +27,7 @@ const initialState: GameState = {
   currentPiece: null,
   score: 0,
   isGameOver: false,
+  clearingCells: new Set(),
 };
 
 // Фигуры овощей
@@ -145,6 +147,20 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         currentPiece: action.payload.piece
+      };
+    
+    case 'START_CLEAR_ANIMATION':
+      return {
+        ...state,
+        clearingCells: new Set(action.payload.cellIds)
+      };
+    
+    case 'FINISH_CLEAR_ANIMATION':
+      return {
+        ...state,
+        board: action.payload.board,
+        score: state.score + action.payload.points,
+        clearingCells: new Set()
       };
     
     case 'CLEAR_LINES':
