@@ -13,7 +13,7 @@ interface Item {
   found: boolean;
 }
 
-const BAG_EPISODE = 13;
+const BAG_EPISODE = 14;
 
 const ITEMS: Item[] = [
   {
@@ -39,7 +39,7 @@ const ITEMS: Item[] = [
   },
   {
     id: "bottle",
-    name: "Бутылка \"Хочу в ***\"",
+    name: "Бутылка \"Хочу в ...\"",
     description: "Когда-то хотел в Казань. Потом — не знаю куда. Может, просто на диван.",
     emoji: "🧃",
     found: false,

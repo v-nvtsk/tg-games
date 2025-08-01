@@ -27,12 +27,6 @@
   }
 }
 
-/* Эффекты для активного состояния */
-
-.button:active {
-  transform: translateX(-50%) scale(0.95);
-}
-
 /* Адаптация для мобильных устройств */
 @media screen and (width <=768px) {
 

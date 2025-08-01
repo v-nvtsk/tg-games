@@ -254,10 +254,7 @@ export class MovePhaserScene extends Scene {
 
     let currentVelocityX = 0;
     if (this.cursors) {
-      if (this.moveLeft || this.cursors.left.isDown) {
-        currentVelocityX = -PLAYER_SPEED;
-        this.player.setFlipX(true);
-      } else if (this.moveRight || this.cursors.right.isDown) {
+      if (this.moveLeft || this.moveRight) {
         currentVelocityX = PLAYER_SPEED;
         this.player.setFlipX(false);
       }

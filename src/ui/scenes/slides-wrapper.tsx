@@ -14,7 +14,13 @@ import { useSlideSounds } from "./use-slides-sounds";
 
 export const SlidesWrapper = () => {
   const slidesConfig = useSceneStore((s) => s.slidesConfig);
-  const slides: Episode[] = useMemo(() => (slidesConfig ? slidesConfig() : []), [slidesConfig]);
+  
+  // ✅ Получаем слайды из конфигурации
+  const slides: Episode[] = useMemo(() => {
+    if (!slidesConfig) return [];
+    const { episodeNumber = 0 } = (useSceneStore.getState().sceneData || {}) as any;
+    return slidesConfig.getSlides(episodeNumber);
+  }, [slidesConfig]);
 
   // ✅ Хук звуков — передаем первый слайд (или undefined, если пусто)
   const { playSceneSound, setCurrentSlide } = useSlideSounds();
@@ -40,19 +46,22 @@ export const SlidesWrapper = () => {
     if (currentSlide) setCurrentSlide(currentSlide);
   }, [currentSlide, setCurrentSlide]);
 
-  // ✅ Фон
-  useBackgroundMusic({ filename: "rain-on-window-29298.mp3",
-    scene: "intro" });
+  // ✅ Фоновая музыка из конфигурации
+  useBackgroundMusic({
+    filename: slidesConfig?.sceneConfig.backgroundMusic || "rain-on-window-29298.mp3",
+    scene: slidesConfig?.sceneConfig.scene || "intro"
+  });
 
   const showSkipButton = currentAction?.type !== "button" && currentAction?.type !== "choice";
 
-  // ✅ Эффекты (canSkip и т.д.)
+  // ✅ Эффекты (canSkip и т.д.) с настройками из конфигурации
   useSlideEffects({
     imageLoaded,
     actionIndex,
     currentActions,
     showSkipButton,
     setCanSkip,
+    config: slidesConfig?.sceneConfig.effects,
   });
 
   // ✅ Безопасный рендер
@@ -88,12 +97,18 @@ export const SlidesWrapper = () => {
           {canSkip && showSkipButton && (
             <motion.button
               className={styles.nextBtn}
-              initial={{ scale: 0,
-                opacity: 0 }}
-              animate={{ scale: 1.2,
-                opacity: 1 }}
-              transition={{ type: "spring",
-                stiffness: 280 }}
+              initial={{
+                scale: 0,
+                opacity: 0
+              }}
+              animate={{
+                scale: 1.2,
+                opacity: 1
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 280
+              }}
               onPointerDown={(e) => {
                 e.stopPropagation();
                 goNext();
@@ -143,9 +158,11 @@ export const SlidesWrapper = () => {
                 <div className={styles.choiceMessage}>
                   <Messagebox
                     text={
-                      currentAction.characterName
+                      currentAction.characterName && currentAction.text
                         ? `${currentAction.characterName}: ${currentAction.text}`
-                        : currentAction.text || "Выберите вариант:"
+                        : currentAction.text
+                          ? currentAction.text
+                          : "Выберите вариант:"
                     }
                   />
                 </div>

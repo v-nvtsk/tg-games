@@ -1,22 +1,20 @@
 import { create } from "zustand";
-import { type SceneName, type SceneDataMap, type SceneBackground, type GameScene } from "@core/types/common-types";
+import { type SceneName, type SceneDataMap, type SceneBackground, type GameScene, type SlidesConfig } from "@core/types/common-types";
 import { useAuthStore } from "./auth-store";
 import { logAppError } from "@utils/log-app-error";
 import { logActivity } from "$/api/log-activity";
-import type { Episode } from "$features/slides";
 
 interface SceneState {
   currentScene: SceneName;
   sceneData: SceneDataMap[SceneName];
   backgroundLayers: SceneBackground | null;
 
-  slidesConfig?: () => Episode[];
-  slidesScene?: GameScene;
+  slidesConfig?: SlidesConfig;
 
   /** === Методы === */
   setScene: <T extends SceneName>(scene: T, data: SceneDataMap[T]) => Promise<void>;
   setBackgroundLayers: (layers: SceneBackground) => void;
-  setSlidesConfig: (config?: () => Episode[], scene?: GameScene) => void;
+  setSlidesConfig: (config?: SlidesConfig) => void;
 }
 
 export const useSceneStore = create<SceneState>((set, get) => ({
@@ -24,7 +22,6 @@ export const useSceneStore = create<SceneState>((set, get) => ({
   sceneData: null,
   backgroundLayers: null,
   slidesConfig: undefined,
-  slidesScene: undefined,
 
   setScene: async (scene, data) => {
     const prevScene = get().currentScene;
@@ -55,8 +52,5 @@ export const useSceneStore = create<SceneState>((set, get) => ({
 
   setBackgroundLayers: (layers) => set({ backgroundLayers: layers }),
 
-  setSlidesConfig: (config, scene) => set({
-    slidesConfig: config,
-    slidesScene: scene,
-  }),
+  setSlidesConfig: (config) => set({ slidesConfig: config }),
 }));

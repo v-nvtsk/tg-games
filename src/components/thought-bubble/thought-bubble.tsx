@@ -96,7 +96,7 @@ export const ThoughtBubble: React.FC<ThoughtBubbleProps> = ({
           <div className={styles.content}>
             <p className={clsx(styles.messageText, {
               [styles.thoughtText]: bubbleType === "thought",
-            })}>«{message}»</p>
+            })}>{bubbleType === "thought" ? `«${message}»` : message}</p>
           </div>
 
           {characterName && (
