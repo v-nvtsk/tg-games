@@ -10,7 +10,7 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     arcade: {
       gravity: { x: 0,
         y: 0 },
-      debug: false,
+      debug: true,
     },
   },
   scale: {

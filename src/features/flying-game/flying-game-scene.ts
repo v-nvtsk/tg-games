@@ -160,6 +160,10 @@ export class FlyingGameScene extends Scene {
     /* коллизии / триггеры */
     this.physics.add.collider(this.player, this.rocks, this.hitObstacle, undefined, this);
     this.physics.add.overlap(this.player, this.sheeps, this.collectSheep, undefined, this);
+
+    this.events.on("shutdown", () => window.removeEventListener("flying-game-restart", this.restart));
+    window.addEventListener("flying-game-restart", this.restart);
+
   }
 
   /* ──────────────────────────────── UPDATE ──────────────────────────────── */
@@ -309,23 +313,37 @@ export class FlyingGameScene extends Scene {
     const placed: Phaser.Math.Vector2[] = [];
 
     const placeRock = (): void => {
-      let x: number, y: number, safe: boolean; let tries = 0;
+      let x: number, y: number, safe: boolean;
+      let tries = 0;
+
       do {
         x = Phaser.Math.Between(rangeStart + HORIZONTAL_BUFFER, rangeEnd - HORIZONTAL_BUFFER);
         y = spawnY - Phaser.Math.Between(0, 300);
         safe = placed.every((r) => Phaser.Math.Distance.Between(x, y, r.x, r.y) > OBSTACLE_HEIGHT);
         tries++;
       } while (!safe && tries < 5);
+
       if (!safe) return;
 
-      const rock = this.getPooledRock(); if (!rock) return;
-      rock.x = x; rock.y = y;
-      // rock.displayWidth = rock.displayHeight = OBSTACLE_HEIGHT;
-      rock.setDisplaySize(OBSTACLE_HEIGHT, OBSTACLE_HEIGHT);
+      const rock = this.getPooledRock();
+      if (!rock) return;
 
-      const kOpacity = 0.8;
-      const unscaled = OBSTACLE_HEIGHT / rock.scaleX * kOpacity;
+      rock.x = x;
+      rock.y = y;
+
+      /* ✅ добавляем коэффициент увеличения */
+      const kScale = Phaser.Math.FloatBetween(0.7, 1.5);
+
+      /* ✅ масштабируем картинку (видимый размер) */
+      rock.setDisplaySize(OBSTACLE_HEIGHT * kScale, OBSTACLE_HEIGHT * kScale);
+
+      /* ✅ пересчёт hitbox через scaleX как в старом коде */
+      const kOpacity = 0.5;
+      const unscaled = (OBSTACLE_HEIGHT * kScale) / rock.scaleX * kOpacity;
+
+      /* ✅ задаём физическое тело с корректной коррекцией */
       rock.body.setSize(unscaled, unscaled, true);
+
       rock.body.setVelocityY(OBJECT_SPEED);
       placed.push(new Phaser.Math.Vector2(rock.x, rock.y));
     };
@@ -353,17 +371,14 @@ export class FlyingGameScene extends Scene {
 
   /* ────────────────────────────── КОЛЛИЗИИ ────────────────────────────── */
   private hitObstacle = (): void => {
-    this.gameOver = true; this.physics.pause(); this.player.setTint(0xff0000);
-    this.add.text(this.cameras.main.worldView.centerX, this.cameras.main.worldView.centerY,
-      `Игра окончена!\nОчки: ${this.score}\nSPACE или Tap для рестарта`,
-      { fontSize: "24px",
-        color: "#ff0000",
-        align: "center" })
-      .setOrigin(0.5)
-      .setScrollFactor(0);
-    this.input.once("pointerdown", this.restart);
-    this.input.keyboard?.once("keydown-SPACE", this.restart);
+    this.gameOver = true;
+    this.physics.pause();
+    this.player.setTint(0xff0000);
+
+    // ✅ уведомляем React о завершении игры
+    window.dispatchEvent(new CustomEvent("flying-game-over", { detail: { score: this.score } }));
   };
+
   private collectSheep = (_: PhysicsCallbackObject, sheepObj: PhysicsCallbackObject): void => {
     if (!(sheepObj instanceof Phaser.GameObjects.Sprite)) return;
     const s = sheepObj as PooledObject; s.disableBody(true, true);
