@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { gameConfig } from "@core/game-engine/config";
-import { useAuthStore, useSceneStore } from "@core/state";
+import { useAuthStore, useMoveSceneStore, useSceneStore } from "@core/state";
 import { usePlayerState } from "@core/state/player-store";
 import {
   type MoveSceneData,
@@ -172,6 +172,10 @@ class GameFlowManager {
       currentScene: GameScene.MoveToTrain,
       sceneData: data,
       backgroundLayers: layers,
+    });
+
+    useMoveSceneStore.setState({
+      backgroundMusic: "Andrey Bakt - Rainy Hanoi.mp3",
     });
 
     this.stopActiveScenes();

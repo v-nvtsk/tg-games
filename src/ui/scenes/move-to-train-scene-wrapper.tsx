@@ -21,6 +21,9 @@ export const MoveToTrainSceneWrapper = () => {
   useBackgroundMusic({ scene: "move-to-train",
     filename: "Звук утреннего города.mp3" });
 
+  useBackgroundMusic({ scene: "move-to-train",
+    filename: "Andrey Bakt - Rainy Hanoi.mp3" });
+
   useEffect(() => {
     fetch(getAssetsPath("data/move-to-train.json"))
       .then((res) => res.json())
