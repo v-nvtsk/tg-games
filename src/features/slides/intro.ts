@@ -376,14 +376,6 @@ const introConfig: EpisodeConfig[] = [
   },
 ];
 
-const railwayStationSlides: EpisodeConfig[] = [
-  {
-    slideIndex: 1,
-    filename: "Frame 25.jpg",
-  },
-  
-];
-
 export function getIntroSlides(episode: number): Episode[] {
   const episodes: Episode[] = [];
   // Применяем конфигурации к эпизодам

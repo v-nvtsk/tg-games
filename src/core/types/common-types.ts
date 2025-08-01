@@ -53,6 +53,7 @@ export interface SceneDataMap {
   FlyingGameScene: FlyingGame;
   MoveToTrain: MoveSceneData | null;
   DetectiveGame: DetectiveGameData;
+  RailwayStation: IntroSceneData;
   CookingGame: CookingGameData;
 }
 
@@ -70,6 +71,7 @@ export const GameScene = {
   FlyingGame: "FlyingGameScene",
   MoveToTrain: "MoveToTrain",
   DetectiveGame: "DetectiveGame",
+  RailwayStation: "RailwayStation",
   CookingGame: "CookingGame",
 } as const;
 
@@ -107,4 +109,19 @@ export interface SceneBackground {
   light: string | null;
   front: string | null;
   ground: string;
+}
+
+// ✅ Новые типы для универсальной конфигурации слайдов
+export interface SlidesSceneConfig {
+  scene: string;
+  backgroundMusic?: string;
+  effects?: {
+    canSkipDelay?: number;
+    imageLoadDelay?: number;
+  };
+}
+
+export interface SlidesConfig {
+  getSlides: (episode: number) => any[]; // Episode[] - будет импортирован в конкретных файлах
+  sceneConfig: SlidesSceneConfig;
 }

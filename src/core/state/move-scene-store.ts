@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
-import type { QuizItem } from "@core/types/common-types";
+import { GameScene, type QuizItem } from "@core/types/common-types";
 import { usePlayerState } from "./player-store"; // ✅
 import { apiClient } from "../../api";
+import { useSceneStore } from "./scene-store";
 
-const TIMEOUT_FOR_QUESTION = 5000;
+const TIMEOUT_FOR_QUESTION = 10 * 1000;
 
 async function sendAnswerToServer(questionId: string, answerId: string): Promise<void> {
   try {
@@ -150,10 +151,10 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
     }
 
     const currentQuestion = questions[index];
-    
+
     // Если у вопроса нет текста для intro, сразу переходим к вопросу
     const initialStage = (!currentQuestion.text || currentQuestion.text.length === 0) ? "question" : "intro";
-    
+
     set({
       currentIndex: index,
       isQuizVisible: true,
@@ -196,8 +197,10 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
     });
 
     setTimeout(() => {
-      set({ isQuizVisible: false,
-        stage: "hidden" });
+      set({
+        isQuizVisible: false,
+        stage: "hidden"
+      });
       if (currentIndex < questions.length - 1) {
         set((state) => ({ currentIndex: state.currentIndex + 1 }));
         setTimeout(() => get().startQuizCycle(), 1000);
@@ -208,8 +211,10 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
   },
 
   completeQuiz: () => {
-    set({ isQuizVisible: false,
-      stage: "hidden" });
+    set({
+      isQuizVisible: false,
+      stage: "hidden"
+    });
 
     try {
       usePlayerState.getState().hideScene("MoveScene");
@@ -217,12 +222,19 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
       console.error("Failed to save progress for MoveScene", err);
     }
 
-    gameFlowManager.startGameMap();
+    const currentScene = useSceneStore.getState().currentScene;
+    if (currentScene === GameScene.MoveToTrain) {
+      gameFlowManager.showRailwayStation();
+    } else {
+      gameFlowManager.startGameMap();
+    }
   },
 
   hideQuiz: () => {
     get().pauseTimer();
-    set({ isQuizVisible: false,
-      stage: "hidden" });
+    set({
+      isQuizVisible: false,
+      stage: "hidden"
+    });
   },
 }));
