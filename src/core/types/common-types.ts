@@ -13,9 +13,9 @@ export interface MoveSceneData {
 export interface GameMapSceneData {
   currentMapId?: string;
   unlockedRegions?: string[];
-  selectedCity: string;
-  targetX: number;
-  targetY: number;
+  selectedCity?: string;
+  targetX?: number;
+  targetY?: number;
 }
 
 export interface GameFoodLevelData extends Record<string, unknown> {
