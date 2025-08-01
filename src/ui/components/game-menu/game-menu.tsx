@@ -28,8 +28,8 @@ export const GameMenu: React.FC<GameMenuProps> = ({
     case "game-map":
       gameFlowManager.startGameMap();
       break;
-    case "game-food":
-      gameFlowManager.showGameFood();
+    case "cooking":
+      gameFlowManager.showGameCooking();
       break;
     case "game-2048":
       gameFlowManager.showGame2048();
@@ -65,6 +65,7 @@ export const GameMenu: React.FC<GameMenuProps> = ({
 
         <div className={styles.subHeader}>Debug</div>
         <div className={styles.item} onClick={() => onSceneSelection("flight")}>🛩️ Игра полёт</div>
+        <div className={styles.item} onClick={() => onSceneSelection("cooking")}>🍳 Игра готовка</div>
         <div className={styles.item} onClick={() => onSceneSelection("train-move")}>🚉 Сцена переход к вокзалу</div>
         <div className={styles.item} onClick={() => onSceneSelection("move")}>🌲 Сцена переход в лесу</div>
         <div className={styles.item} onClick={() => onSceneSelection("detective")}>🕵️ Детектив</div>

@@ -1,0 +1,20 @@
+.stack {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.stack.left {
+  align-items: flex-start;
+}
+
+.stack.right {
+  align-items: flex-end;
+}
+
+
+.stack.horizontal {
+  flex-direction: row;
+  align-items: center;
+}

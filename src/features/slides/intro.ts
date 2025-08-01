@@ -14,31 +14,44 @@ const introConfig: EpisodeConfig[] = [
     }],
   },
   {
-    slideIndex: 2,
+    slideIndex: 1,
     filename: "frame-28.jpg",
     originX: 0,
     positionX: 0,
   },
   {
-    slideIndex: 3,
+    slideIndex: 1,
     filename: "frame-27.jpg",
     originX: 0.7,
     positionX: 0.7,
   },
   {
-    slideIndex: 4,
+    slideIndex: 1,
+    filename: "frame-31.jpg",
+  },
+  {
+    slideIndex: 1,
     filename: "frame-29.jpg",
     actions: [{
       type: "thoughts",
       characterName: "Алексей",
       text: "Да ладно. Это точно дед. Только он мог прислать что-то без объяснений. И с интригой.",
-      onNext: {
+    },
+    {
+      type: "button",
+      characterName: "Алексей",
+      button: {
+        text: "Открыть коробку",
         sound: "звук открытия коробки! кадр 4 .mp3",
+        action: () => {
+          console.log("Открыть коробку");
+        },
       },
-    }],
+    },
+    ],
   },
   {
-    slideIndex: 5,
+    slideIndex: 2,
     filename: "frame-25.jpg",
     actions: [{
       type: "thoughts",
@@ -47,11 +60,11 @@ const introConfig: EpisodeConfig[] = [
     }],
   },
   {
-    slideIndex: 6,
+    slideIndex: 3,
     filename: "frame-31.jpg",
   },
   {
-    slideIndex: 7,
+    slideIndex: 3,
     filename: "frame-30.jpg",
     actions: [{
       type: "thoughts",
@@ -72,7 +85,7 @@ const introConfig: EpisodeConfig[] = [
     ],
   },
   {
-    slideIndex: 8,
+    slideIndex: 4,
     filename: "frame-25.jpg",
     originX: 0.3,
     positionX: 0.3,
@@ -96,7 +109,7 @@ const introConfig: EpisodeConfig[] = [
       {
         type: "message",
         characterName: "Кассета",
-        text: "Внутри моя карта. Старая. Выглядит как новая, хотя ждешь, что будет похоже, её пожевала собака, а потом она лежала сто лет под диваном. На ней Города, в них есть  Солнечная. Запомни её. Она важная. Серьёзно, даже слишком важная.",
+        text: "Внутри моя карта. Старая. Выглядит как новая, хотя ждешь, что будет похоже, что её пожевала собака, а потом она лежала сто лет под диваном. На ней Города, в них есть  Солнечная. Запомни её. Она важная. Серьёзно, даже слишком важная.",
       },
       {
         type: "message",
@@ -106,7 +119,7 @@ const introConfig: EpisodeConfig[] = [
     ],
   },
   {
-    slideIndex: 9,
+    slideIndex: 5,
     filename: "frame-31.jpg",
     backgroundSound: "Звук помех. 5-8 кадры.mp3",
     actions: [{
@@ -116,7 +129,7 @@ const introConfig: EpisodeConfig[] = [
     }],
   },
   {
-    slideIndex: 10,
+    slideIndex: 6,
     filename: "frame-25.jpg",
     originX: 0.3,
     positionX: 0.3,
@@ -135,7 +148,7 @@ const introConfig: EpisodeConfig[] = [
     ],
   },
   {
-    slideIndex: 11,
+    slideIndex: 7,
     filename: "frame-34.jpg",
     backgroundSound: "Звук помех. 5-8 кадры.mp3",
     actions: [
@@ -157,7 +170,7 @@ const introConfig: EpisodeConfig[] = [
     ],
   },
   {
-    slideIndex: 12,
+    slideIndex: 8,
     filename: "frame-35.jpg",
     actions: [
       {
@@ -179,15 +192,15 @@ const introConfig: EpisodeConfig[] = [
   },
   // collect items
   {
-    slideIndex: 13,
+    slideIndex: 9,
     filename: "Frame 12.jpg",
   },
   {
-    slideIndex: 14,
-    filename: "Frame 122.jpg",
+    slideIndex: 9,
+    filename: "Frame 22.jpg",
   },
   {
-    slideIndex: 15,
+    slideIndex: 9,
     filename: "Frame 13.jpg",
     startSound: "Звук открытия закрытия рюкзака.mp3",
     actions: [
@@ -198,22 +211,20 @@ const introConfig: EpisodeConfig[] = [
       {
         type: "button",
         button: {
-          text: "▶ К выходу",
-          action: () => {
-            console.log("К выходу");
-          },
+          text: "▶ В коридор",
+          action: () => {void 0;},
         },
       },
     ],
   },
   // exit to train
   {
-    slideIndex: 16,
+    slideIndex: 10,
     filename: "Frame 16.jpg",
 
   },
   {
-    slideIndex: 16,
+    slideIndex: 10,
     filename: "Frame 17.jpg",
     startSound: "Звук сообщения.mp3",
     actions: [
@@ -235,26 +246,26 @@ const introConfig: EpisodeConfig[] = [
     ],
   },
   {
-    slideIndex: 17,
+    slideIndex: 10,
     filename: "Frame 18.jpg",
 
   },
   {
-    slideIndex: 18,
+    slideIndex: 10,
     filename: "Frame 19.jpg",
 
   },
   {
-    slideIndex: 19,
+    slideIndex: 10,
     filename: "Frame 20.jpg",
 
   },
   {
-    slideIndex: 20,
+    slideIndex: 10,
     filename: "Frame 17.jpg",
   },
   {
-    slideIndex: 21,
+    slideIndex: 10,
     filename: "Frame 21.jpg",
     actions: [
       {
@@ -262,43 +273,90 @@ const introConfig: EpisodeConfig[] = [
         characterName: "Алексей",
         text: "У неё стиль — всё сказать шуткой...",
       },
+      // Добавить мысли на каждый вариант ответа
       {
         type: "choice",
         characterName: "Алексей",
         options: [
           "Ты тоже. Только сову не пугай.",
           "Уставший гном благодарит за поддержку.",
-          "[Стикер 🐻 + ❤️]",
+          "[🐻 + ❤️]",
         ],
       },
     ],
   },
   {
-    slideIndex: 22,
+    slideIndex: 11,
     filename: "Frame 23.jpg",
   },
   {
-    slideIndex: 23,
+    slideIndex: 11,
     filename: "Frame 24.jpg",
     actions: [
       {
         type: "speech",
         characterName: "Мама",
-        text: "Всё. Поехал. Варежки не взял, спорим?...",
+        text: "Всё. Поехал.",
+      },
+      {
+        type: "speech",
+        characterName: "Мама",
+        text: "Только не потеряй этот рюкзак. Он тебя пережил уже дважды.",
+      },
+      {
+        type: "speech",
+        characterName: "Мама",
+        text: "Варежки не взял, спорим?",
+      },
+      {
+        type: "speech",
+        characterName: "Мама",
+        text: "...",
+      },
+      {
+        type: "speech",
+        characterName: "Мама",
+        text: "Ладно. Он у нас умный. Сам справится.",
+      },
+      {
+        type: "speech",
+        characterName: "Мама",
+        text: "Пусть только ест. И не молчит долго.",
+      },
+      {
+        type: "speech",
+        characterName: "Мама",
+        text: "(на выдохе)",
+      },
+      {
+        type: "speech",
+        characterName: "Мама",
+        text: "А остальное — пусть будет как надо. Ну, как он там считает нужным.",
+      },
+      {
+        type: "speech",
+        characterName: "Мама",
+        text: "А если вдруг захочется домой — просто напиши. Не оправдывайся.",
+      },
+      {
+        type: "speech",
+        characterName: "Мама",
+        text: "И вообще… просто доезжай. Всё остальное — потом.",
       },
       {
         type: "thoughts",
-        characterName: "Алексей",
-        text: "Она не обнимает на прощание. Просто даёт инструкции.",
+        characterName: "Мама",
+        text: "Она не обнимает на прощание. Просто даёт инструкции. Надёжнее не придумаешь.",
       },
+      // Добавить реакции на каждый вариант ответа
       {
         type: "choice",
         characterName: "Алексей",
         options: [
-          "Хм. Ну конечно...",
-          "Варежки... Да...",
+          "Хм. Ну конечно, она уже всё знает. Мама — это ходячий Wi-Fi для мыслей: подключается без пароля.",
+          "Варежки... Да, вот они в рюкзаке. Положил. Но не признаюсь.",
           "[Молча кивает]",
-          "Варежки... ага...",
+          "Варежки… ага, вот они. Сунул в рюкзак. Но не скажу — пусть думает, что я бунтарь без перчаток.",
         ],
       },
       {
@@ -322,7 +380,8 @@ export function getIntroSlides(episode: number): Episode[] {
   introConfig.forEach((config) => {
     const episode = new Episode({
       ...config,
-      scene: "intro" });
+      scene: "intro",
+    });
     episodes.push(episode);
   });
 

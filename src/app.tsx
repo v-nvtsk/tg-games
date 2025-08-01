@@ -3,17 +3,19 @@ import "./global.css";
 import { gameFlowManager } from "./processes/game-flow/game-flow-manager";
 import { useSceneStore } from "./core/state/scene-store";
 import {
-  SlidesWrapper,
+  IntroSceneWrapper,
   AuthSceneWrapper,
   GameMapSceneWrapper,
   GameFoodSceneWrapper,
   Game2048SceneWrapper,
   MoveSceneWrapper,
   DetectiveGameSceneWrapper,
+  RailwayStationSceneWrapper,
+  CookingGameSceneWrapper,
 } from "./ui/scenes";
 import { useAuth } from "./core/hooks";
 import { FlyingGameSceneWrapper } from "./ui/scenes/flying-game-scene-wrapper";
-import { GameScene, type IntroSceneData } from "@core/types/common-types";
+import { GameScene } from "@core/types/common-types";
 import { MoveToTrainSceneWrapper } from "./ui/scenes/move-to-train-scene-wrapper";
 import { Layout } from "./ui/layout/";
 
@@ -22,7 +24,6 @@ export const App: React.FC = () => {
 
   const phaserCanvasRef = useRef<HTMLDivElement>(null);
   const currentScene = useSceneStore((state) => state.currentScene);
-  const { episodeNumber = 0 } = (useSceneStore.getState().sceneData || {}) as IntroSceneData;
 
   useEffect(() => {
     if (phaserCanvasRef.current) {
@@ -35,7 +36,7 @@ export const App: React.FC = () => {
     case GameScene.Auth:
       return <AuthSceneWrapper />;
     case GameScene.Intro:
-      return <SlidesWrapper />;
+      return <IntroSceneWrapper />;
     case GameScene.GameMap:
       return <GameMapSceneWrapper />;
     case GameScene.GameFood:
@@ -50,10 +51,14 @@ export const App: React.FC = () => {
       return <MoveToTrainSceneWrapper />;
     case GameScene.DetectiveGame:
       return <DetectiveGameSceneWrapper />;
+    case GameScene.RailwayStation:
+      return <RailwayStationSceneWrapper />;
+    case GameScene.CookingGame:
+      return <CookingGameSceneWrapper />;
     default:
       return null;
     }
-  }, [currentScene, episodeNumber]);
+  }, [currentScene]);
 
   const scene = renderSceneWrapper();
 

@@ -4,7 +4,7 @@ import { useAuthStore, useSceneStore } from "@core/state";
 import { usePlayerState } from "@core/state/player-store";
 import {
   type MoveSceneData,
-  type GameFoodLevelData,
+  type CookingGameData,
   GameScene,
 } from "@core/types/common-types";
 import { AuthPhaserScene } from "$features/auth-phaser-scene";
@@ -14,13 +14,13 @@ import { GameFoodPhaserScene } from "$features/game-food";
 import { Game2048PhaserScene } from "$features/game-2048";
 import { FlyingGameScene } from "@features/flying-game/flying-game-scene";
 import { getAssetsPath, getAssetsPathByType } from "$utils/get-assets-path";
-import { getIntroSlides } from "../../features/slides";
+import { introSlidesConfig, railwayStationSlidesConfig } from "../../features/slides/configs";
 
 class GameFlowManager {
   private game: Phaser.Game | null = null;
 
   /** ✅ Маппинг логическая → физическая Phaser-сцена */
-  private readonly sceneMapping: Record<GameScene, GameScene> = {
+  private readonly sceneMapping: Partial<Record<GameScene, GameScene>> = {
     [GameScene.Auth]: GameScene.Auth,
     [GameScene.Intro]: GameScene.Intro,
     [GameScene.GameMap]: GameScene.GameMap,
@@ -30,6 +30,8 @@ class GameFlowManager {
     [GameScene.Game2048]: GameScene.Game2048,
     [GameScene.FlyingGame]: GameScene.FlyingGame,
     [GameScene.DetectiveGame]: GameScene.DetectiveGame,
+    // RailwayStation - это React сцена, не Phaser
+    [GameScene.CookingGame]: GameScene.CookingGame,
   };
 
   async initializeGame(parent: string | HTMLElement) {
@@ -62,7 +64,7 @@ class GameFlowManager {
       const { isAuthenticated } = useAuthStore.getState();
       if (!isAuthenticated) {
         this.startScene(GameScene.Auth);
-        return ;
+        return;
       }
       const { currentScene } = usePlayerState.getState();
       if (currentScene) {
@@ -79,6 +81,14 @@ class GameFlowManager {
   private startPhaserScene(scene: GameScene, data?: Record<string, unknown>): void {
     if (!this.game) return;
 
+    // ✅ Проверяем, является ли сцена React сценой (не Phaser)
+    if (scene === GameScene.RailwayStation) {
+      useSceneStore.setState({ currentScene: scene,
+        sceneData: data || null });
+      console.log(`▶️ Запущена React сцена ${scene}`, data);
+      return;
+    }
+
     const phaserKey = this.sceneMapping[scene];
     if (!phaserKey) {
       console.warn(`Неизвестная сцена: ${scene}, запускаем интро`);
@@ -93,8 +103,10 @@ class GameFlowManager {
     const payload = (data && typeof data === "object") ? data : {};
     this.stopActiveScenes();
     this.game.scene.start(phaserKey, payload);
-    useSceneStore.setState({ currentScene: scene,
-      sceneData: data || null });
+    useSceneStore.setState({
+      currentScene: scene,
+      sceneData: data || null,
+    });
 
     console.log(`▶️ Запущена логическая сцена ${scene} (Phaser: ${phaserKey})`, data);
   }
@@ -112,10 +124,7 @@ class GameFlowManager {
   }
 
   showIntro(episodeNumber = 0) {
-    useSceneStore.getState().setSlidesConfig(
-      () => getIntroSlides(episodeNumber),
-      GameScene.Intro,
-    );
+    useSceneStore.getState().setSlidesConfig(introSlidesConfig);
 
     this.startPhaserScene(GameScene.Intro, { episodeNumber });
   }
@@ -129,10 +138,6 @@ class GameFlowManager {
       ...data,
       backgroundLayers: useSceneStore.getState().backgroundLayers,
     });
-  }
-
-  showGameFood(data?: GameFoodLevelData) {
-    this.startPhaserScene(GameScene.GameFood, data);
   }
 
   showGame2048() {
@@ -181,6 +186,19 @@ class GameFlowManager {
 
   showDetectiveGame() {
     this.startPhaserScene(GameScene.DetectiveGame);
+  }
+
+  showRailwayStation(episodeNumber = 0) {
+    useSceneStore.getState().setSlidesConfig(railwayStationSlidesConfig);
+
+    this.startPhaserScene(GameScene.RailwayStation, { episodeNumber });
+  }
+
+  public showGameCooking(data?: CookingGameData) {
+    useSceneStore.setState({
+      currentScene: GameScene.CookingGame,
+      sceneData: data,
+    });
   }
 
   /** ✅ Унифицированный способ восстановить сохранённую сцену */

@@ -1,0 +1,1 @@
+export { CookingGame } from "./cooking-game";

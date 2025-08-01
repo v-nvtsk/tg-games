@@ -82,9 +82,8 @@
 
 .actionButtonContainer {
   position: absolute;
-  bottom: 8rem;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 15%;
+  left: 25%;
   z-index: 20;
 }
 
@@ -96,7 +95,6 @@
   border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
   min-width: 200px;
 }
 

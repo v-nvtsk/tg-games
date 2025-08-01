@@ -1,0 +1,28 @@
+.scoreContainer {
+  gap: 8px;
+  position: relative;
+  max-width: 200px;
+}
+
+.scoreIconWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scoreOverlay {
+  position: absolute;
+  top: 30%;
+  left: 35%;
+  z-index: 2;
+}
+
+.scoreText {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #8B4513;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  line-height: 1.2;
+}

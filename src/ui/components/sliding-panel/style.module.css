@@ -1,0 +1,68 @@
+.panel {
+  display: flex;
+  align-items: center;
+  background: rgb(0 0 0 / 60%);
+  border-radius: 20px;
+  padding: 5px;
+  height: 40px;
+  width: max-content;
+  transition: transform 0.3s ease-in-out;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  color: white;
+}
+
+
+.panel.right {
+  border-radius: 20px 0 0 20px;
+  transform: translateX(calc(100% - 40px));
+}
+
+.panel.right.open {
+  transform: translateX(0);
+}
+
+/* === ЛЕВАЯ СТОРОНА === */
+
+.panel.left {
+  border-radius: 0 20px 20px 0;
+  transform: translateX(calc(-100% + 50px));
+}
+
+.panel.left.open {
+  transform: translateX(0);
+}
+
+.icon {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  margin-left: 8px;
+  white-space: nowrap;
+  gap: 5px;
+}
+
+.text {
+  color: #fff;
+  font-size: 14px;
+}
+
+.button {
+  background: #f9a825;
+  border: none;
+  border-radius: 12px;
+  padding: 4px 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}

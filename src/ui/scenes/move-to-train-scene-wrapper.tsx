@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useMoveSceneStore } from "@core/state/move-scene-store";
-import { getAssetsPath } from "../../utils";
-import { QuizOverlay } from "../../features/game-quiz/components/quiz-overlay";
+import { getAssetsPath } from "$utils";
+import { QuizOverlay } from "$/features/game-quiz/components/quiz-overlay";
 import { type QuizItem } from "@core/types/common-types";
-import { useBackgroundMusic } from "../../core/hooks/use-background-music/use-music";
+import { useBackgroundMusic } from "$/core/hooks/use-background-music/use-music";
 
 export const MoveToTrainSceneWrapper = () => {
   const {
@@ -22,7 +22,7 @@ export const MoveToTrainSceneWrapper = () => {
     filename: "Звук утреннего города.mp3" });
 
   useEffect(() => {
-    fetch(getAssetsPath("data/quiz.json"))
+    fetch(getAssetsPath("data/move-to-train.json"))
       .then((res) => res.json())
       .then(({ questions }: { questions: QuizItem[] }) => {
         setQuestions(questions);
