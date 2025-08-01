@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { type SceneName, type SceneDataMap, type SceneBackground, type GameScene, type SlidesConfig } from "@core/types/common-types";
+import { type SceneName, type SceneDataMap, type SceneBackground, type SlidesConfig } from "@core/types/common-types";
 import { useAuthStore } from "./auth-store";
 import { logAppError } from "@utils/log-app-error";
 import { logActivity } from "$/api/log-activity";

@@ -9,10 +9,10 @@ export const RailwayStationSceneWrapper = () => {
   // ✅ Устанавливаем конфигурацию для Railway Station сцены
   React.useEffect(() => {
     setSlidesConfig(railwayStationSlidesConfig);
-    
+
     // ✅ Очистка при размонтировании
     return () => setSlidesConfig(undefined);
   }, [setSlidesConfig]);
 
   return <SlidesWrapper />;
-}; 
+};

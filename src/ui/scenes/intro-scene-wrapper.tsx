@@ -9,10 +9,10 @@ export const IntroSceneWrapper = () => {
   // ✅ Устанавливаем конфигурацию для Intro сцены
   React.useEffect(() => {
     setSlidesConfig(introSlidesConfig);
-    
+
     // ✅ Очистка при размонтировании
     return () => setSlidesConfig(undefined);
   }, [setSlidesConfig]);
 
   return <SlidesWrapper />;
-}; 
+};

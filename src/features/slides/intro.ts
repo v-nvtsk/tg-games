@@ -36,15 +36,13 @@ const introConfig: EpisodeConfig[] = [
       type: "thoughts",
       characterName: "Алексей",
       text: "Да ладно. Это точно дед. Только он мог прислать что-то без объяснений. И с интригой.",
-      onNext: {
-        sound: "звук открытия коробки! кадр 4 .mp3",
-      },
     },
     {
       type: "button",
       characterName: "Алексей",
       button: {
         text: "Открыть коробку",
+        sound: "звук открытия коробки! кадр 4 .mp3",
         action: () => {
           console.log("Открыть коробку");
         },
@@ -214,7 +212,7 @@ const introConfig: EpisodeConfig[] = [
         type: "button",
         button: {
           text: "▶ В коридор",
-          action: () => {},
+          action: () => {void 0;},
         },
       },
     ],
@@ -382,7 +380,7 @@ export function getIntroSlides(episode: number): Episode[] {
   introConfig.forEach((config) => {
     const episode = new Episode({
       ...config,
-      scene: "intro"
+      scene: "intro",
     });
     episodes.push(episode);
   });

@@ -34,4 +34,4 @@ export const slidesConfigs = {
   railway: railwayStationSlidesConfig,
 } as const;
 
-export type SlidesConfigType = keyof typeof slidesConfigs; 
+export type SlidesConfigType = keyof typeof slidesConfigs;

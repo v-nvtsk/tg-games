@@ -199,7 +199,7 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
     setTimeout(() => {
       set({
         isQuizVisible: false,
-        stage: "hidden"
+        stage: "hidden",
       });
       if (currentIndex < questions.length - 1) {
         set((state) => ({ currentIndex: state.currentIndex + 1 }));
@@ -213,7 +213,7 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
   completeQuiz: () => {
     set({
       isQuizVisible: false,
-      stage: "hidden"
+      stage: "hidden",
     });
 
     try {
@@ -234,7 +234,7 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
     get().pauseTimer();
     set({
       isQuizVisible: false,
-      stage: "hidden"
+      stage: "hidden",
     });
   },
 }));

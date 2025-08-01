@@ -29,7 +29,7 @@ export function useSlidesNavigation(
       setActionIndex(-1);
       setImageLoaded(false); // ✅ добавляем сброс
     } else {
-      useSceneStore.getState().setSlidesConfig(undefined, undefined);
+      useSceneStore.getState().setSlidesConfig(undefined);
     }
   }, [actionIndex, currentActions, slideIndex, slides, currentAction, playSceneSound]);
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThoughtBubble } from "../../components";
 import { useBackgroundMusic } from "../../core/hooks/use-background-music/use-music";
-import { useSceneStore } from "../../core/state";
+import { usePlayerState, useSceneStore } from "../../core/state";
 import type { Episode } from "../../features/slides";
 import { Button } from "../components/button";
 import { Messagebox } from "../components/messagebox";
@@ -18,7 +18,7 @@ export const SlidesWrapper = () => {
   // ✅ Получаем слайды из конфигурации
   const slides: Episode[] = useMemo(() => {
     if (!slidesConfig) return [];
-    const { episodeNumber = 0 } = (useSceneStore.getState().sceneData || {}) as any;
+    const episodeNumber = Number(usePlayerState.getState().currentEpisode) || 0 ;
     return slidesConfig.getSlides(episodeNumber);
   }, [slidesConfig]);
 

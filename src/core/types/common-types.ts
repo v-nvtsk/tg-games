@@ -1,3 +1,5 @@
+import type { Episode } from "../../features/slides";
+
 export interface MoveSceneData {
   scenePrefix?: string;
   fromLocationId?: string;
@@ -122,6 +124,6 @@ export interface SlidesSceneConfig {
 }
 
 export interface SlidesConfig {
-  getSlides: (episode: number) => any[]; // Episode[] - будет импортирован в конкретных файлах
+  getSlides: (episode: number) => Episode[]// - будет импортирован в конкретных файлах
   sceneConfig: SlidesSceneConfig;
 }
