@@ -4,7 +4,7 @@ import { gameFlowManager } from "../../processes";
 import { SlidingPanel } from "../components/sliding-panel";
 import { PanelStack } from "../components/panel-stack";
 import { GameMenu } from "../components/game-menu";
-import { useSettingsStore } from "../../core/state";
+import { usePlayerState, useSettingsStore } from "../../core/state";
 import { MenuButton } from "../components/menu-button";
 
 interface LayoutProps {
@@ -14,6 +14,9 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const isSoundEnabled = useSettingsStore((state) => state.isSoundEnabled);
+
+  const hunger = usePlayerState((state) => state.hunger);
+  const energy = usePlayerState((state) => state.energy);
 
   const onToggleSound = () => useSettingsStore.getState().toggleSound();
 
@@ -42,14 +45,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <SlidingPanel
           buttonText="СТРЯПАТЬ"
           buttonAction={() => gameFlowManager.showGameCooking()}
-          infoText="Голод: 3/20"
+          infoText={`Голод: ${hunger}/20`}
           iconSrc={getAssetsPath("images/ui/hunger-icon.png")}
         />
 
         <SlidingPanel
           buttonText="СПАТЬ"
           buttonAction={() => gameFlowManager.showFlyingGame()}
-          infoText="Энергия: 10/20"
+          infoText={`Энергия: ${energy}/20`}
           iconSrc={getAssetsPath("images/ui/energy-icon.png")}
         />
       </PanelStack>
