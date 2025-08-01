@@ -14,7 +14,7 @@ import { useSlideSounds } from "./use-slides-sounds";
 
 export const SlidesWrapper = () => {
   const slidesConfig = useSceneStore((s) => s.slidesConfig);
-  
+
   // ✅ Получаем слайды из конфигурации
   const slides: Episode[] = useMemo(() => {
     if (!slidesConfig) return [];
@@ -49,7 +49,7 @@ export const SlidesWrapper = () => {
   // ✅ Фоновая музыка из конфигурации
   useBackgroundMusic({
     filename: slidesConfig?.sceneConfig.backgroundMusic || "rain-on-window-29298.mp3",
-    scene: slidesConfig?.sceneConfig.scene || "intro"
+    scene: slidesConfig?.sceneConfig.scene || "intro",
   });
 
   const showSkipButton = currentAction?.type !== "button" && currentAction?.type !== "choice";
@@ -99,15 +99,15 @@ export const SlidesWrapper = () => {
               className={styles.nextBtn}
               initial={{
                 scale: 0,
-                opacity: 0
+                opacity: 0,
               }}
               animate={{
                 scale: 1.2,
-                opacity: 1
+                opacity: 1,
               }}
               transition={{
                 type: "spring",
-                stiffness: 280
+                stiffness: 280,
               }}
               onPointerDown={(e) => {
                 e.stopPropagation();

@@ -15,7 +15,7 @@ import {
 } from "./ui/scenes";
 import { useAuth } from "./core/hooks";
 import { FlyingGameSceneWrapper } from "./ui/scenes/flying-game-scene-wrapper";
-import { GameScene, type IntroSceneData } from "@core/types/common-types";
+import { GameScene } from "@core/types/common-types";
 import { MoveToTrainSceneWrapper } from "./ui/scenes/move-to-train-scene-wrapper";
 import { Layout } from "./ui/layout/";
 
@@ -24,7 +24,6 @@ export const App: React.FC = () => {
 
   const phaserCanvasRef = useRef<HTMLDivElement>(null);
   const currentScene = useSceneStore((state) => state.currentScene);
-  const { episodeNumber = 0 } = (useSceneStore.getState().sceneData || {}) as IntroSceneData;
 
   useEffect(() => {
     if (phaserCanvasRef.current) {
@@ -59,7 +58,7 @@ export const App: React.FC = () => {
     default:
       return null;
     }
-  }, [currentScene, episodeNumber]);
+  }, [currentScene]);
 
   const scene = renderSceneWrapper();
 
