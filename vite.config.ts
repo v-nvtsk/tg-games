@@ -1,18 +1,19 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vite.dev/config/
-export default defineConfig({
-  define: { "import.meta.env.VITE_BASE_URL": JSON.stringify(
-    process.env.CI ? "/tg-games/" : "/",
-  ) },
-  base: process.env.CI ? "/tg-games/" : "/",
-  build: {
-    chunkSizeWarningLimit: 1000,
-    outDir: "dist",
+export default defineConfig(({ mode }) => {
+
+  const env = loadEnv(mode, process.cwd(), "");
+
+  return {
+    base: env.VITE_BASE_URL,
+    build: {
+      chunkSizeWarningLimit: 1000,
+      outDir: "dist",
     // rollupOptions: {
     //   output: {
     //     manualChunks: {
@@ -30,24 +31,21 @@ export default defineConfig({
     //     comments: false,
     //   },
     // },
-  },
-  plugins: [
-    react(),
-    tsconfigPaths(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: path.resolve(__dirname, "./src/assets/"),
-          dest: "./",
-        },
-        // {
-        //   src: path.resolve(__dirname, "./src/public/"),
-        //   dest: "./",
-        // },
-      ],
-    }),
-  ],
-  server: {
-    allowedHosts: true,
-  },
+    },
+    plugins: [
+      react(),
+      tsconfigPaths(),
+      viteStaticCopy({
+        targets: [
+          {
+            src: path.resolve(__dirname, "./src/assets/"),
+            dest: "./",
+          },
+        ],
+      }),
+    ],
+    server: {
+      allowedHosts: true,
+    },
+  };
 });
