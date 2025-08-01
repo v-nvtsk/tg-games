@@ -3,13 +3,14 @@ import "./global.css";
 import { gameFlowManager } from "./processes/game-flow/game-flow-manager";
 import { useSceneStore } from "./core/state/scene-store";
 import {
-  SlidesWrapper,
+  IntroSceneWrapper,
   AuthSceneWrapper,
   GameMapSceneWrapper,
   GameFoodSceneWrapper,
   Game2048SceneWrapper,
   MoveSceneWrapper,
   DetectiveGameSceneWrapper,
+  RailwayStationSceneWrapper,
 } from "./ui/scenes";
 import { useAuth } from "./core/hooks";
 import { FlyingGameSceneWrapper } from "./ui/scenes/flying-game-scene-wrapper";
@@ -35,7 +36,7 @@ export const App: React.FC = () => {
     case GameScene.Auth:
       return <AuthSceneWrapper />;
     case GameScene.Intro:
-      return <SlidesWrapper />;
+      return <IntroSceneWrapper />;
     case GameScene.GameMap:
       return <GameMapSceneWrapper />;
     case GameScene.GameFood:
@@ -50,6 +51,8 @@ export const App: React.FC = () => {
       return <MoveToTrainSceneWrapper />;
     case GameScene.DetectiveGame:
       return <DetectiveGameSceneWrapper />;
+    case GameScene.RailwayStation:
+      return <RailwayStationSceneWrapper />;
     default:
       return null;
     }

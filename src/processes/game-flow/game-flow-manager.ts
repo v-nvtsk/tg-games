@@ -14,13 +14,13 @@ import { GameFoodPhaserScene } from "$features/game-food";
 import { Game2048PhaserScene } from "$features/game-2048";
 import { FlyingGameScene } from "@features/flying-game/flying-game-scene";
 import { getAssetsPath, getAssetsPathByType } from "$utils/get-assets-path";
-import { getIntroSlides } from "../../features/slides";
+import { introSlidesConfig, railwayStationSlidesConfig } from "../../features/slides/configs";
 
 class GameFlowManager {
   private game: Phaser.Game | null = null;
 
   /** ✅ Маппинг логическая → физическая Phaser-сцена */
-  private readonly sceneMapping: Record<GameScene, GameScene> = {
+  private readonly sceneMapping: Partial<Record<GameScene, GameScene>> = {
     [GameScene.Auth]: GameScene.Auth,
     [GameScene.Intro]: GameScene.Intro,
     [GameScene.GameMap]: GameScene.GameMap,
@@ -30,6 +30,7 @@ class GameFlowManager {
     [GameScene.Game2048]: GameScene.Game2048,
     [GameScene.FlyingGame]: GameScene.FlyingGame,
     [GameScene.DetectiveGame]: GameScene.DetectiveGame,
+    // RailwayStation - это React сцена, не Phaser
   };
 
   async initializeGame(parent: string | HTMLElement) {
@@ -53,25 +54,25 @@ class GameFlowManager {
       });
 
       // ✅ загружаем состояние игрока
-      // try {
-      //   await usePlayerState.getState().loadPlayerState();
-      // } catch (err) {
-      //   console.error("Failed to load player state on init", err);
-      // }
+      try {
+        await usePlayerState.getState().loadPlayerState();
+      } catch (err) {
+        console.error("Failed to load player state on init", err);
+      }
 
-      // const { isAuthenticated } = useAuthStore.getState();
-      // if (!isAuthenticated) {
-      //   this.startScene(GameScene.Auth);
-      //   return;
-      // }
-      // const { currentScene } = usePlayerState.getState();
-      // if (currentScene) {
-      //   console.log(`Восстанавливаем сцену: ${currentScene}`);
-      //   this.startScene(currentScene as GameScene);
-      // } else {
-      //   console.log("Нет сохранённой сцены, показываем интро");
-      //   this.showIntro();
-      // }
+      const { isAuthenticated } = useAuthStore.getState();
+      if (!isAuthenticated) {
+        this.startScene(GameScene.Auth);
+        return;
+      }
+      const { currentScene } = usePlayerState.getState();
+      if (currentScene) {
+        console.log(`Восстанавливаем сцену: ${currentScene}`);
+        this.startScene(currentScene as GameScene);
+      } else {
+        console.log("Нет сохранённой сцены, показываем интро");
+        this.showIntro();
+      }
       this.showIntro();
     }
   }
@@ -79,6 +80,13 @@ class GameFlowManager {
   /** ✅ Общий метод запуска Phaser сцены */
   private startPhaserScene(scene: GameScene, data?: Record<string, unknown>): void {
     if (!this.game) return;
+
+    // ✅ Проверяем, является ли сцена React сценой (не Phaser)
+    if (scene === GameScene.RailwayStation) {
+      useSceneStore.setState({ currentScene: scene, sceneData: data || null });
+      console.log(`▶️ Запущена React сцена ${scene}`, data);
+      return;
+    }
 
     const phaserKey = this.sceneMapping[scene];
     if (!phaserKey) {
@@ -113,10 +121,7 @@ class GameFlowManager {
   }
 
   showIntro(episodeNumber = 0) {
-    useSceneStore.getState().setSlidesConfig(
-      () => getIntroSlides(episodeNumber),
-      GameScene.Intro,
-    );
+    useSceneStore.getState().setSlidesConfig(introSlidesConfig);
 
     this.startPhaserScene(GameScene.Intro, { episodeNumber });
   }
@@ -182,6 +187,12 @@ class GameFlowManager {
 
   showDetectiveGame() {
     this.startPhaserScene(GameScene.DetectiveGame);
+  }
+
+  showRailwayStation(episodeNumber = 0) {
+    useSceneStore.getState().setSlidesConfig(railwayStationSlidesConfig);
+
+    this.startPhaserScene(GameScene.RailwayStation, { episodeNumber });
   }
 
   /** ✅ Унифицированный способ восстановить сохранённую сцену */

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import type { Action } from "$features/slides";
 
-const SLIDE_TIMEOUT = 100;
+const DEFAULT_CAN_SKIP_DELAY = 7000;
 
 interface UseSlideEffectsParams {
   imageLoaded: boolean;
@@ -9,6 +9,10 @@ interface UseSlideEffectsParams {
   currentActions: Action[];
   showSkipButton: boolean;
   setCanSkip: (v: boolean) => void;
+  config?: {
+    canSkipDelay?: number;
+    imageLoadDelay?: number;
+  };
 }
 
 /**
@@ -22,6 +26,7 @@ export function useSlideEffects({
   currentActions,
   showSkipButton,
   setCanSkip,
+  config,
 }: UseSlideEffectsParams): void {
 
   // ✅ разрешаем пропуск, если нет экшенов
@@ -31,11 +36,12 @@ export function useSlideEffects({
     }
   }, [imageLoaded, actionIndex, currentActions.length, setCanSkip]);
 
-  // ✅ таймер для кнопки Skip
+  // ✅ таймер для кнопки Skip с настраиваемой задержкой
   useEffect(() => {
     if (showSkipButton) {
-      const t = setTimeout(() => setCanSkip(true), SLIDE_TIMEOUT);
+      const timeout = config?.canSkipDelay || DEFAULT_CAN_SKIP_DELAY;
+      const t = setTimeout(() => setCanSkip(true), timeout);
       return () => clearTimeout(t);
     }
-  }, [showSkipButton, imageLoaded, actionIndex, setCanSkip]);
+  }, [showSkipButton, imageLoaded, actionIndex, setCanSkip, config?.canSkipDelay]);
 }
