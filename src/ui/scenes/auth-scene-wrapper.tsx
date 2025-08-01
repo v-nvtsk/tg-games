@@ -82,6 +82,7 @@ export const AuthSceneWrapper: React.FC = () => {
   const selectedGender = usePlayerState((state) => state.playerGender);
   const [fireflies, setFireflies] = useState<Firefly[]>([]);
   const [showInput, setShowInput] = useState(false);
+  const [isAnimating, setIsAnimating] = useState<"boy" | "girl" | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { isVerifying } = useAuthStore();
 
@@ -119,8 +120,16 @@ export const AuthSceneWrapper: React.FC = () => {
 
   const handleGenderSelect = (gender: "boy" | "girl") => {
     if (selectedGender === gender) return;
-    setFireflies([]);
 
+    // ✅ Запускаем анимацию
+    setIsAnimating(gender);
+
+    // ✅ Планируем сброс анимации после ее завершения (например, 500 мс)
+    setTimeout(() => {
+      setIsAnimating(null);
+    }, 500); // Это значение нужно настроить в зависимости от длительности вашей CSS-анимации
+
+    setFireflies([]);
     setPlayerGender(gender);
     if (gender === "boy") {
       spawnFireflyBurst({ ...boyZone,
@@ -152,8 +161,15 @@ export const AuthSceneWrapper: React.FC = () => {
         </div>
       </div>
       <div className={styles.squaresRow}>
-        <div className={styles.squareGlowWrapper} onClick={() => handleGenderSelect("boy")}></div>
-        <div className={styles.squareGlowWrapper} onClick={() => handleGenderSelect("girl")}></div>
+        {/* ✅ Условное добавление класса анимации */}
+        <div
+          className={`${styles.squareGlowWrapper} ${isAnimating === "boy" ? styles.animateGlow : ""}`}
+          onClick={() => handleGenderSelect("boy")}
+        />
+        <div
+          className={`${styles.squareGlowWrapper} ${isAnimating === "girl" ? styles.animateGlow : ""}`}
+          onClick={() => handleGenderSelect("girl")}
+        />
       </div>
       {!selectedGender && (
         <div className={styles.chooseCharacterPulse}>
@@ -161,6 +177,7 @@ export const AuthSceneWrapper: React.FC = () => {
         </div>
       )}
       <div className={styles.inputButtonContainer + (showInput ? " " + styles.fadeIn : " " + styles.fadeOut)}>
+
         <div className={styles.inputLabel}>Введите ваше имя</div>
         <input
           ref={inputRef}
@@ -219,8 +236,7 @@ export const AuthSceneWrapper: React.FC = () => {
           />
         ))}
       </div>}
-    </AuthWrapperContainer>
-  );
+    </AuthWrapperContainer>);
 };
 
 const AuthWrapperContainer: React.FC<PropsWithChildren> = ({ children }) => {

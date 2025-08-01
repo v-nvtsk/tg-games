@@ -21,14 +21,30 @@ export function getAssetsPathByType({
 // Функция для получения пути к изображению овоща
 export const getVegetableImagePath = (type: string): string => {
   const imageMap: Record<string, string> = {
-    carrot: "assets/images/scenes/cooking/ingredients/carrot.png",
-    tomato: "assets/images/scenes/cooking/ingredients/tomato.png",
-    cucumber: "assets/images/scenes/cooking/ingredients/cucumber.png",
-    pepper: "assets/images/scenes/cooking/ingredients/pepper.png",
-    mushroom: "assets/images/scenes/cooking/ingredients/mushroom.png",
-    potato: "assets/images/scenes/cooking/ingredients/potato.png",
-    onion: "assets/images/scenes/cooking/ingredients/onion.png",
-    garlic: "assets/images/scenes/cooking/ingredients/garlic.png",
+    carrot: getAssetsPathByType({ type: "images",
+      scene: "cooking",
+      filename: "ingredients/carrot.png" }), // "assets/images/scenes/cooking/ingredients/carrot.png",
+    tomato: getAssetsPathByType({ type: "images",
+      scene: "cooking",
+      filename: "ingredients/tomato.png" }),
+    cucumber: getAssetsPathByType({ type: "images",
+      scene: "cooking",
+      filename: "ingredients/cucumber.png" }),
+    pepper: getAssetsPathByType({ type: "images",
+      scene: "cooking",
+      filename: "ingredients/pepper.png" }),
+    mushroom: getAssetsPathByType({ type: "images",
+      scene: "cooking",
+      filename: "ingredients/mushroom.png" }),
+    potato: getAssetsPathByType({ type: "images",
+      scene: "cooking",
+      filename: "ingredients/potato.png" }),
+    onion: getAssetsPathByType({ type: "images",
+      scene: "cooking",
+      filename: "ingredients/onion.png" }),
+    garlic: getAssetsPathByType({ type: "images",
+      scene: "cooking",
+      filename: "ingredients/garlic.png" }),
   };
 
   return imageMap[type] || imageMap.carrot; // fallback на морковь

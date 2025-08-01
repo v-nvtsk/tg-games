@@ -131,7 +131,7 @@
   opacity: 0;
   pointer-events: none;
   mix-blend-mode: screen;
-  animation: firefly-anim 2.5s linear;
+  animation: fireflyAnim 2.5s linear;
   box-shadow: 0 0 4px 1px #ffb300;
   transform: scale(1) rotate(var(--angle, 0deg));
   background: #ffd700;
@@ -141,7 +141,8 @@
   display: none;
 }
 
-@keyframes firefly-anim {
+/* stylelint-disable-next-line keyframes-name-pattern */
+@keyframes fireflyAnim {
 
   0% {
     opacity: 0;
@@ -342,11 +343,12 @@
   text-align: center;
   text-shadow: 0 2px 16px rgb(0 0 0 / 25%);
   letter-spacing: 0.04em;
-  animation: pulse-text 1.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+  animation: pulseText 1.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
   pointer-events: none;
 }
 
-@keyframes pulse-text {
+/* stylelint-disable-next-line keyframes-name-pattern */
+@keyframes pulseText {
 
   0% {
     opacity: 1;
