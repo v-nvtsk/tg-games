@@ -3,6 +3,8 @@ import { useMoveSceneStore } from "@core/state/move-scene-store";
 import { getAssetsPath } from "../../utils";
 import { QuizOverlay } from "../../features/game-quiz/components/quiz-overlay";
 import type { QuizItem } from "../../core/types/common-types";
+import { useBackgroundMusic } from "../../core/hooks/use-background-music/use-music";
+import { useSceneStore } from "../../core/state";
 
 export const MoveSceneWrapper: React.FC = () => {
   const {
@@ -15,7 +17,13 @@ export const MoveSceneWrapper: React.FC = () => {
     startQuizCycle,
     skipIntro,
     answerQuestion,
+    backgroundMusic,
   } = useMoveSceneStore();
+
+  const scene = useSceneStore.getState().currentScene;
+
+  useBackgroundMusic({ scene,
+    filename: backgroundMusic || "" });
 
   useEffect(() => {
     fetch(getAssetsPath("data/quiz.json"))

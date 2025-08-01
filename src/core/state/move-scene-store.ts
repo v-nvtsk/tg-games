@@ -28,6 +28,7 @@ interface MoveSceneState {
   remainTime: number;
   timerId: number | null;
   isMoving: boolean;
+  backgroundMusic: string | null;
   setQuestions: (questions: QuizItem[]) => void;
   startQuizCycle: () => void;
   openQuiz: (index: number) => void;
@@ -51,6 +52,9 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
   remainTime: TIMEOUT_FOR_QUESTION,
   timerId: null,
   isMoving: false,
+  backgroundMusic: null,
+
+  setBackgroundMusic: (music: string) => set({ backgroundMusic: music }),
 
   setQuestions: (questions) => set({ questions }),
 
