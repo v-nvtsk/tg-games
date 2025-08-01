@@ -148,20 +148,31 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
       get().completeQuiz();
       return;
     }
+
+    const currentQuestion = questions[index];
+    
+    // Если у вопроса нет текста для intro, сразу переходим к вопросу
+    const initialStage = (!currentQuestion.text || currentQuestion.text.length === 0) ? "question" : "intro";
+    
     set({
       currentIndex: index,
       isQuizVisible: true,
-      stage: "intro",
+      stage: initialStage,
       selected: null,
       canSkip: false,
       remainTime: TIMEOUT_FOR_QUESTION,
     });
 
-    setTimeout(() => {
-      if (get().isQuizVisible && get().currentIndex === index) {
-        set({ canSkip: true });
-      }
-    }, TIMEOUT_FOR_QUESTION);
+    // Если сразу показываем вопрос, разрешаем пропуск
+    if (initialStage === "question") {
+      set({ canSkip: true });
+    } else {
+      setTimeout(() => {
+        if (get().isQuizVisible && get().currentIndex === index) {
+          set({ canSkip: true });
+        }
+      }, TIMEOUT_FOR_QUESTION);
+    }
   },
 
   skipIntro: () => {

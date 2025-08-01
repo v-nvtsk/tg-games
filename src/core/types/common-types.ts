@@ -28,7 +28,7 @@ export interface IntroSceneData {
   episodeNumber: number;
 }
 
-export interface FlyingGame{
+export interface FlyingGame {
   targetX?: number;
   targetY?: number;
 }
@@ -88,10 +88,12 @@ export function isGender(value: string): value is Gender {
 
 export interface QuizItem {
   id: string;
-  text: string[];
+  text?: string[];
   question: string;
-  answers: { id: string;
-    text: string }[];
+  answers: {
+    id: string;
+    text: string
+  }[];
   backgroundColor?: string;
   borderColor?: string;
   color?: string;
