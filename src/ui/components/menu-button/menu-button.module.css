@@ -1,0 +1,9 @@
+.menuBtn {
+  background: rgb(0 0 0 / 60%);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 22px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
