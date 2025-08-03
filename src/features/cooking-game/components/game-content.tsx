@@ -9,7 +9,7 @@ import type {
   DragOverEvent,
   DragStartEvent,
 } from "@dnd-kit/core";
-import { useGameContext, type VegetablePiece } from "./game-provider.tsx";
+import { useGameContext, useGameNavigation, type VegetablePiece } from "./game-provider.tsx";
 import { GameBoard } from "./game-board.tsx";
 import { NextPiece } from "./next-piece.tsx";
 import { Score } from "./score.tsx";
@@ -58,6 +58,7 @@ const PieceUtils = {
 
 export function GameContent() {
   const { state, dispatch } = useGameContext();
+  const { goToRecipeBook } = useGameNavigation();
   const [dragState, setDragState] = useState<DragState>({
     piece: null,
     previewPosition: null,
@@ -461,8 +462,8 @@ export function GameContent() {
             <div className={styles.scoreSection}>
               <Score score={state.score} />
               <div className={styles.actionButtons}>
-                <img src={shopIcon} alt="shop" />
-                <img src={bookIcon} alt="book" />
+                <img src={shopIcon} alt="shop" onClick={() => console.log("shop")} />
+                <img src={bookIcon} alt="book" onClick={() => goToRecipeBook()} />
               </div>
             </div>
           </div>
