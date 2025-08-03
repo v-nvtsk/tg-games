@@ -129,7 +129,7 @@ class GameFlowManager {
     this.startPhaserScene(GameScene.Intro, { episodeNumber });
   }
 
-  startGameMap() {
+  showGameMap() {
     this.startPhaserScene(GameScene.GameMap);
   }
 

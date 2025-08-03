@@ -1,11 +1,16 @@
 import { Scene } from "phaser";
-import { getAssetsPath, getAssetsPathByType } from "@utils/get-assets-path";
+import {  getAssetsPathByType } from "@utils/get-assets-path";
 import { GameScene } from "@core/types/common-types";
 import { logActivity } from "$/api/log-activity";
 import { useSceneStore } from "../../core/state";
 
 const CITY_RADIUS = 100;
 const TAP_THRESHOLD = 10;
+
+const START_POINT = {
+  x: 3000,
+  y: 2500,
+};
 
 interface City {
   name: string;
@@ -16,19 +21,19 @@ interface City {
 
 export default class GameMapPhaserScene extends Scene {
   private mapImage!: Phaser.GameObjects.Image;
-  private player!: Phaser.GameObjects.Sprite;
+  private player!: Phaser.GameObjects.Image;
   private cities: City[] = [
     { name: "Москва",
-      x: 920,
-      y: 1100,
+      x: 400,
+      y: 850,
       object: null },
     { name: "Санкт-Петербург",
-      x: 950,
-      y: 800,
+      x: 400,
+      y: 550,
       object: null },
     { name: "Казань",
-      x: 1150,
-      y: 1350,
+      x: 600,
+      y: 1100,
       object: null },
   ];
 
@@ -49,10 +54,9 @@ export default class GameMapPhaserScene extends Scene {
       scene: "game-map",
       filename: "map.svg" }));
 
-    this.load.spritesheet("player_marker", getAssetsPath("images/hero.png"), {
-      frameWidth: 174,
-      frameHeight: 300,
-    });
+    this.load.svg("player_marker", getAssetsPathByType({ type: "images",
+      scene: "game-map",
+      filename: "player-pointer.svg" }));
   }
 
   create(): void {
@@ -66,14 +70,14 @@ export default class GameMapPhaserScene extends Scene {
     camera.setBounds(0, 0, mapWidth, mapHeight);
 
     // ✅ Игрок
-    this.player = this.add.sprite(this.cities[0].x - 70, this.cities[0].y, "player_marker").setScale(0.5);
+    this.player = this.add.image(this.cities[0].x - 70, this.cities[0].y, "player_marker").setScale(0.5);
     this.player.setScrollFactor(1);
 
     // ✅ Города
     this.cities.forEach((city) => {
       city.object = this.add.circle(city.x, city.y, CITY_RADIUS, 0xffe600, 0.2)
         .setScrollFactor(1)
-        .setAlpha(0.000001)
+        .setAlpha(1)
         .setInteractive();
 
       city.object.on("pointerup", (pointer: Phaser.Input.Pointer) => {

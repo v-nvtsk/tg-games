@@ -28,6 +28,9 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (phaserCanvasRef.current) {
       void gameFlowManager.initializeGame(phaserCanvasRef.current.id);
+      setTimeout(() => {
+        gameFlowManager.showGameMap();
+      }, 500);
     }
   }, []);
 
