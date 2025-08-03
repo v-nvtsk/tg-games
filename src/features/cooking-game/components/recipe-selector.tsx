@@ -5,7 +5,7 @@ import { RecipeNavigation } from "./recipe-navigation";
 import styles from "./recipe-selector.module.css";
 
 interface Ingredient {
-  emoji: string;
+  imageSrc: string;
   count: number;
   color: string;
 }
@@ -53,9 +53,7 @@ export const RecipeSelector = ({
     <div className={clsx(styles.container, className)}>
       {/* Декоративные элементы фона */}
       <div className={styles.backgroundDecorations}>
-        <div className={styles.decorationCircle1}></div>
-        <div className={styles.decorationCircle2}></div>
-        <div className={styles.decorationCircle3}></div>
+        
       </div>
       
       {/* Основной контент */}

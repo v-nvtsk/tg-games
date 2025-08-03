@@ -7,10 +7,6 @@
   overflow: hidden;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(255, 183, 77, 0.4);
-}
 
 .cardContent {
   padding: 20px;
@@ -85,9 +81,31 @@
 
 .ingredientsList {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   margin-bottom: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+  padding-bottom: 4px;
+}
+
+.ingredientsList::-webkit-scrollbar {
+  height: 4px;
+}
+
+.ingredientsList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ingredientsList::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+}
+
+.ingredientsList::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .ingredientItem {
@@ -105,6 +123,13 @@
   font-size: 16px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.ingredientImage {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  border-radius: 6px;
 }
 
 .ingredientCount {
@@ -167,6 +192,11 @@
   .dishVisual {
     width: 42px;
     height: 28px;
+  }
+  
+  .ingredientsList {
+    gap: 6px;
+    padding-bottom: 6px;
   }
   
   .ingredientIcon {

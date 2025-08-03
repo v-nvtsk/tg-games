@@ -2,7 +2,7 @@ import clsx from "clsx";
 import styles from "./recipe-card.module.css";
 
 interface Ingredient {
-  emoji: string;
+  imageSrc: string;
   count: number;
   color: string;
 }
@@ -51,7 +51,11 @@ export const RecipeCard = ({
                 className={styles.ingredientIcon}
                 style={{ backgroundColor: ingredient.color }}
               >
-                {ingredient.emoji}
+                <img 
+                  src={ingredient.imageSrc} 
+                  alt="ingredient" 
+                  className={styles.ingredientImage}
+                />
               </div>
               <span className={styles.ingredientCount}>x{ingredient.count}</span>
             </div>
