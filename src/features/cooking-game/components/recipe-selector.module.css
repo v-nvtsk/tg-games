@@ -1,0 +1,171 @@
+.container {
+  height: 90vh;
+  background: linear-gradient(135deg, #FFE0B2 0%, #FFCC80 50%, #C8E6C9 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  max-width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.backgroundDecorations {
+  position: absolute;
+  inset: 0;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.decorationCircle1 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 128px;
+  height: 128px;
+  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+  border-radius: 50%;
+  transform: translate(-32px, -32px);
+}
+
+.decorationCircle2 {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 96px;
+  height: 96px;
+  background: linear-gradient(135deg, #FFC107 0%, #FFB300 100%);
+  border-radius: 50%;
+  transform: translate(24px, 0);
+}
+
+.decorationCircle3 {
+  position: absolute;
+  top: 80px;
+  left: 80px;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #FF5722 0%, #E64A19 100%);
+  border-radius: 50%;
+}
+
+.content {
+  flex: 1;
+  padding: 32px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  z-index: 1;
+}
+
+.recipesGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 32px;
+}
+
+.indicatorBar {
+  width: 128px;
+  height: 4px;
+  background: #424242;
+  border-radius: 2px;
+  opacity: 0.8;
+}
+
+/* Адаптация для мобильных устройств */
+@media screen and (max-width: 768px) {
+  .container {
+    height: 90vh;
+    margin: 5vh auto;
+  }
+  
+  .content {
+    padding: 24px 12px;
+  }
+  
+  .recipesGrid {
+    gap: 12px;
+    max-width: 360px;
+  }
+  
+  .decorationCircle1 {
+    width: 96px;
+    height: 96px;
+    transform: translate(-24px, -24px);
+  }
+  
+  .decorationCircle2 {
+    width: 72px;
+    height: 72px;
+    transform: translate(18px, 0);
+  }
+  
+  .decorationCircle3 {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* Для очень маленьких экранов */
+@media screen and (max-width: 480px) {
+  .container {
+    height: 90vh;
+    margin: 5vh auto;
+  }
+  
+  .content {
+    padding: 20px 8px;
+  }
+  
+  .recipesGrid {
+    gap: 8px;
+    max-width: 320px;
+  }
+  
+  .indicatorBar {
+    width: 96px;
+    height: 3px;
+  }
+}
+
+/* Для планшетов */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    height: 90vh;
+    margin: 5vh auto;
+    max-width: 90%;
+  }
+  
+  .recipesGrid {
+    max-width: 500px;
+    gap: 20px;
+  }
+  
+  .content {
+    padding: 40px 24px;
+  }
+}
+
+/* Для больших экранов */
+@media screen and (min-width: 1025px) {
+  .container {
+    height: 90vh;
+    margin: 5vh auto;
+    max-width: 80%;
+  }
+  
+  .recipesGrid {
+    max-width: 600px;
+    gap: 24px;
+  }
+  
+  .content {
+    padding: 48px 32px;
+  }
+} 

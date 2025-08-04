@@ -13,6 +13,7 @@ interface Item {
   found: boolean;
 }
 
+const SHOW_MESSAGE_TIMEOUT = 5000;
 const BAG_EPISODE = 14;
 
 const ITEMS: Item[] = [
@@ -93,7 +94,7 @@ export const DetectiveGame: React.FC = () => {
       setTimeout(() => {
         setShowFoundMessage(false);
         target.classList.remove(styles.highLight);
-      }, 1500);
+      }, SHOW_MESSAGE_TIMEOUT);
     }
   }, [items]);
 

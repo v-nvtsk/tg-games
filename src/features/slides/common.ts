@@ -5,6 +5,8 @@ export interface Action {
   characterName?: string;
   text?: string;
   options?: string[];
+  // ✅ Добавляем поддержку условных действий для каждого варианта выбора
+  conditionalActions?: Action[][];
   button?: {
     text: string;
     sound?: string;
