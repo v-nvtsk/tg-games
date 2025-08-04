@@ -43,6 +43,9 @@ export const GameMenu: React.FC<GameMenuProps> = ({
     case "detective":
       gameFlowManager.showDetectiveGame();
       break;
+    case "railway-station":
+      gameFlowManager.showRailwayStation();
+      break;
     default:
       break;
     }
@@ -70,6 +73,7 @@ export const GameMenu: React.FC<GameMenuProps> = ({
         <div className={styles.item} onClick={() => onSceneSelection("move")}>🌲 Сцена переход в лесу</div>
         <div className={styles.item} onClick={() => onSceneSelection("detective")}>🕵️ Детектив</div>
         <div className={styles.item} onClick={() => onSceneSelection("game-map")}>🧭 Карта</div>
+        <div className={styles.item} onClick={() => onSceneSelection("railway-station")}>🚉 Вокзал</div>
       </div>
     </div>
   );

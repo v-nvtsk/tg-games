@@ -2,6 +2,8 @@ import { useState, useCallback, useMemo } from "react";
 import { Episode } from "$features/slides/common";
 import type { Action } from "$features/slides";
 import { useSceneStore } from "../../core/state/scene-store";
+import { gameFlowManager } from "$processes/game-flow";
+import { usePlayerState } from "$core/state";
 
 export function useSlidesNavigation(
   slides: Episode[],
@@ -45,6 +47,8 @@ export function useSlidesNavigation(
   const handleActionButtonClick = useCallback((action: Action) => {
     if (action.button?.sound) playSceneSound(action.button.sound);
     action.button?.action?.();
+    const scene = useSceneStore.getState().currentScene;
+    usePlayerState.getState().setProgress(scene, slideIndex+1);
     processUpdate();
   }, [processUpdate, playSceneSound]);
 
