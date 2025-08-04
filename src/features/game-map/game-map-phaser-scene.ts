@@ -2,14 +2,14 @@ import { Scene } from "phaser";
 import {  getAssetsPathByType } from "@utils/get-assets-path";
 import { GameScene } from "@core/types/common-types";
 import { logActivity } from "$/api/log-activity";
-import { useSceneStore } from "../../core/state";
+import { usePlayerState, useSceneStore } from "../../core/state";
 
 const CITY_RADIUS = 100;
 const TAP_THRESHOLD = 10;
 
 const START_POINT = {
-  x: 3000,
-  y: 2500,
+  x: 1450,
+  y: 1500,
 };
 
 interface City {
@@ -60,6 +60,7 @@ export default class GameMapPhaserScene extends Scene {
   }
 
   create(): void {
+    let playerPlace = START_POINT;
     // ✅ Отображаем карту
     this.mapImage = this.add.image(0, 0, "map_image").setOrigin(0, 0);
 
@@ -70,7 +71,7 @@ export default class GameMapPhaserScene extends Scene {
     camera.setBounds(0, 0, mapWidth, mapHeight);
 
     // ✅ Игрок
-    this.player = this.add.image(this.cities[0].x - 70, this.cities[0].y, "player_marker").setScale(0.5);
+    this.player = this.add.image(playerPlace.x, playerPlace.y, "player_marker").setScale(0.15);
     this.player.setScrollFactor(1);
 
     // ✅ Города

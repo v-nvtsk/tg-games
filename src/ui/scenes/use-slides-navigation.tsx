@@ -30,6 +30,9 @@ export function useSlidesNavigation(
       setImageLoaded(false); // ✅ добавляем сброс
     } else {
       useSceneStore.getState().setSlidesConfig(undefined);
+      setSlideIndex(0);
+      setActionIndex(-1);
+      setImageLoaded(false);
     }
   }, [actionIndex, currentActions, slideIndex, slides, currentAction, playSceneSound]);
 

@@ -14,13 +14,13 @@ const introConfig: EpisodeConfig[] = [
     }],
   },
   {
-    slideIndex: 1,
+    slideIndex: 2,
     filename: "frame-28.jpg",
     originX: 0,
     positionX: 0,
   },
   {
-    slideIndex: 1,
+    slideIndex: 3,
     filename: "frame-27.jpg",
     originX: 0.7,
     positionX: 0.7,

@@ -21,16 +21,12 @@ import { Layout } from "./ui/layout/";
 
 export const App: React.FC = () => {
   useAuth();
-
   const phaserCanvasRef = useRef<HTMLDivElement>(null);
   const currentScene = useSceneStore((state) => state.currentScene);
 
   useEffect(() => {
     if (phaserCanvasRef.current) {
       void gameFlowManager.initializeGame(phaserCanvasRef.current.id);
-      setTimeout(() => {
-        gameFlowManager.showGameMap();
-      }, 500);
     }
   }, []);
 

@@ -4,8 +4,9 @@ import { GameScene, type QuizItem } from "@core/types/common-types";
 import { usePlayerState } from "./player-store"; // ✅
 import { apiClient } from "../../api";
 import { useSceneStore } from "./scene-store";
+import { GameConstants } from "$/core/constants/constants";
 
-const TIMEOUT_FOR_QUESTION = 10 * 1000;
+const TIMEOUT_FOR_QUESTION = GameConstants.TIMEOUT_FOR_QUESTION;
 
 async function sendAnswerToServer(questionId: string, answerId: string): Promise<void> {
   try {
@@ -230,7 +231,7 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
     if (currentScene === GameScene.MoveToTrain) {
       gameFlowManager.showRailwayStation();
     } else {
-      gameFlowManager.startGameMap();
+      gameFlowManager.showGameMap();
     }
   },
 
