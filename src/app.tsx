@@ -21,7 +21,6 @@ import { Layout } from "./ui/layout/";
 
 export const App: React.FC = () => {
   useAuth();
-
   const phaserCanvasRef = useRef<HTMLDivElement>(null);
   const currentScene = useSceneStore((state) => state.currentScene);
 

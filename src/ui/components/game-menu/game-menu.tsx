@@ -26,7 +26,7 @@ export const GameMenu: React.FC<GameMenuProps> = ({
       gameFlowManager.showFlyingGame();
       break;
     case "game-map":
-      gameFlowManager.startGameMap();
+      gameFlowManager.showGameMap();
       break;
     case "cooking":
       gameFlowManager.showGameCooking();

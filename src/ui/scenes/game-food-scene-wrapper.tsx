@@ -8,7 +8,7 @@ export const GameFoodSceneWrapper: React.FC = () => {
   const gameFoodLevelData = sceneData as GameFoodLevelData;
 
   const handleGoToMap = () => {
-    gameFlowManager.startGameMap();
+    gameFlowManager.showGameMap();
   };
 
   return (

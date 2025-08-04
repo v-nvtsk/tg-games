@@ -147,10 +147,10 @@ export default class GameFoodPhaserScene extends Phaser.Scene {
         .setDepth(100);
 
       this.time.delayedCall(3000, () => {
-        gameFlowManager.startGameMap();
+        gameFlowManager.showGameMap();
       });
     } else {
-      gameFlowManager.startGameMap();
+      gameFlowManager.showGameMap();
     }
   }
 

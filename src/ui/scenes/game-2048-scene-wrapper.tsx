@@ -3,7 +3,7 @@ import { gameFlowManager } from "@processes/game-flow/game-flow-manager";
 
 export const Game2048SceneWrapper: React.FC = () => {
   const handleGoToMap = () => {
-    gameFlowManager.startGameMap();
+    gameFlowManager.showGameMap();
   };
 
   return (

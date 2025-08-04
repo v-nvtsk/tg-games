@@ -167,11 +167,11 @@ export const SlidesWrapper = () => {
                   />
                 </div>
                 <div className={styles.choiceOptions}>
-                  {currentAction.options.map((o: string) => (
+                  {currentAction.options.map((o: string, idx: number) => (
                     <Button
                       key={`choice-${o}`}
                       text={o}
-                      onClick={() => handleChoiceSelect(o)}
+                      onClick={() => handleChoiceSelect(o, idx)}
                       className={styles.choiceButton}
                     />
                   ))}

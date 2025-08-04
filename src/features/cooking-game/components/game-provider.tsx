@@ -8,28 +8,80 @@ export interface VegetablePiece {
   color: string;
 }
 
+// Типы для навигации
+export type GameScreen = "tetris" | "shop" | "recipe-book";
+
+// Типы для ингредиентов
+export interface Ingredient {
+  id: string;
+  name: string;
+  emoji: string;
+  color: string;
+  price: number;
+  description: string;
+}
+
+// Типы для инвентаря
+export interface InventoryItem {
+  ingredient: Ingredient;
+  count: number;
+}
+
+// Типы для рецептов
+export interface Recipe {
+  id: string;
+  title: string;
+  ingredients: Array<{
+    ingredientId: string;
+    count: number;
+  }>;
+  isAvailable: boolean;
+  description: string;
+  difficulty: "easy" | "medium" | "hard";
+}
+
 export interface GameState {
+  // Существующие поля для Tetris
   board: (VegetablePiece | null)[][];
   currentPiece: VegetablePiece | null;
   score: number;
   isGameOver: boolean;
-  clearingCells: Set<string>; // Для отслеживания ячеек в процессе анимации
+  clearingCells: Set<string>;
+  
+  // Новые поля для навигации и экономики
+  currentScreen: GameScreen;
+  coins: number;
+  inventory: InventoryItem[];
+  
+  // Магазин и рецепты
+  availableIngredients: Ingredient[];
+  recipes: Recipe[];
 }
 
 export interface GameAction {
-  type: "PLACE_PIECE" | "CLEAR_LINES" | "NEW_PIECE" | "GAME_OVER" | "RESTART" | "UPDATE_SCORE" | "START_CLEAR_ANIMATION" | "FINISH_CLEAR_ANIMATION";
+  type: 
+    // Существующие actions для Tetris
+    | "PLACE_PIECE" 
+    | "CLEAR_LINES" 
+    | "NEW_PIECE" 
+    | "GAME_OVER" 
+    | "RESTART" 
+    | "UPDATE_SCORE" 
+    | "START_CLEAR_ANIMATION" 
+    | "FINISH_CLEAR_ANIMATION"
+    // Новые actions для навигации и экономики
+    | "NAVIGATE_TO_SCREEN"
+    | "ADD_COINS"
+    | "SPEND_COINS"
+    | "BUY_INGREDIENT"
+    | "USE_INGREDIENT"
+    | "ADD_INGREDIENT"
+    | "UNLOCK_RECIPE"
+    | "COOK_RECIPE"
+    | "UPDATE_RECIPE_AVAILABILITY"
+    | "RESET_GAME";
   payload?: any;
 }
-
-// Начальное состояние
-const initialState: GameState = {
-  board: Array(8).fill(null)
-    .map(() => Array(8).fill(null)),
-  currentPiece: null,
-  score: 0,
-  isGameOver: false,
-  clearingCells: new Set(),
-};
 
 // Фигуры овощей
 export const vegetableShapes: VegetablePiece[] = [
@@ -134,6 +186,165 @@ export const vegetableShapes: VegetablePiece[] = [
   },
 ];
 
+// Доступные ингредиенты в магазине
+export const availableIngredients: Ingredient[] = [
+  {
+    id: "carrot",
+    name: "Морковь",
+    emoji: "🥕",
+    color: "#FF6B35",
+    price: 10,
+    description: "Сладкая и хрустящая морковь"
+  },
+  {
+    id: "tomato",
+    name: "Помидор",
+    emoji: "🍅",
+    color: "#FF4444",
+    price: 15,
+    description: "Сочный красный помидор"
+  },
+  {
+    id: "cucumber",
+    name: "Огурец",
+    emoji: "🥒",
+    color: "#4CAF50",
+    price: 12,
+    description: "Свежий зеленый огурец"
+  },
+  {
+    id: "pepper",
+    name: "Перец",
+    emoji: "🫑",
+    color: "#FF9800",
+    price: 18,
+    description: "Ароматный болгарский перец"
+  },
+  {
+    id: "mushroom",
+    name: "Гриб",
+    emoji: "🍄",
+    color: "#8D6E63",
+    price: 20,
+    description: "Вкусный шампиньон"
+  },
+  {
+    id: "potato",
+    name: "Картофель",
+    emoji: "🥔",
+    color: "#795548",
+    price: 8,
+    description: "Сытный картофель"
+  },
+  {
+    id: "onion",
+    name: "Лук",
+    emoji: "🧅",
+    color: "#9C27B0",
+    price: 5,
+    description: "Острый репчатый лук"
+  },
+  {
+    id: "garlic",
+    name: "Чеснок",
+    emoji: "🧄",
+    color: "#FFEB3B",
+    price: 7,
+    description: "Ароматный чеснок"
+  }
+];
+
+// Рецепты
+export const recipes: Recipe[] = [
+  {
+    id: "simple-salad",
+    title: "Простой салат",
+    ingredients: [
+      { ingredientId: "cucumber", count: 2 },
+      { ingredientId: "tomato", count: 1 }
+    ],
+    isAvailable: true,
+    description: "Легкий и освежающий салат",
+    difficulty: "easy"
+  },
+  {
+    id: "carrot-soup",
+    title: "Морковный суп",
+    ingredients: [
+      { ingredientId: "carrot", count: 3 },
+      { ingredientId: "onion", count: 1 },
+      { ingredientId: "garlic", count: 1 }
+    ],
+    isAvailable: false,
+    description: "Питательный морковный суп",
+    difficulty: "medium"
+  },
+  {
+    id: "stew",
+    title: "Рагу",
+    ingredients: [
+      { ingredientId: "potato", count: 2 },
+      { ingredientId: "carrot", count: 2 },
+      { ingredientId: "onion", count: 1 },
+      { ingredientId: "mushroom", count: 1 }
+    ],
+    isAvailable: false,
+    description: "Сытное овощное рагу",
+    difficulty: "hard"
+  }
+];
+
+// Начальное состояние
+const initialState: GameState = {
+  // Существующие поля для Tetris
+  board: Array(8).fill(null)
+    .map(() => Array(8).fill(null)),
+  currentPiece: null,
+  score: 0,
+  isGameOver: false,
+  clearingCells: new Set(),
+  
+  // Новые поля
+  currentScreen: "tetris",
+  coins: 100, // Начальные монеты
+  inventory: [],
+  availableIngredients,
+  recipes
+};
+
+// Утилитарные функции для работы с инвентарем и рецептами
+export const GameUtils = {
+  // Проверяет, есть ли достаточно ингредиентов для рецепта
+  canCookRecipe: (recipe: Recipe, inventory: InventoryItem[]): boolean => {
+    return recipe.ingredients.every((required) => {
+      const inventoryItem = inventory.find(
+        (item) => item.ingredient.id === required.ingredientId
+      );
+      return inventoryItem && inventoryItem.count >= required.count;
+    });
+  },
+
+  // Получает количество ингредиента в инвентаре
+  getIngredientCount: (ingredientId: string, inventory: InventoryItem[]): number => {
+    const item = inventory.find((item) => item.ingredient.id === ingredientId);
+    return item ? item.count : 0;
+  },
+
+  // Проверяет, можно ли купить ингредиент
+  canBuyIngredient: (ingredientId: string, coins: number, availableIngredients: Ingredient[]): boolean => {
+    const ingredient = availableIngredients.find((ing) => ing.id === ingredientId);
+    return ingredient ? coins >= ingredient.price : false;
+  },
+
+  // Вычисляет обновленные рецепты на основе инвентаря
+  updateRecipeAvailability: (recipes: Recipe[], inventory: InventoryItem[]): Recipe[] => {
+    return recipes.map((recipe) => ({
+      ...recipe,
+      isAvailable: GameUtils.canCookRecipe(recipe, inventory),
+    }));
+  }
+};
+
 // Редьюсер
 function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -157,10 +368,13 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     };
 
   case "FINISH_CLEAR_ANIMATION":
+    const newScore = state.score + action.payload.points;
+    const coinsEarned = Math.floor(action.payload.points / 10); // 10 очков = 1 монета
     return {
       ...state,
       board: action.payload.board,
-      score: state.score + action.payload.points,
+      score: newScore,
+      coins: state.coins + coinsEarned,
       clearingCells: new Set(),
     };
 
@@ -186,6 +400,117 @@ function gameReducer(state: GameState, action: GameAction): GameState {
   case "RESTART":
     return initialState;
 
+  case "NAVIGATE_TO_SCREEN":
+    return {
+      ...state,
+      currentScreen: action.payload.screen,
+    };
+
+  case "ADD_COINS":
+    return {
+      ...state,
+      coins: state.coins + action.payload.amount,
+    };
+
+  case "SPEND_COINS":
+    return {
+      ...state,
+      coins: state.coins - action.payload.amount,
+    };
+
+  case "BUY_INGREDIENT":
+    const ingredientToBuy = state.availableIngredients.find(
+      (ing) => ing.id === action.payload.ingredientId
+    );
+    if (ingredientToBuy && state.coins >= ingredientToBuy.price) {
+      const existingItem = state.inventory.find(
+        (item) => item.ingredient.id === action.payload.ingredientId
+      );
+      
+      if (existingItem) {
+        // Увеличиваем количество существующего ингредиента
+        return {
+          ...state,
+          coins: state.coins - ingredientToBuy.price,
+          inventory: state.inventory.map((item) =>
+            item.ingredient.id === action.payload.ingredientId
+              ? { ...item, count: item.count + 1 }
+              : item
+          ),
+        };
+      } else {
+        // Добавляем новый ингредиент
+        return {
+          ...state,
+          coins: state.coins - ingredientToBuy.price,
+          inventory: [...state.inventory, { ingredient: ingredientToBuy, count: 1 }],
+        };
+      }
+    }
+    return state;
+
+  case "USE_INGREDIENT":
+    return {
+      ...state,
+      inventory: state.inventory.map((item) =>
+        item.ingredient.id === action.payload.ingredientId
+          ? { ...item, count: item.count - 1 }
+          : item
+      ),
+    };
+
+  case "ADD_INGREDIENT":
+    return {
+      ...state,
+      inventory: state.inventory.map((item) =>
+        item.ingredient.id === action.payload.ingredientId
+          ? { ...item, count: item.count + 1 }
+          : item
+      ),
+    };
+
+  case "UNLOCK_RECIPE":
+    return {
+      ...state,
+      recipes: state.recipes.map((recipe) =>
+        recipe.id === action.payload.recipeId ? { ...recipe, isAvailable: true } : recipe
+      ),
+    };
+
+  case "COOK_RECIPE":
+    const recipeToCook = state.recipes.find(
+      (recipe) => recipe.id === action.payload.recipeId
+    );
+    if (recipeToCook && GameUtils.canCookRecipe(recipeToCook, state.inventory)) {
+      // Уменьшаем количество ингредиентов в инвентаре
+      const updatedInventory = state.inventory.map((item) => {
+        const requiredIngredient = recipeToCook.ingredients.find(
+          (req) => req.ingredientId === item.ingredient.id
+        );
+        if (requiredIngredient) {
+          return { ...item, count: item.count - requiredIngredient.count };
+        }
+        return item;
+      }).filter((item) => item.count > 0); // Удаляем пустые позиции
+
+      return {
+        ...state,
+        inventory: updatedInventory,
+        // Обновляем доступность рецептов после приготовления
+        recipes: GameUtils.updateRecipeAvailability(state.recipes, updatedInventory),
+      };
+    }
+    return state;
+
+  case "UPDATE_RECIPE_AVAILABILITY":
+    return {
+      ...state,
+      recipes: GameUtils.updateRecipeAvailability(state.recipes, state.inventory),
+    };
+
+  case "RESET_GAME":
+    return initialState;
+
   default:
     return state;
   }
@@ -204,6 +529,64 @@ export function useGameContext() {
     throw new Error("useGameContext must be used within a GameProvider");
   }
   return context;
+}
+
+// Хук для удобной навигации
+export function useGameNavigation() {
+  const { state, dispatch } = useGameContext();
+  
+  return {
+    currentScreen: state.currentScreen,
+    navigateTo: (screen: GameScreen) => {
+      dispatch({ type: "NAVIGATE_TO_SCREEN", payload: { screen } });
+    },
+    goToTetris: () => dispatch({ type: "NAVIGATE_TO_SCREEN", payload: { screen: "tetris" } }),
+    goToShop: () => dispatch({ type: "NAVIGATE_TO_SCREEN", payload: { screen: "shop" } }),
+    goToRecipeBook: () => dispatch({ type: "NAVIGATE_TO_SCREEN", payload: { screen: "recipe-book" } }),
+  };
+}
+
+// Хук для работы с магазином
+export function useShop() {
+  const { state, dispatch } = useGameContext();
+  
+  return {
+    coins: state.coins,
+    availableIngredients: state.availableIngredients,
+    buyIngredient: (ingredientId: string) => {
+      dispatch({ type: "BUY_INGREDIENT", payload: { ingredientId } });
+    },
+    canBuyIngredient: (ingredientId: string) => {
+      return GameUtils.canBuyIngredient(ingredientId, state.coins, state.availableIngredients);
+    },
+  };
+}
+
+// Хук для работы с инвентарем
+export function useInventory() {
+  const { state } = useGameContext();
+  
+  return {
+    inventory: state.inventory,
+    getIngredientCount: (ingredientId: string) => {
+      return GameUtils.getIngredientCount(ingredientId, state.inventory);
+    },
+  };
+}
+
+// Хук для работы с рецептами
+export function useRecipes() {
+  const { state, dispatch } = useGameContext();
+  
+  return {
+    recipes: state.recipes,
+    cookRecipe: (recipeId: string) => {
+      dispatch({ type: "COOK_RECIPE", payload: { recipeId } });
+    },
+    canCookRecipe: (recipe: Recipe) => {
+      return GameUtils.canCookRecipe(recipe, state.inventory);
+    },
+  };
 }
 
 // Провайдер

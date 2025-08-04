@@ -30,6 +30,9 @@ export function useSlidesNavigation(
       setImageLoaded(false); // ✅ добавляем сброс
     } else {
       useSceneStore.getState().setSlidesConfig(undefined);
+      setSlideIndex(0);
+      setActionIndex(-1);
+      setImageLoaded(false);
     }
   }, [actionIndex, currentActions, slideIndex, slides, currentAction, playSceneSound]);
 
@@ -45,14 +48,29 @@ export function useSlidesNavigation(
     processUpdate();
   }, [processUpdate, playSceneSound]);
 
-  const handleChoiceSelect = useCallback((option: string) => {
-    // ✅ не мутируем напрямую массив из props — создаём копию
-    const updated = [...currentActions];
-    updated.splice(actionIndex + 1, 0, { type: "thoughts",
-      text: option });
-    // подменяем экшены в текущем слайде (если надо, передать в стор)
+  const handleChoiceSelect = useCallback((option: string, idx: number) => {
+    // ✅ Проверяем, есть ли условные действия для выбранного варианта
+    if (currentAction?.conditionalActions?.[idx]) {
+      // ✅ Вставляем условные действия после текущего действия
+      const updated = [...currentActions];
+      const conditionalActions = currentAction.conditionalActions[idx];
+      updated.splice(actionIndex + 1, 0, ...conditionalActions);
+      
+      // ✅ Обновляем действия в текущем слайде (временное решение)
+      // В идеале это должно быть в store, но пока используем локальное состояние
+      currentSlide.actions = updated;
+    } else {
+      // ✅ Fallback: добавляем thoughts действие с выбранным текстом (как было раньше)
+      const updated = [...currentActions];
+      updated.splice(actionIndex + 1, 0, { 
+        type: "thoughts",
+        text: option 
+      });
+      currentSlide.actions = updated;
+    }
+    
     processUpdate();
-  }, [currentActions, actionIndex, processUpdate]);
+  }, [currentActions, actionIndex, processUpdate, currentAction, currentSlide]);
 
   return {
     slideIndex,
