@@ -8,21 +8,18 @@ interface PlayerState {
   playerGender: "boy" | "girl" | null;
   energy: number;
   hunger: number;
-  currentScene: SceneName | null;
-  currentEpisode: string | number | null;
-  hiddenScenes: SceneName[];
+  checkPoint: string | null;
 
   setPlayerName: (name: string) => void;
   setPlayerGender: (gender: "boy" | "girl" | null) => void;
 
   setEnergy: (value: number) => void;
+  setHunger: (value: number) => void;
 
   increaseEnergy: () => void;
   decreaseEnergy: () => void;
 
-  setHunger: (value: number) => void;
   setProgress: (scene: SceneName, episode: number) => void;
-  hideScene: (scene: SceneName) => void;
 
   loadPlayerState: () => Promise<void>;
   savePlayerState: () => Promise<void>;
@@ -35,9 +32,7 @@ export const usePlayerState = create<PlayerState>((set, get) => ({
   playerGender: null,
   energy: 20,
   hunger: 0,
-  currentScene: null,
-  currentEpisode: null,
-  hiddenScenes: [],
+  checkPoint: null,
 
   setPlayerName: (name) => set({ playerName: name }),
   setPlayerGender: (gender) => set({ playerGender: gender }),
@@ -70,17 +65,10 @@ export const usePlayerState = create<PlayerState>((set, get) => ({
       .catch((err) => logAppError("autoSaveHunger", err));
   },
 
-  setProgress: (scene, episode) => {
-    set({ currentScene: scene,
-      currentEpisode: episode });
+  setProgress: (checkPoint) => {
+    set({ checkPoint });
     get().saveGameProgress()
       .catch((err) => logAppError("autoSaveProgress", err));
-  },
-
-  hideScene: (scene) => {
-    set((state) => ({ hiddenScenes: [...state.hiddenScenes, scene] }));
-    get().saveGameProgress()
-      .catch((err) => logAppError("autoSaveHiddenScene", err));
   },
 
   /** 🔹 Загрузка состояния игрока с сервера */
@@ -101,9 +89,7 @@ export const usePlayerState = create<PlayerState>((set, get) => ({
       set({
         energy: player.energy,
         hunger: player.hunger,
-        currentScene: progress.currentScene as SceneName || null,
-        currentEpisode: progress.currentEpisode ? Number(progress.currentEpisode) : null,
-        hiddenScenes: progress.hiddenScenes as SceneName[] || [],
+        checkPoint: progress.currentScene as SceneName || null,
       });
     } catch (err) {
       logAppError("loadPlayerState", err);
@@ -124,11 +110,9 @@ export const usePlayerState = create<PlayerState>((set, get) => ({
   /** 🔹 Сохранение прогресса игры */
   saveGameProgress: async () => {
     try {
-      const { currentScene, currentEpisode, hiddenScenes } = get();
+      const { checkPoint } = get();
       await apiClient.gameState.gameStateControllerUpdateGameProgress({
-        currentScene: currentScene || "",
-        data: { currentEpisode,
-          hiddenScenes },
+        currentScene: checkPoint || "",
       });
     } catch (err) {
       logAppError("saveGameProgress", err);
@@ -145,9 +129,7 @@ export const usePlayerState = create<PlayerState>((set, get) => ({
       set({
         energy: 100,
         hunger: 0,
-        currentScene: null,
-        currentEpisode: null,
-        hiddenScenes: [],
+        checkPoint: null,
       });
     } catch (err) {
       logAppError("resetProgress", err);

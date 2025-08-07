@@ -1,5 +1,13 @@
 import { gameFlowManager } from "$processes/game-flow/game-flow-manager";
-import { Episode, type EpisodeConfig } from "./common";
+import type { EpisodeConfig } from "./common";
+import { Episode } from "./common";
+
+interface SlideSceneConfig {
+  meta: {
+    scene: string;
+  };
+  episodes: Episode[];
+};
 
 const introConfig: EpisodeConfig[] = [
   {
@@ -58,10 +66,6 @@ const introConfig: EpisodeConfig[] = [
       characterName: "Алексей",
       text: "В коробке — всё по-дедовски: аккуратно, но неформально. Карта выглядит как будто её уже кто-то прошёл. Дневник — почти пустой. Кассета — с подписью: \"Старт. Не трогай, если не готов.\"",
     }],
-  },
-  {
-    slideIndex: 3,
-    filename: "frame-31.jpg",
   },
   {
     slideIndex: 3,
@@ -212,7 +216,7 @@ const introConfig: EpisodeConfig[] = [
         type: "button",
         button: {
           text: "▶ В коридор",
-          action: () => {void 0;},
+          action: () => { void 0; },
         },
       },
     ],
@@ -372,11 +376,11 @@ const introConfig: EpisodeConfig[] = [
       },
     ],
   },
-];
+]
 
-export function getIntroSlides(episode: number): Episode[] {
+
+export function getIntroSlides(): SlideSceneConfig {
   const episodes: Episode[] = [];
-  // Применяем конфигурации к эпизодам
   introConfig.forEach((config) => {
     const episode = new Episode({
       ...config,
@@ -384,6 +388,10 @@ export function getIntroSlides(episode: number): Episode[] {
     });
     episodes.push(episode);
   });
-
-  return episodes.slice(episode);
+  return {
+    meta: {
+      scene: "intro",
+    },
+    episodes,
+  };
 }

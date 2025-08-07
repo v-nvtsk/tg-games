@@ -5,6 +5,7 @@ import { logAppError } from "@utils/log-app-error";
 import { logActivity } from "$/api/log-activity";
 
 interface SceneState {
+  prevScene: SceneName | null;
   currentScene: SceneName;
   sceneData: SceneDataMap[SceneName];
   backgroundLayers: SceneBackground | null;
@@ -15,9 +16,11 @@ interface SceneState {
   setScene: <T extends SceneName>(scene: T, data: SceneDataMap[T]) => Promise<void>;
   setBackgroundLayers: (layers: SceneBackground) => void;
   setSlidesConfig: (config?: SlidesConfig) => void;
+  backToPrevScene: () => void;
 }
 
 export const useSceneStore = create<SceneState>((set, get) => ({
+  prevScene: null,
   currentScene: "Auth",
   sceneData: null,
   backgroundLayers: null,
@@ -25,9 +28,14 @@ export const useSceneStore = create<SceneState>((set, get) => ({
 
   setScene: async (scene, data) => {
     const prevScene = get().currentScene;
-    set({ currentScene: scene,
-      sceneData: data });
-
+    console.log("setScene", scene, data);
+    set({
+      prevScene,
+      currentScene: scene,
+      sceneData: data
+    });
+    console.log("setScene", get().prevScene);
+    
     try {
       const { user, sessionId, token } = useAuthStore.getState();
 
@@ -53,4 +61,14 @@ export const useSceneStore = create<SceneState>((set, get) => ({
   setBackgroundLayers: (layers) => set({ backgroundLayers: layers }),
 
   setSlidesConfig: (config) => set({ slidesConfig: config }),
+
+  backToPrevScene: () => {
+    const { prevScene, currentScene } = get();
+    if (prevScene) {
+      set({
+        prevScene: currentScene,
+        currentScene: prevScene 
+      });
+    }
+  },
 }));

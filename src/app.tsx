@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import "./global.css";
 import { gameFlowManager } from "./processes/game-flow/game-flow-manager";
 import { useSceneStore } from "./core/state/scene-store";
+import { initDebugStores } from "./utils/debug-stores";
 import {
   IntroSceneWrapper,
   AuthSceneWrapper,
@@ -28,6 +29,9 @@ export const App: React.FC = () => {
     if (phaserCanvasRef.current) {
       void gameFlowManager.initializeGame(phaserCanvasRef.current.id);
     }
+    
+    // Инициализация инструментов отладки
+    initDebugStores();
   }, []);
 
   const renderSceneWrapper = useCallback(() => {

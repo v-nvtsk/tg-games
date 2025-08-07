@@ -1,86 +1,59 @@
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Episode } from "$features/slides/common";
 import type { Action } from "$features/slides";
-import { useSceneStore } from "../../core/state/scene-store";
-import { gameFlowManager } from "$processes/game-flow";
-import { usePlayerState } from "$core/state";
+import { useStoryStore } from "$core/state";
 
 export function useSlidesNavigation(
   slides: Episode[],
   playSceneSound: (url?: string) => void,
 ) {
-  const [slideIndex, setSlideIndex] = useState<number>(0);
-  const [actionIndex, setActionIndex] = useState<number>(-1);
-  const [imageLoaded, setImageLoaded] = useState<boolean>(false);
-  const [canSkip, setCanSkip] = useState<boolean>(false);
+  const slidesRef = useRef(slides);
+  const {
+    slideIndex,
+    actionIndex,
+    imageLoaded,
+    canSkip,
+    currentSlide,
+    currentActions,
+    setImageLoaded,
+    setCanSkip,
+    setSlides,
+    processUpdate: storeProcessUpdate,
+    goNext: storeGoNext,
+    handleActionButtonClick: storeHandleActionButtonClick,
+    handleChoiceSelect: storeHandleChoiceSelect
+  } = useStoryStore();
 
-  const currentSlide: Episode = slides[slideIndex];
-
-  const currentActions: Action[] = useMemo(() => currentSlide.actions ?? [], [currentSlide]);
-  const currentAction: Action | null =
-    actionIndex >= 0 && actionIndex < currentActions.length ? currentActions[actionIndex] : null;
+  // Инициализируем слайды при первом рендере и при их изменении
+  useEffect(() => {
+    if (slidesRef.current.length !== slides.length ||
+      slidesRef.current[0]?.key !== slides[0]?.key) {
+      console.log("SET SLIDES IN USE EFFECT - REAL CHANGE");
+      slidesRef.current = slides;
+      setSlides(slides);
+    }
+  }, [slides, setSlides]);
 
   const processUpdate = useCallback(() => {
-    const nextSound: string | undefined = currentAction?.onNext?.sound;
-    if (nextSound) playSceneSound(nextSound);
-
-    if (currentActions.length > 0 && actionIndex < currentActions.length - 1) {
-      setActionIndex((i) => i + 1);
-    } else if (slideIndex < slides.length - 1) {
-      setSlideIndex((i) => i + 1);
-      setActionIndex(-1);
-      setImageLoaded(false); // ✅ добавляем сброс
-    } else {
-      useSceneStore.getState().setSlidesConfig(undefined);
-      setSlideIndex(0);
-      setActionIndex(-1);
-      setImageLoaded(false);
-    }
-  }, [actionIndex, currentActions, slideIndex, slides, currentAction, playSceneSound]);
+    storeProcessUpdate(playSceneSound);
+  }, [storeProcessUpdate, playSceneSound]);
 
   const goNext = useCallback(() => {
-    if (!canSkip) return;
-    setCanSkip(false);
-    processUpdate();
-  }, [canSkip, processUpdate]);
+    storeGoNext(playSceneSound);
+  }, [storeGoNext, playSceneSound]);
 
   const handleActionButtonClick = useCallback((action: Action) => {
-    if (action.button?.sound) playSceneSound(action.button.sound);
-    action.button?.action?.();
-    const scene = useSceneStore.getState().currentScene;
-    usePlayerState.getState().setProgress(scene, slideIndex+1);
-    processUpdate();
-  }, [processUpdate, playSceneSound]);
+    storeHandleActionButtonClick(action, playSceneSound);
+  }, [storeHandleActionButtonClick, playSceneSound]);
 
-  const handleChoiceSelect = useCallback((option: string, idx: number) => {
-    // ✅ Проверяем, есть ли условные действия для выбранного варианта
-    if (currentAction?.conditionalActions?.[idx]) {
-      // ✅ Вставляем условные действия после текущего действия
-      const updated = [...currentActions];
-      const conditionalActions = currentAction.conditionalActions[idx];
-      updated.splice(actionIndex + 1, 0, ...conditionalActions);
-      
-      // ✅ Обновляем действия в текущем слайде (временное решение)
-      // В идеале это должно быть в store, но пока используем локальное состояние
-      currentSlide.actions = updated;
-    } else {
-      // ✅ Fallback: добавляем thoughts действие с выбранным текстом (как было раньше)
-      const updated = [...currentActions];
-      updated.splice(actionIndex + 1, 0, { 
-        type: "thoughts",
-        text: option 
-      });
-      currentSlide.actions = updated;
-    }
-    
-    processUpdate();
-  }, [currentActions, actionIndex, processUpdate, currentAction, currentSlide]);
+  const handleChoiceSelect = useCallback((option: string) => {
+    storeHandleChoiceSelect(option, playSceneSound);
+  }, [storeHandleChoiceSelect, playSceneSound]);
 
   return {
     slideIndex,
     actionIndex,
-    currentSlide,
-    currentAction,
+    currentSlide: currentSlide || slides[slideIndex] || { actions: [] },
     currentActions,
     imageLoaded,
     setImageLoaded,
@@ -89,5 +62,6 @@ export function useSlidesNavigation(
     goNext,
     handleActionButtonClick,
     handleChoiceSelect,
+    processUpdate
   };
 }

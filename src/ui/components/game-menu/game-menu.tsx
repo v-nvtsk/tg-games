@@ -21,6 +21,8 @@ export const GameMenu: React.FC<GameMenuProps> = ({
   if (!visible) return null;
 
   const onSceneSelection = (scene: string) => {
+    console.log("onSceneSelection");
+    console.log(scene);
     switch (scene) {
     case "flight":
       gameFlowManager.showFlyingGame();

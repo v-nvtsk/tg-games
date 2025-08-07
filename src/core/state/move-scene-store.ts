@@ -221,12 +221,6 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
       stage: "hidden",
     });
 
-    try {
-      usePlayerState.getState().hideScene("MoveScene");
-    } catch (err) {
-      console.error("Failed to save progress for MoveScene", err);
-    }
-
     const currentScene = useSceneStore.getState().currentScene;
     if (currentScene === GameScene.MoveToTrain) {
       gameFlowManager.showRailwayStation();

@@ -141,19 +141,18 @@ export const AuthSceneWrapper: React.FC = () => {
   };
 
   const handleStartGame = () => {
+    console.log("handleStartGame");
     if (playerName && selectedGender) {
-      void gameFlowManager.showIntro(0);
+      console.log("showIntro");
+      void gameFlowManager.showIntro();
     }
   };
 
   const isStartButtonDisabled = !playerName || !selectedGender;
 
-  if (isVerifying) {
-    return <AuthWrapperContainer/>;
-  }
-
   return (
-    <AuthWrapperContainer>
+    <div className={styles.sceneWrapper}>
+    <div className={styles.gameContainer}>
       <div className={styles.contentWrapper}>
         <div className={styles.gameTitle}>
           <h1 className={styles.mainTitle}>Ветви и корни</h1>
@@ -236,13 +235,6 @@ export const AuthSceneWrapper: React.FC = () => {
           />
         ))}
       </div>}
-    </AuthWrapperContainer>);
-};
-
-const AuthWrapperContainer: React.FC<PropsWithChildren> = ({ children }) => {
-  return (<div className={styles.sceneWrapper}>
-    <div className={styles.gameContainer}>
-      {children}
-    </div>
-  </div>);
+      </div>
+      </div>);
 };

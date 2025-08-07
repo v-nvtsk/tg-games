@@ -102,10 +102,7 @@ export const DetectiveGame: React.FC = () => {
   const totalItems = items.length;
 
   const handleNext = () => {
-    const scene = useSceneStore.getState().currentScene;
-    usePlayerState.getState().setProgress(scene, BAG_EPISODE);
-    void gameFlowManager.showIntro(BAG_EPISODE);
-
+    useSceneStore.getState().backToPrevScene();
   };
 
   return (

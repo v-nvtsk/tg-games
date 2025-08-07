@@ -1,4 +1,4 @@
 export const GameConstants = {
-  SLIDE_TIMEOUT: 1500,
-  TIMEOUT_FOR_QUESTION: 5000,
+  SLIDE_TIMEOUT: 0,
+  TIMEOUT_FOR_QUESTION: 1,
 };

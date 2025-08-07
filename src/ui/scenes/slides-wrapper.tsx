@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ThoughtBubble } from "../../components";
+import { ThoughtBubble } from "$ui/components/thought-bubble";
 import { useBackgroundMusic } from "../../core/hooks/use-background-music/use-music";
 import { usePlayerState, useSceneStore } from "../../core/state";
 import type { Episode } from "../../features/slides";
@@ -18,7 +18,7 @@ export const SlidesWrapper = () => {
   // ✅ Получаем слайды из конфигурации
   const slides: Episode[] = useMemo(() => {
     if (!slidesConfig) return [];
-    const episodeNumber = Number(usePlayerState.getState().currentEpisode) || 0 ;
+    const episodeNumber = Number(usePlayerState.getState().checkPoint) || 0;
     return slidesConfig.getSlides(episodeNumber);
   }, [slidesConfig]);
 
@@ -30,7 +30,6 @@ export const SlidesWrapper = () => {
     slideIndex,
     actionIndex,
     currentSlide,
-    currentAction,
     currentActions,
     canSkip,
     setCanSkip,
@@ -40,6 +39,8 @@ export const SlidesWrapper = () => {
     handleActionButtonClick,
     handleChoiceSelect,
   } = useSlidesNavigation(slides, playSceneSound);
+
+  const currentAction = currentActions[actionIndex];
 
   // ✅ обновляем currentSlide для звуков
   useEffect(() => {
@@ -171,7 +172,7 @@ export const SlidesWrapper = () => {
                     <Button
                       key={`choice-${o}`}
                       text={o}
-                      onClick={() => handleChoiceSelect(o, idx)}
+                      onClick={() => handleChoiceSelect(o)}
                       className={styles.choiceButton}
                     />
                   ))}

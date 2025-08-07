@@ -6,12 +6,10 @@ import {
   type MoveSceneData,
   type CookingGameData,
   GameScene,
+  type DetectiveGameData,
 } from "@core/types/common-types";
-import { AuthPhaserScene } from "$features/auth-phaser-scene";
 import { GameMapPhaserScene } from "@features/game-map";
 import { MovePhaserScene } from "@features/move-phaser-scene";
-import { GameFoodPhaserScene } from "$features/game-food";
-import { Game2048PhaserScene } from "$features/game-2048";
 import { FlyingGameScene } from "@features/flying-game/flying-game-scene";
 import { getAssetsPath, getAssetsPathByType } from "$utils/get-assets-path";
 import { introSlidesConfig, railwayStationSlidesConfig } from "../../features/slides/configs";
@@ -40,15 +38,11 @@ class GameFlowManager {
         ...gameConfig,
         parent,
         scene: [
-          AuthPhaserScene,
           GameMapPhaserScene,
           MovePhaserScene,
-          GameFoodPhaserScene,
-          Game2048PhaserScene,
           FlyingGameScene,
         ],
       });
-      console.log("Phaser Game Initialized", this.game);
 
       this.game.events.on(Phaser.Core.Events.READY, () => {
         console.log("Phaser Game Ready");
@@ -66,10 +60,10 @@ class GameFlowManager {
         this.startScene(GameScene.Auth);
         return;
       }
-      const { currentScene } = usePlayerState.getState();
-      if (currentScene) {
-        console.log(`Восстанавливаем сцену: ${currentScene}`);
-        this.startScene(currentScene as GameScene);
+      const { checkPoint } = usePlayerState.getState();
+      if (checkPoint) {
+        console.log(`Восстанавливаем сцену: ${checkPoint}`);
+        this.startScene(checkPoint as GameScene);
       } else {
         console.log("Нет сохранённой сцены, показываем интро");
         this.showIntro();
@@ -95,11 +89,6 @@ class GameFlowManager {
       return this.startPhaserScene(GameScene.Intro);
     }
 
-    if (this.isSceneHidden(scene)) {
-      console.warn(`${scene} скрыта, пропускаем`);
-      return;
-    }
-
     const payload = (data && typeof data === "object") ? data : {};
     this.stopActiveScenes();
     this.game.scene.start(phaserKey, payload);
@@ -119,14 +108,11 @@ class GameFlowManager {
     });
   }
 
-  private isSceneHidden(scene: GameScene): boolean {
-    return usePlayerState.getState().hiddenScenes.includes(scene);
-  }
-
-  showIntro(episodeNumber = 0) {
+  showIntro() {
     useSceneStore.getState().setSlidesConfig(introSlidesConfig);
-
-    this.startPhaserScene(GameScene.Intro, { episodeNumber });
+    useSceneStore.getState().setScene(GameScene.Intro, {
+      episodeNumber: 0,
+    });
   }
 
   showGameMap() {
@@ -140,9 +126,7 @@ class GameFlowManager {
     });
   }
 
-  showGame2048() {
-    this.startPhaserScene(GameScene.Game2048);
-  }
+  showGame2048() {}
 
   showFlyingGame() {
     this.startPhaserScene(GameScene.FlyingGame);
@@ -151,10 +135,6 @@ class GameFlowManager {
   /** ✅ Особый случай MoveToTrain */
   showMoveToTrainScene(data?: MoveSceneData) {
     if (!this.game) return;
-    if (this.isSceneHidden(GameScene.MoveToTrain)) {
-      console.warn("MoveToTrain is hidden, skipping.");
-      return;
-    }
 
     const layers = {
       background: null,
@@ -188,21 +168,20 @@ class GameFlowManager {
     console.log("▶️ Запущена логическая сцена MoveToTrain (Phaser: Move)", data);
   }
 
-  showDetectiveGame() {
-    this.startPhaserScene(GameScene.DetectiveGame);
-  }
-
-  showRailwayStation(episodeNumber = 0) {
+  showRailwayStation() {
     useSceneStore.getState().setSlidesConfig(railwayStationSlidesConfig);
-
-    this.startPhaserScene(GameScene.RailwayStation, { episodeNumber });
   }
 
-  public showGameCooking(data?: CookingGameData) {
+  showGameCooking(data?: CookingGameData) {
     useSceneStore.setState({
       currentScene: GameScene.CookingGame,
       sceneData: data,
     });
+  }
+
+  showDetectiveGame(data?: DetectiveGameData) {
+    console.log("showDetectiveGame");
+    useSceneStore.getState().setScene(GameScene.DetectiveGame, data || {});
   }
 
   /** ✅ Унифицированный способ восстановить сохранённую сцену */
