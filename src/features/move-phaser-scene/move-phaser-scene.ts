@@ -1,8 +1,9 @@
 import { Scene } from "phaser";
 import { createTiledBackground, getAssetsPathByType } from "$/utils";
 import { GameScene } from "@core/types/common-types";
-import type { MoveSceneData, SceneBackground } from "@core/types/common-types";
+import type { MoveScene, MoveSceneData, SceneBackground } from "@core/types/common-types";
 import { useMoveSceneStore } from "$/core/state/move-scene-store";
+import { MoveSceneMapper } from "./move-scene-mapper";
 
 const GROUND_HEIGHT = 50;
 const PLAYER_GRAVITY = 500;
@@ -21,12 +22,13 @@ const PARALLAX_FACTORS = {
 
 export class MovePhaserScene extends Scene {
   private prefix = "MoveScene";
+  private currentConfig: MoveSceneData | null = null;
 
   private player!: Phaser.Physics.Arcade.Sprite;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private moveLeft = false;
   private moveRight = false;
-  private isMovingInternal = false; // Внутреннее состояние движения сцены
+  private isMovingInternal = false;
 
   private parallaxBackground?: Phaser.GameObjects.TileSprite;
   private parallaxPreBackground?: Phaser.GameObjects.TileSprite;
@@ -43,9 +45,90 @@ export class MovePhaserScene extends Scene {
   }
 
   init(data: MoveSceneData): void {
-    this.prefix = data?.scenePrefix ?? "MoveScene";
-    this.targetX = data?.targetX ?? 0;
-    this.backgroundLayers = data.backgroundLayers;
+    // Если передан scenePrefix, пытаемся получить конфигурацию из маппера
+    if (data.scenePrefix) {
+      const config = MoveSceneMapper.getConfig(data.scenePrefix);
+      if (config) {
+        // Мерджим конфигурацию из маппера с переданными данными
+        this.currentConfig = {
+          ...MoveSceneMapper.createSceneData(data.scenePrefix),
+          ...data
+        };
+      }
+    }
+
+    // Если конфигурация не найдена в маппере, используем переданные данные
+    if (!this.currentConfig) {
+      this.currentConfig = data;
+    }
+
+    // Применяем конфигурацию
+    this.prefix = this.currentConfig.scenePrefix ?? "MoveScene";
+    this.targetX = this.currentConfig.targetX ?? 0;
+    this.backgroundLayers = this.currentConfig.backgroundLayers;
+  }
+
+  // ✅ Новый метод для переключения конфигурации во время работы сцены
+  public switchToScene(scene: MoveScene, customData?: Partial<MoveSceneData>): void {
+    try {
+      // Получаем конфигурацию из маппера
+      const config = MoveSceneMapper.getConfig(scene);
+      if (!config) {
+        console.warn(`[MovePhaserScene] Конфигурация для сцены ${scene} не найдена`);
+        return;
+      }
+
+      // Создаем новую конфигурацию
+      const newConfig = MoveSceneMapper.createSceneData(scene, customData);
+      
+      // Обновляем текущую конфигурацию
+      this.currentConfig = newConfig;
+      this.prefix = newConfig.scenePrefix ?? "MoveScene";
+      this.targetX = newConfig.targetX ?? 0;
+      this.backgroundLayers = newConfig.backgroundLayers;
+
+      // Обновляем фоновые слои
+      this.updateBackgroundLayers(newConfig.backgroundLayers);
+      
+      // Обновляем позицию игрока если нужно
+      if (this.player && newConfig.targetX !== undefined) {
+        this.player.setX(newConfig.targetX);
+      }
+
+      console.log(`[MovePhaserScene] Переключено на сцену: ${scene}`);
+    } catch (error) {
+      console.error(`[MovePhaserScene] Ошибка при переключении на сцену ${scene}:`, error);
+    }
+  }
+
+  // ✅ Метод для обновления фоновых слоев
+  private updateBackgroundLayers(layers: SceneBackground): void {
+    // Очищаем старые слои
+    this.clearParallaxLayers();
+    
+    // Создаем новые слои
+    const { width, height } = this.sys.game.canvas;
+    this.createParallaxLayers(width, height);
+  }
+
+  // ✅ Метод для очистки параллакс слоев
+  private clearParallaxLayers(): void {
+    if (this.parallaxBackground) {
+      this.parallaxBackground.destroy();
+      this.parallaxBackground = undefined;
+    }
+    if (this.parallaxPreBackground) {
+      this.parallaxPreBackground.destroy();
+      this.parallaxPreBackground = undefined;
+    }
+    if (this.parallaxLight) {
+      this.parallaxLight.destroy();
+      this.parallaxLight = undefined;
+    }
+    if (this.parallaxFront) {
+      this.parallaxFront.destroy();
+      this.parallaxFront = undefined;
+    }
   }
 
   preload(): void {
@@ -71,7 +154,7 @@ export class MovePhaserScene extends Scene {
       }));
     }
 
-    // ✅ загрузка фоновых слоёв с префиксом
+    // Загружаем фоновые слои
     const layers = this.backgroundLayers;
     if (layers) {
       if (layers.background) this.load.image(`${this.prefix}-background`, layers.background);
@@ -102,6 +185,7 @@ export class MovePhaserScene extends Scene {
   destroy(): void {
     console.log(`${this.prefix}: destroy() — очищена сцена`);
     // Убедимся, что состояние движения сброшено при уничтожении сцены
+    this.clearParallaxLayers()
     useMoveSceneStore.getState().setMoving(false);
   }
 
@@ -253,10 +337,13 @@ export class MovePhaserScene extends Scene {
 
     if (this.player.body.touching.down) this.player.setVelocityY(0);
 
+    // Получаем скорость из конфигурации
+    const currentSpeed = this.currentConfig?.playerSpeed ?? PLAYER_SPEED;
+    
     let currentVelocityX = 0;
     if (this.cursors) {
       if (this.moveLeft || this.moveRight) {
-        currentVelocityX = PLAYER_SPEED;
+        currentVelocityX = currentSpeed;
         this.player.setFlipX(false);
       }
       this.player.setVelocityX(currentVelocityX);
@@ -269,11 +356,12 @@ export class MovePhaserScene extends Scene {
 
     // Обновляем параллакс только если игрок движется
     if (isCurrentlyMoving) {
+      const parallaxFactors = this.currentConfig?.parallaxFactors ?? PARALLAX_FACTORS;
       const speedFactor = currentVelocityX * this.game.loop.delta / 1000;
-      if (this.parallaxBackground) this.parallaxBackground.tilePositionX += speedFactor * PARALLAX_FACTORS.background;
-      if (this.parallaxPreBackground) this.parallaxPreBackground.tilePositionX += speedFactor * PARALLAX_FACTORS.preBackground;
-      if (this.parallaxLight) this.parallaxLight.tilePositionX += speedFactor * PARALLAX_FACTORS.light;
-      if (this.parallaxFront) this.parallaxFront.tilePositionX += speedFactor * PARALLAX_FACTORS.front;
+      if (this.parallaxBackground) this.parallaxBackground.tilePositionX += speedFactor * parallaxFactors.background;
+      if (this.parallaxPreBackground) this.parallaxPreBackground.tilePositionX += speedFactor * parallaxFactors.preBackground;
+      if (this.parallaxLight) this.parallaxLight.tilePositionX += speedFactor * parallaxFactors.light;
+      if (this.parallaxFront) this.parallaxFront.tilePositionX += speedFactor * parallaxFactors.front;
     }
   }
 

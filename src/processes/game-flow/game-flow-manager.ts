@@ -3,13 +3,13 @@ import { gameConfig } from "@core/game-engine/config";
 import { useAuthStore, useMoveSceneStore, useSceneStore } from "@core/state";
 import { usePlayerState } from "@core/state/player-store";
 import {
+  type MoveScene,
   type MoveSceneData,
   GameScene,
 } from "@core/types/common-types";
 import { GameMapPhaserScene } from "@features/game-map";
-import { MovePhaserScene } from "@features/move-phaser-scene";
+import { MovePhaserScene, MoveSceneMapper } from "@features/move-phaser-scene";
 import { FlyingGameScene } from "@features/flying-game/flying-game-scene";
-import { getAssetsPath, getAssetsPathByType } from "$utils/get-assets-path";
 import { introSlidesConfig, railwayStationSlidesConfig } from "../../features/slides/configs";
 
 class GameFlowManager {
@@ -110,39 +110,34 @@ class GameFlowManager {
     });
   }
 
+  // ✅ Обновленный метод для движения после поезда
   showMoveAfterTrain(data?: Omit<MoveSceneData, "backgroundLayers">) {
-    this.startPhaserScene(GameScene.MoveAfterTrain, {
-      ...data,
-      backgroundLayers: useSceneStore.getState().backgroundLayers,
+    if (!this.game) return;
+
+    const sceneData = MoveSceneMapper.createSceneData("MoveAfterTrain", data);
+    
+    useSceneStore.setState({
+      currentScene: GameScene.MoveAfterTrain,
+      sceneData: sceneData,
+      backgroundLayers: sceneData.backgroundLayers,
     });
+
+    this.stopActiveScenes();
+    this.game.scene.start(GameScene.Move, sceneData);
+    
+    console.log("▶️ Запущена логическая сцена MoveAfterTrain (Phaser: Move)", sceneData);
   }
 
-  showGame2048() { }
-
-  showFlyingGame() {
-    this.startPhaserScene(GameScene.FlyingGame);
-  }
-
-  /** ✅ Особый случай MoveToTrain */
+  // ✅ Обновленный метод для движения к поезду
   showMoveToTrainScene(data?: MoveSceneData) {
     if (!this.game) return;
 
-    const layers = {
-      background: null,
-      preBackground: null,
-      light: getAssetsPathByType({
-        type: "images",
-        scene: "to-train-move",
-        filename: "background.svg",
-      }),
-      front: null,
-      ground: getAssetsPath("images/platform.png"),
-    };
-
+    const sceneData = MoveSceneMapper.createSceneData("MoveToTrain", data);
+    
     useSceneStore.setState({
       currentScene: GameScene.MoveToTrain,
-      sceneData: data,
-      backgroundLayers: layers,
+      sceneData: sceneData,
+      backgroundLayers: sceneData.backgroundLayers,
     });
 
     useMoveSceneStore.setState({
@@ -150,13 +145,32 @@ class GameFlowManager {
     });
 
     this.stopActiveScenes();
-    this.game.scene.start(GameScene.Move, {
-      ...data,
-      scenePrefix: "MoveToTrain",
-      backgroundLayers: layers,
-    });
+    this.game.scene.start(GameScene.Move, sceneData);
 
-    console.log("▶️ Запущена логическая сцена MoveToTrain (Phaser: Move)", data);
+    console.log("▶️ Запущена логическая сцена MoveToTrain (Phaser: Move)", sceneData);
+  }
+
+  // ✅ Новый метод для переключения сцены во время работы
+  switchMoveScene(scene: MoveScene, customData?: Partial<MoveSceneData>): void {
+    if (!this.game) {
+      console.warn("Game not initialized");
+      return;
+    }
+
+    const moveScene = this.game.scene.getScene(GameScene.Move) as MovePhaserScene;
+    if (!moveScene) {
+      console.warn("Move scene not found");
+      return;
+    }
+
+    moveScene.switchToScene(scene, customData);
+    console.log(`▶️ Переключено на логическую сцену: ${scene}`);
+  }
+
+  showGame2048() { }
+
+  showFlyingGame() {
+    this.startPhaserScene(GameScene.FlyingGame);
   }
 
   showRailwayStation() {

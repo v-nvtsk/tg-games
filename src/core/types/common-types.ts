@@ -1,13 +1,22 @@
 import type { Episode } from "../../features/slides";
 
+export type MoveScene = typeof GameScene.MoveToTrain | typeof GameScene.MoveAfterTrain | typeof GameScene.Move;
+
 export interface MoveSceneData {
-  scenePrefix?: string;
+  scenePrefix?: MoveScene;
   fromLocationId?: string;
   toLocationId?: string;
   travelTime?: number;
   targetX: number;
   targetY: number;
   backgroundLayers: SceneBackground;
+  playerSpeed?: number;
+  parallaxFactors?: {
+    background: number;
+    preBackground: number;
+    light: number;
+    front: number;
+  };
 }
 
 export interface GameMapSceneData {
