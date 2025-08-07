@@ -4,9 +4,7 @@ import { useAuthStore, useMoveSceneStore, useSceneStore } from "@core/state";
 import { usePlayerState } from "@core/state/player-store";
 import {
   type MoveSceneData,
-  type CookingGameData,
   GameScene,
-  type DetectiveGameData,
 } from "@core/types/common-types";
 import { GameMapPhaserScene } from "@features/game-map";
 import { MovePhaserScene } from "@features/move-phaser-scene";
@@ -19,17 +17,10 @@ class GameFlowManager {
 
   /** ✅ Маппинг логическая → физическая Phaser-сцена */
   private readonly sceneMapping: Partial<Record<GameScene, GameScene>> = {
-    [GameScene.Auth]: GameScene.Auth,
-    [GameScene.Intro]: GameScene.Intro,
     [GameScene.GameMap]: GameScene.GameMap,
-    [GameScene.Move]: GameScene.Move,
-    [GameScene.MoveToTrain]: GameScene.MoveToTrain,
-    [GameScene.GameFood]: GameScene.GameFood,
-    [GameScene.Game2048]: GameScene.Game2048,
     [GameScene.FlyingGame]: GameScene.FlyingGame,
-    [GameScene.DetectiveGame]: GameScene.DetectiveGame,
-    // RailwayStation - это React сцена, не Phaser
-    [GameScene.CookingGame]: GameScene.CookingGame,
+    [GameScene.MoveToTrain]: GameScene.Move,
+    [GameScene.MoveAfterTrain]: GameScene.Move,
   };
 
   async initializeGame(parent: string | HTMLElement) {
@@ -57,13 +48,14 @@ class GameFlowManager {
 
       const { isAuthenticated } = useAuthStore.getState();
       if (!isAuthenticated) {
-        this.startScene(GameScene.Auth);
+        this.showAuth();
         return;
       }
       const { checkPoint } = usePlayerState.getState();
       if (checkPoint) {
         console.log(`Восстанавливаем сцену: ${checkPoint}`);
-        this.startScene(checkPoint as GameScene);
+        // this.startScene(checkPoint as GameScene);
+        // сделать мапу сцены на show функции
       } else {
         console.log("Нет сохранённой сцены, показываем интро");
         this.showIntro();
@@ -73,20 +65,15 @@ class GameFlowManager {
 
   /** ✅ Общий метод запуска Phaser сцены */
   private startPhaserScene(scene: GameScene, data?: Record<string, unknown>): void {
-    if (!this.game) return;
-
-    // ✅ Проверяем, является ли сцена React сценой (не Phaser)
-    if (scene === GameScene.RailwayStation) {
-      useSceneStore.setState({ currentScene: scene,
-        sceneData: data || null });
-      console.log(`▶️ Запущена React сцена ${scene}`, data);
+    if (!this.game) {
+      console.error("Game not initialized");
       return;
     }
 
     const phaserKey = this.sceneMapping[scene];
     if (!phaserKey) {
-      console.warn(`Неизвестная сцена: ${scene}, запускаем интро`);
-      return this.startPhaserScene(GameScene.Intro);
+      console.log(`▶️ Запущена React сцена ${scene}`, data);
+      return;
     }
 
     const payload = (data && typeof data === "object") ? data : {};
@@ -108,25 +95,29 @@ class GameFlowManager {
     });
   }
 
+  showAuth() {
+    useSceneStore.getState().setScene(GameScene.Auth, null);
+  }
+
   showIntro() {
     useSceneStore.getState().setSlidesConfig(introSlidesConfig);
-    useSceneStore.getState().setScene(GameScene.Intro, {
-      episodeNumber: 0,
-    });
+    useSceneStore.getState().setScene(GameScene.Intro, null);
   }
 
   showGameMap() {
     this.startPhaserScene(GameScene.GameMap);
+    useSceneStore.getState().setScene(GameScene.GameMap, {
+    });
   }
 
-  showMoveScene(data?: Omit<MoveSceneData, "backgroundLayers">) {
-    this.startPhaserScene(GameScene.Move, {
+  showMoveAfterTrain(data?: Omit<MoveSceneData, "backgroundLayers">) {
+    this.startPhaserScene(GameScene.MoveAfterTrain, {
       ...data,
       backgroundLayers: useSceneStore.getState().backgroundLayers,
     });
   }
 
-  showGame2048() {}
+  showGame2048() { }
 
   showFlyingGame() {
     this.startPhaserScene(GameScene.FlyingGame);
@@ -170,27 +161,15 @@ class GameFlowManager {
 
   showRailwayStation() {
     useSceneStore.getState().setSlidesConfig(railwayStationSlidesConfig);
+    useSceneStore.getState().setScene(GameScene.RailwayStation, null);
   }
 
-  showGameCooking(data?: CookingGameData) {
-    useSceneStore.setState({
-      currentScene: GameScene.CookingGame,
-      sceneData: data,
-    });
+  showGameCooking() {
+    useSceneStore.getState().setScene(GameScene.CookingGame, null);
   }
 
-  showDetectiveGame(data?: DetectiveGameData) {
-    console.log("showDetectiveGame");
-    useSceneStore.getState().setScene(GameScene.DetectiveGame, data || {});
-  }
-
-  /** ✅ Унифицированный способ восстановить сохранённую сцену */
-  private startScene(sceneName: GameScene): void {
-    if (sceneName === GameScene.MoveToTrain) {
-      this.showMoveToTrainScene();
-      return;
-    }
-    this.startPhaserScene(sceneName);
+  showDetectiveGame() {
+    useSceneStore.getState().setScene(GameScene.DetectiveGame, null);
   }
 }
 

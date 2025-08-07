@@ -12,6 +12,7 @@ interface StoryState {
   canSkip: boolean;
   currentActions: Action[];
   slides: Episode[];
+  slidesScene: string | null;
   
   // Вычисляемые свойства
   currentSlide: Episode | null;
@@ -22,7 +23,7 @@ interface StoryState {
   setImageLoaded: (loaded: boolean) => void;
   setCanSkip: (canSkip: boolean) => void;
   setCurrentActions: (actions: Action[]) => void;
-  setSlides: (slides: Episode[]) => void;
+  setSlides: (slides: Episode[], sceneName: string) => void;
   
   // Навигация
   processUpdate: (playSceneSound: (url?: string) => void) => void;
@@ -39,6 +40,7 @@ export const useStoryStore = create<StoryState>((set, get) => ({
   canSkip: false,
   currentActions: [],
   slides: [],
+  slidesScene: null,
   
   // Вычисляемые свойства
   get currentSlide() {
@@ -52,18 +54,29 @@ export const useStoryStore = create<StoryState>((set, get) => ({
   setImageLoaded: (loaded) => set({ imageLoaded: loaded }),
   setCanSkip: (canSkip) => set({ canSkip }),
   setCurrentActions: (actions) => set({ currentActions: actions }),
-  setSlides: (slides) => {
-    set({ slides });
-    // При установке новых слайдов сбрасываем состояние
-    if (slides.length > 0) {
-      const currentSlide = slides[0];
-      set({ 
-        slideIndex: 0,
-        actionIndex: -1,
+  setSlides: (slides, sceneName) => {
+    if (slides.length === 0) return;
+    
+    const { slidesScene, slideIndex } = get();
+    
+    if (slidesScene && slidesScene === sceneName) {
+      const safeSlideIndex = Math.min(Math.max(slideIndex, 0), slides.length - 1);
+      const currentSlide = slides[safeSlideIndex];
+      set({
         imageLoaded: false,
-        currentActions: currentSlide?.actions || []
+        currentActions: currentSlide?.actions || [],
       });
+      return;
     }
+
+    set({ slides, slidesScene: sceneName });
+    const firstSlide = slides[0];
+    set({
+      slideIndex: 0,
+      actionIndex: -1,
+      imageLoaded: false,
+      currentActions: firstSlide?.actions || [],
+    });
   },
   
   processUpdate: (playSceneSound) => {
@@ -86,15 +99,10 @@ export const useStoryStore = create<StoryState>((set, get) => ({
         imageLoaded: false,
         currentActions: nextSlide?.actions || []
       });
-    } else {
-      set({
-        slideIndex: 0,
-        actionIndex: -1,
-        imageLoaded: false,
-        currentActions: []
-      });
-      useSceneStore.getState().setSlidesConfig(undefined);
+    } else if (slideIndex === slides.length - 1 && (currentActions.length === 0 || actionIndex >= currentActions.length - 1)) {
+      console.log("Сцена завершена, последний слайд проигран");
     }
+    
     console.log("processUpdate end");
     console.log(get());
   },

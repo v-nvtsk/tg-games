@@ -6,7 +6,7 @@ import type { QuizItem } from "../../core/types/common-types";
 import { useBackgroundMusic } from "../../core/hooks/use-background-music/use-music";
 import { useSceneStore } from "../../core/state";
 
-export const MoveSceneWrapper: React.FC = () => {
+export const MoveAfterTrainWrapper: React.FC = () => {
   const {
     questions,
     currentIndex,
@@ -26,7 +26,7 @@ export const MoveSceneWrapper: React.FC = () => {
     filename: backgroundMusic || "" });
 
   useEffect(() => {
-    fetch(getAssetsPath("data/quiz.json"))
+    fetch(getAssetsPath("data/after-train.json"))
       .then((res) => res.json())
       .then(({ questions }: { questions: QuizItem[] }) => {
         setQuestions(questions);

@@ -21,8 +21,6 @@ export const GameMenu: React.FC<GameMenuProps> = ({
   if (!visible) return null;
 
   const onSceneSelection = (scene: string) => {
-    console.log("onSceneSelection");
-    console.log(scene);
     switch (scene) {
     case "flight":
       gameFlowManager.showFlyingGame();
@@ -36,8 +34,8 @@ export const GameMenu: React.FC<GameMenuProps> = ({
     case "game-2048":
       gameFlowManager.showGame2048();
       break;
-    case "move":
-      gameFlowManager.showMoveScene();
+    case "after-train":
+      gameFlowManager.showMoveAfterTrain();
       break;
     case "train-move":
       gameFlowManager.showMoveToTrainScene();
@@ -52,7 +50,6 @@ export const GameMenu: React.FC<GameMenuProps> = ({
       break;
     }
     onClose();
-
   };
 
   return (
@@ -72,7 +69,7 @@ export const GameMenu: React.FC<GameMenuProps> = ({
         <div className={styles.item} onClick={() => onSceneSelection("flight")}>🛩️ Игра полёт</div>
         <div className={styles.item} onClick={() => onSceneSelection("cooking")}>🍳 Игра готовка</div>
         <div className={styles.item} onClick={() => onSceneSelection("train-move")}>🚉 Сцена переход к вокзалу</div>
-        <div className={styles.item} onClick={() => onSceneSelection("move")}>🌲 Сцена переход в лесу</div>
+        <div className={styles.item} onClick={() => onSceneSelection("after-train")}> Сцена после поезда</div>
         <div className={styles.item} onClick={() => onSceneSelection("detective")}>🕵️ Детектив</div>
         <div className={styles.item} onClick={() => onSceneSelection("game-map")}>🧭 Карта</div>
         <div className={styles.item} onClick={() => onSceneSelection("railway-station")}>🚉 Вокзал</div>

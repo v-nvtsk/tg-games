@@ -18,45 +18,21 @@ export interface GameMapSceneData {
   targetY?: number;
 }
 
-export interface GameFoodLevelData extends Record<string, unknown> {
-  levelId?: string;
-  currentScore?: number;
-  targetScore?: number;
-  targetX: number;
-  targetY: number;
-}
-
-export interface IntroSceneData {
-  episodeNumber: number;
-}
-
-export interface FlyingGame {
-  targetX?: number;
-  targetY?: number;
-}
-
-export interface DetectiveGameData {
-  targetX?: number;
-  targetY?: number;
-}
-
-export interface CookingGameData {
-  targetX?: number;
-  targetY?: number;
-}
-
 export interface SceneDataMap {
   Auth: null;
-  Intro: IntroSceneData;
+  Intro: null;
   MoveScene: MoveSceneData;
   GameMap: GameMapSceneData;
-  GameFood: GameFoodLevelData;
   Game2048: null;
-  FlyingGameScene: FlyingGame;
   MoveToTrain: MoveSceneData | null;
-  DetectiveGame: DetectiveGameData;
-  RailwayStation: IntroSceneData;
-  CookingGame: CookingGameData;
+  DetectiveGame: null;
+  RailwayStation: null;
+  CookingGame: null;
+  MoveAfterTrain: null;
+  FlyingGame: null;
+  GameFood: null;
+  Moscow: null; // Добавляем недостающую сцену
+  Move: MoveSceneData; // Добавляем сцену Move, которая используется в GameScene
 }
 
 export type SceneName = keyof SceneDataMap;
@@ -64,17 +40,25 @@ export type SceneName = keyof SceneDataMap;
 export type SceneData<T extends SceneName> = SceneDataMap[T];
 
 export const GameScene = {
-  Auth: "Auth",
+  // novel slides
   Intro: "Intro",
-  GameMap: "GameMap",
-  GameFood: "GameFood",
-  Game2048: "Game2048",
-  Move: "MoveScene",
-  FlyingGame: "FlyingGameScene",
-  MoveToTrain: "MoveToTrain",
-  DetectiveGame: "DetectiveGame",
   RailwayStation: "RailwayStation",
+  Moscow: "Moscow",
+
+  // games
+  FlyingGame: "FlyingGame",
+  DetectiveGame: "DetectiveGame",
   CookingGame: "CookingGame",
+  Game2048: "Game2048",
+
+  // move
+  Move: "Move",
+  MoveToTrain: "MoveToTrain",
+  MoveAfterTrain: "MoveAfterTrain",
+
+  // others
+  Auth: "Auth",
+  GameMap: "GameMap",
 } as const;
 
 export type GameScene = typeof GameScene[keyof typeof GameScene];
@@ -124,6 +108,6 @@ export interface SlidesSceneConfig {
 }
 
 export interface SlidesConfig {
-  getSlides: (episode: number) => Episode[]// - будет импортирован в конкретных файлах
+  getSlides: () => Episode[]// - будет импортирован в конкретных файлах
   sceneConfig: SlidesSceneConfig;
 }

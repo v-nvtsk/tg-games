@@ -2,13 +2,6 @@ import { gameFlowManager } from "$processes/game-flow/game-flow-manager";
 import type { EpisodeConfig } from "./common";
 import { Episode } from "./common";
 
-interface SlideSceneConfig {
-  meta: {
-    scene: string;
-  };
-  episodes: Episode[];
-};
-
 const introConfig: EpisodeConfig[] = [
   {
     slideIndex: 1,
@@ -379,7 +372,7 @@ const introConfig: EpisodeConfig[] = [
 ]
 
 
-export function getIntroSlides(): SlideSceneConfig {
+export function getIntroSlides(): Episode[] {
   const episodes: Episode[] = [];
   introConfig.forEach((config) => {
     const episode = new Episode({
@@ -388,10 +381,5 @@ export function getIntroSlides(): SlideSceneConfig {
     });
     episodes.push(episode);
   });
-  return {
-    meta: {
-      scene: "intro",
-    },
-    episodes,
-  };
+  return episodes;
 }

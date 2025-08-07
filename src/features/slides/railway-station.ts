@@ -417,7 +417,7 @@ const railwayStationSlides: EpisodeConfig[] = [
   },
 ];
 
-export const getRailwayStationSlides = (episode: number): Episode[] => {
+export const getRailwayStationSlides = (): Episode[] => {
   const episodes: Episode[] = [];
   railwayStationSlides.forEach((config) => {
     const episode = new Episode({
@@ -426,5 +426,5 @@ export const getRailwayStationSlides = (episode: number): Episode[] => {
     });
     episodes.push(episode);
   });
-  return episodes.slice(episode);
+  return episodes;
 };

@@ -224,8 +224,6 @@ export const useMoveSceneStore = create<MoveSceneState>((set, get) => ({
     const currentScene = useSceneStore.getState().currentScene;
     if (currentScene === GameScene.MoveToTrain) {
       gameFlowManager.showRailwayStation();
-    } else {
-      gameFlowManager.showGameMap();
     }
   },
 

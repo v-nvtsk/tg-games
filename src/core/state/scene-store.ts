@@ -13,7 +13,7 @@ interface SceneState {
   slidesConfig?: SlidesConfig;
 
   /** === Методы === */
-  setScene: <T extends SceneName>(scene: T, data: SceneDataMap[T]) => Promise<void>;
+  setScene: <T extends SceneName>(scene: T, data: SceneDataMap[T] | null) => Promise<void>;
   setBackgroundLayers: (layers: SceneBackground) => void;
   setSlidesConfig: (config?: SlidesConfig) => void;
   backToPrevScene: () => void;
@@ -28,13 +28,12 @@ export const useSceneStore = create<SceneState>((set, get) => ({
 
   setScene: async (scene, data) => {
     const prevScene = get().currentScene;
-    console.log("setScene", scene, data);
+
     set({
       prevScene,
       currentScene: scene,
       sceneData: data
     });
-    console.log("setScene", get().prevScene);
     
     try {
       const { user, sessionId, token } = useAuthStore.getState();

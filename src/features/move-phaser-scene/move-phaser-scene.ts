@@ -1,5 +1,6 @@
 import { Scene } from "phaser";
 import { createTiledBackground, getAssetsPathByType } from "$/utils";
+import { GameScene } from "@core/types/common-types";
 import type { MoveSceneData, SceneBackground } from "@core/types/common-types";
 import { useMoveSceneStore } from "$/core/state/move-scene-store";
 
@@ -38,7 +39,7 @@ export class MovePhaserScene extends Scene {
   backgroundLayers: SceneBackground | null = null;
 
   constructor() {
-    super("MoveScene");
+    super(GameScene.Move);
   }
 
   init(data: MoveSceneData): void {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { Episode } from "$features/slides/common";
 import type { Action } from "$features/slides";
 import { useStoryStore } from "$core/state";
@@ -6,8 +6,8 @@ import { useStoryStore } from "$core/state";
 export function useSlidesNavigation(
   slides: Episode[],
   playSceneSound: (url?: string) => void,
+  sceneName: string
 ) {
-  const slidesRef = useRef(slides);
   const {
     slideIndex,
     actionIndex,
@@ -26,13 +26,8 @@ export function useSlidesNavigation(
 
   // Инициализируем слайды при первом рендере и при их изменении
   useEffect(() => {
-    if (slidesRef.current.length !== slides.length ||
-      slidesRef.current[0]?.key !== slides[0]?.key) {
-      console.log("SET SLIDES IN USE EFFECT - REAL CHANGE");
-      slidesRef.current = slides;
-      setSlides(slides);
-    }
-  }, [slides, setSlides]);
+    setSlides(slides, sceneName);
+  }, [slides, setSlides, sceneName]);
 
   const processUpdate = useCallback(() => {
     storeProcessUpdate(playSceneSound);

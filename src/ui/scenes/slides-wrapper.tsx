@@ -2,7 +2,6 @@ import { useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ThoughtBubble } from "$ui/components/thought-bubble";
 import { useBackgroundMusic } from "../../core/hooks/use-background-music/use-music";
-import { usePlayerState, useSceneStore } from "../../core/state";
 import type { Episode } from "../../features/slides";
 import { Button } from "../components/button";
 import { Messagebox } from "../components/messagebox";
@@ -11,16 +10,14 @@ import { useSlidesNavigation } from "./use-slides-navigation";
 import styles from "./slides-wrapper.module.css";
 import { useSlideEffects } from "./use-slides-effects";
 import { useSlideSounds } from "./use-slides-sounds";
+import type { SlidesConfig } from "$core/types/common-types";
 
-export const SlidesWrapper = () => {
-  const slidesConfig = useSceneStore((s) => s.slidesConfig);
-
+export const SlidesWrapper = ({ config }: { config: SlidesConfig }) => {
   // ✅ Получаем слайды из конфигурации
   const slides: Episode[] = useMemo(() => {
-    if (!slidesConfig) return [];
-    const episodeNumber = Number(usePlayerState.getState().checkPoint) || 0;
-    return slidesConfig.getSlides(episodeNumber);
-  }, [slidesConfig]);
+    if (!config) return [];
+    return config.getSlides();
+  }, [config]);
 
   // ✅ Хук звуков — передаем первый слайд (или undefined, если пусто)
   const { playSceneSound, setCurrentSlide } = useSlideSounds();
@@ -38,7 +35,7 @@ export const SlidesWrapper = () => {
     goNext,
     handleActionButtonClick,
     handleChoiceSelect,
-  } = useSlidesNavigation(slides, playSceneSound);
+  } = useSlidesNavigation(slides, playSceneSound, config.sceneConfig.scene);
 
   const currentAction = currentActions[actionIndex];
 
@@ -49,8 +46,8 @@ export const SlidesWrapper = () => {
 
   // ✅ Фоновая музыка из конфигурации
   useBackgroundMusic({
-    filename: slidesConfig?.sceneConfig.backgroundMusic || "rain-on-window-29298.mp3",
-    scene: slidesConfig?.sceneConfig.scene || "intro",
+    filename: config.sceneConfig.backgroundMusic || "rain-on-window-29298.mp3",
+    scene: config.sceneConfig.scene || "intro",
   });
 
   const showSkipButton = currentAction?.type !== "button" && currentAction?.type !== "choice";
@@ -62,11 +59,11 @@ export const SlidesWrapper = () => {
     currentActions,
     showSkipButton,
     setCanSkip,
-    config: slidesConfig?.sceneConfig.effects,
+    config: config.sceneConfig.effects,
   });
 
   // ✅ Безопасный рендер
-  if (!slidesConfig || slides.length === 0) return <div />;
+  if (!config || slides.length === 0) return <div />;
 
   const translateX = -currentSlide.originX * 100;
   const translateY = -currentSlide.originY * 100;
